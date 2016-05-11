@@ -36,14 +36,6 @@ public:
 
 typedef SoftSerial<9600, ArduPin8, SerialTimer, SerialCallback> GPSSerial;
 
-ISR(TIMER2_OVF_vect) {
-  GPSSerial::onTimer();
-}
-
-ISR(PCINT0_vect) {
-  GPSSerial::onPinChange();
-}
-
 GPSSerial gpsSerial;
 
 ArduPin13 led;
@@ -73,3 +65,10 @@ void loop() {
   }
 }
 
+ISR(TIMER2_OVF_vect) {
+  GPSSerial::onTimer();
+}
+
+ISR(PCINT0_vect) {
+  GPSSerial::onPinChange();
+}
