@@ -1,6 +1,8 @@
-TARGET 	 = test
-SRC 	 = main.cc
+TARGET 	 = zinoo5
+SRC 	 = main.cc zinoo.cc
 
-include ../../config.mk
-include ../../avr.mk
+INCLUDES += -I../lib/PTLib/include
+
+include config.mk
+include ../lib/PTLib/avr.mk
 
