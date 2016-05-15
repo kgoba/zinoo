@@ -1,32 +1,36 @@
 #include <PTLib.h>
 
-class GPSSerial;
-class NMEAParser;
-class UKHASBuilder;
-class RTTYEncoder;
-class FSKTransmitter;
-class Manager;
+#include "FixedPoint.h"
 
-
+/*
 class AtmosphereModel {
 public:
   AtmosphereModel() : mbarAtMSL(1000 * 16) 
   {
     
   }
-  word getAltitude(Q12_4 millibars)
+  word getAltitude(word millibars) const
   {
-    
+    return 0;
   }
   
 private:
   Q12_4 mbarAtMSL;
 };
-
 class BaroSensor;
 class MagAccSensor;
 class HumiditySensor;
 class UVSensor;
+
+class NMEAParser;
+class UKHASBuilder;
+class RTTYEncoder;
+class FSKTransmitter;
+class Manager;
+  */
+
+//Q12_4 test;
+
 
 
 
@@ -73,8 +77,7 @@ ArduPin13 led;
 void setup() {
   // put your setup code here, to run once:
 
-  while (!Serial1) { }
-  Serial1.setup();
+  Serial.begin(9600);
 
   gpsSerial.setup();
   sei();
@@ -84,9 +87,9 @@ void loop() {
   // put your main code here, to run repeatedly:
   
   if (rxQueue.count() > 0) {
-    byte b;
+    char b;
     rxQueue.pop(b);
-    Serial1.putChar(b);
+    Serial.print(b);
     led.set();
   }
   else {
