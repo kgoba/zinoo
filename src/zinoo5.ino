@@ -1,5 +1,35 @@
 #include <PTLib.h>
 
+class GPSSerial;
+class NMEAParser;
+class UKHASBuilder;
+class RTTYEncoder;
+class FSKTransmitter;
+class Manager;
+
+
+class AtmosphereModel {
+public:
+  AtmosphereModel() : mbarAtMSL(1000 * 16) 
+  {
+    
+  }
+  word getAltitude(Q12_4 millibars)
+  {
+    
+  }
+  
+private:
+  Q12_4 mbarAtMSL;
+};
+
+class BaroSensor;
+class MagAccSensor;
+class HumiditySensor;
+class UVSensor;
+
+
+
 const long baudrate  = 9600;
 
 const word timeoutRX = 500;     // in multiples of 10 us
