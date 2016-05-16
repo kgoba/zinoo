@@ -42,6 +42,7 @@ public:
   }
 };
 
+
 Queue<char, 32> rxQueue;
 
 class GPSCallback {
@@ -53,6 +54,7 @@ public:
 
 typedef SoftSerial<9600, ArduPin8, GPSBaudTimer, GPSCallback> GPSSerial;
 typedef WaitableSerial<BufferedSerial<SimpleSerial<baudrate> >, timeoutRX, timeoutTX> Serial;
+
 
 GPSSerial gpsSerial;
 Serial hwSerial;
@@ -66,7 +68,9 @@ NTCSensor::Config ntcConfig = {
   .r3 = 75
 };
 
+
 NTCSensor ntc(ntcConfig);
+
 
 void setup()
 {
@@ -93,6 +97,7 @@ void setup()
   
   sei();
 }
+
 
 void loop()
 {
