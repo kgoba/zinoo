@@ -54,8 +54,8 @@ private:
 
 class BaroSensor;
 class MagAccSensor;
-class HumiditySensor;
-class UVSensor;
+//class HumiditySensor;
+//class UVSensor;
 
 template<class I2CPeriph = TWIMaster>
 class UVSensor {
@@ -63,50 +63,20 @@ public:
   static bool measure() {
     word result;
     
-    Sensor::measure(result);
+    //Sensor::measure(result);
     // Calculate UV level
     
   }
-  static signed word getUVLevel() {
+  
+  static word getUVLevel() {
     return uvLevel;
   }
 
 private:
-  typedef HTU21D<I2CPeriph> Sensor;
+  //typedef HTU21D<I2CPeriph> Sensor;
   
-  static signed word uvLevel;
+  static word uvLevel;
 };
-
-template<class I2CPeriph = TWIMaster>
-class HumiditySensor {
-public:
-  static bool measure() {
-    word result;
-    
-    Sensor::measureHumidity(result);
-    // Calculate humidity as RH% x10 (1000 => 100%)
-    result /= 64; // Convert to 10-bit value
-    humidity = -60 + (39 * result) / 32;
-    
-    Sensor::measureTemperature(result);
-    // Calculate temperature as degrees C x10 (100 => 10 C)
-    result /= 64;
-    humidity = -468 + (55 * result) / 32;
-  }
-  static signed word getHumidity() {
-    return humidity;
-  }
-  static signed word getTemperature() {
-    return temperature;
-  }
-
-private:
-  typedef HTU21D<I2CPeriph> Sensor;
-  
-  static signed word humidity;
-  static signed word temperature;
-};
-
 
 
 template<class I2CPeriph>
@@ -165,3 +135,35 @@ private:
     kSoftReset = 0xFE
   };
 };
+
+
+template<class I2CPeriph = TWIMaster>
+class HumiditySensor {
+public:
+  static bool measure() {
+    word result;
+    
+    Sensor::measureHumidity(result);
+    // Calculate humidity as RH% x10 (1000 => 100%)
+    result /= 64; // Convert to 10-bit value
+    humidity = -60 + (39 * result) / 32;
+    
+    Sensor::measureTemperature(result);
+    // Calculate temperature as degrees C x10 (100 => 10 C)
+    result /= 64;
+    humidity = -468 + (55 * result) / 32;
+  }
+  static int16_t getHumidity() {
+    return humidity;
+  }
+  static int16_t getTemperature() {
+    return temperature;
+  }
+
+private:
+  typedef HTU21D<I2CPeriph> Sensor;
+  
+  static int16_t humidity;
+  static int16_t temperature;
+};
+
