@@ -113,6 +113,95 @@ private:
   uint16_t crc;
 };
 
+template<byte fractionBits>
+void fixedPointToDecimal(int16_t fp, bool skipTrailingZeros) {
+  // Determine maximum decimal digit value
+  int16_t digitValue = (1000 << fractionBits);
+  
+  // Process integer part
+  while (digitValue > (1 << fractionBits)) {
+    byte nextDigitValue = digitValue / 10;
+    if (nextDigitValue < (1 << fractionBits)) {
+      skipTrailingZeros = false;
+    }
+    byte d = fp / digitValue;
+    if (!skipTrailingZeros || d != 0) {
+      // OUTPUT d + '0'
+    }
+    if (d != 0) {
+      fp -= d * digitValue;
+      skipTrailingZeros = false;
+    }
+    digitValue = nextDigitValue;
+  }
+  // Process fractional part
+  // OUTPUT '.'
+  while (digitValue > 0) {
+    fp *= 10;
+    byte d = (fp >> fractionBits);
+    // OUTPUT d + '0'
+    fp -= (int16_t)d << fractionBits;
+    digitValue /= 10;
+  }
+}
+
+//class String;
+typedef char *  String;
+
+template<class SentenceClass>
+struct SentenceData {
+  SentenceData() {
+    sentenceID = 0;
+    altitude = 0;
+    ascentRate = 0;
+    groundSpeed = 0;
+    satellites = 0;
+    fixQuality = '0';
+    flightMode = 'I';
+    temperatureExternal = -100;
+    temperatureBattery = -100;
+    voltageBattery = -100;
+  }
+
+  // Bare minimum
+  int     sentenceID;
+  String  time;
+  String  latitude;
+  String  longitude;
+  int     altitude;
+  
+  // Good to have
+  int     ascentRate;
+  int     groundSpeed;
+  char    fixQuality;     // 0 - no fix, 2 - 2D fix, 3 - 3D fix
+  int     satellites;
+  char    flightMode;     // (I)nitialization, (R)eady, (A)scent, (D)escent, (T)ouchdown
+  
+  // Environment information
+  int     temperatureExternal;
+  int     temperatureBattery;
+  int     voltageBattery;
+  
+  // Scientific payload (very optional)
+  // int  uvLevel;
+  // int  humidity;
+  // int  pressure;
+  // int  barometricAltitude;
+  // int  magneticField;
+  // int  acceleration;
+  // int  temperatureInternal;
+  
+  void buildSentence(SentenceClass &s) {
+    s.addIntField(sentenceID);
+    s.addStringField(time);
+    s.addStringField(latitude);
+    s.addStringField(longitude);
+    s.addIntField(altitude);
+    s.finish();
+    sentenceID++;
+  }
+};
+
 template<int maxLength = 80>
 class UKHASSentence {
 public:
@@ -122,7 +211,7 @@ public:
     append(payloadName);
   }
   
-  void addField(const char *data) {
+  void addStringField(const char *data) {
     append(data);
     append(',');
   }
