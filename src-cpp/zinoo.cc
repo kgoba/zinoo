@@ -1,5 +1,5 @@
 #include <serial.hh>
-//#include <stream.hh>
+#include <stream.hh>
 
 #include <queue.hh>
 #include <timer.hh>
@@ -272,11 +272,15 @@ public:
 };
 
 typedef SoftSerial<9600, ArduPin8, GPSBaudTimer, GPSCallback> GPSSerial;
-typedef WaitableSerial<BufferedSerial<SimpleSerial<baudrate> >, timeoutRX, timeoutTX> Serial;
-
+//typedef WaitableSerial<BufferedSerial<SimpleSerial<baudrate> >, timeoutRX, timeoutTX> Serial;
+typedef BufferedSerial<SimpleSerial<baudrate> > Serial;
+//typedef SimpleSerial<baudrate> Serial;
+typedef TextStream<Serial> SerialStream;
+typedef TWIMaster I2CBus;
 
 GPSSerial gpsSerial;
 Serial hwSerial;
+SerialStream debug;
 
 ArduPin13 led;
 
@@ -289,17 +293,18 @@ NTCSensor::Config ntcConfig = {
 
 
 NTCSensor ntc(ntcConfig);
+HumiditySensor<I2CBus> humidSensor;
 
 void setup()
 {
-  gpsSerial.setup();
+  TWIMaster::setup();
+	
+  //gpsSerial.setup();
   hwSerial.setup();
-  
-  //serial.enable();
+  hwSerial.enable();
 
+	/*
   ntc.update();
-  //pwm0.setup();
-
   for (byte i = 0; i < ntc.getTemperature().getValue(); i++) {
     
   led.set();
@@ -307,6 +312,7 @@ void setup()
   led.clear();
 
   }
+  */
   
   //byte b = 72;  
   //serial.print("Decimal: ").print(b).eol();
@@ -319,24 +325,31 @@ void setup()
 
 void loop()
 {
-  byte b;
-  //if (serial.readByte(b)) {
-  //  serial.writeByte(b);
-  //}
+  static byte b = 0;
+  //if (hwSerial.readByte(b)) {
+  //  hwSerial.writeByte(b);
+  //}  
+  
+  
+  //for (byte i = 0; i < 10; i++) 
+  _delay_ms(100);
+  
+  //humidSensor.measure();
+  int16_t temp = humidSensor.getTemperature();
+  int16_t humi = humidSensor.getHumidity();
+  debug.print(temp).print(" ").print(humi).eol();
+  
   
   UKHASSentence<> sentence("Zinoo5");
 }
 
-
-/*
 ISR(USART_RX_vect) {
-  serial.onRXComplete();
+  hwSerial.onRXComplete();
 }
 
 ISR(USART_UDRE_vect) {
-  serial.onTXReady();
+  hwSerial.onTXReady();
 }
-*/
 
 ISR(TIMER2_OVF_vect) {
   GPSSerial::onTimer();

@@ -167,3 +167,8 @@ private:
   static int16_t temperature;
 };
 
+template<class I2CPeriph>
+int16_t HumiditySensor<I2CPeriph>::humidity;
+
+template<class I2CPeriph>
+int16_t HumiditySensor<I2CPeriph>::temperature;

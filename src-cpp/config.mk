@@ -1,4 +1,5 @@
-PROGRAMMER = usbasp
+PROGRAMMER = arduino
+PROG_OPTS = -P /dev/ttyUSB0
 F_CPU   = 16000000UL
 MCU     = atmega328p
 
