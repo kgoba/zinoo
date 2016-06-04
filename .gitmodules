@@ -1,3 +1,4 @@
 [submodule "PTLib"]
 	path = lib/PTLib
 	url = https://github.com/kgoba/PTLib
+        branch = master
