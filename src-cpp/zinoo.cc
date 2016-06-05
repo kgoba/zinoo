@@ -65,7 +65,7 @@ class Manager;
 
 
 template<byte fractionBits>
-void fixedPointToDecimal(int16_t fp, bool skipTrailingZeros) {
+void fixedPointToDecimal(int16_t fp, bool skipTrailingZeros = true) {
   // Determine maximum decimal digit value
   int16_t digitValue = (1000 << fractionBits);
   
