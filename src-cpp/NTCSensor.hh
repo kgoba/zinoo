@@ -6,10 +6,10 @@ class NTCSensor {
 public:
   struct Config {
     // Regression coefficients
-    Q11_4   r0;    // constant
-    Q11_4   r1;    // K
-    Q11_4   r2;    // K^2
-    Q11_4   r3;    // K^3    
+    S11F4   r0;    // constant
+    S11F4   r1;    // K
+    S11F4   r2;    // K^2
+    S11F4   r3;    // K^3    
   };
   
   NTCSensor(Config const& config) : _config(config) {}
@@ -19,18 +19,18 @@ public:
     
     word adcValue = 77;
     
-    Q0_15 k(adcValue * 32);
+    S0F15 k(adcValue * 32);
     
-    Q11_4 y = ((((_config.r3 * k) + _config.r2) * k + _config.r1) * k) + _config.r0;
+    S11F4 y = ((((_config.r3 * k) + _config.r2) * k + _config.r1) * k) + _config.r0;
     //_temp = y;
   }
   
-  Q7_0 getTemperature() const {
+  S7F0 getTemperature() const {
     return _temp;
   }
   
 private:
-  Q7_0    _temp;
+  S7F0    _temp;
   
   Config  _config;
 };
@@ -48,7 +48,7 @@ public:
   }
   
 private:
-  Q12_4 mbarAtMSL;
+  U12F4 mbarAtMSL;
 };
 
 // Atmospheric pressure table for altitudes 0 km .. 32 km 

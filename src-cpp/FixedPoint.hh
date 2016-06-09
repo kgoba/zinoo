@@ -55,13 +55,14 @@ FixedPoint<T, T2, shift> operator + (FixedPoint<T, T2, shift> a, const FixedPoin
 }
 
 
-typedef FixedPoint<uint16_t, uint32_t, 0> Q16_0;
-typedef FixedPoint<uint16_t, uint32_t, 4> Q12_4;
-typedef FixedPoint<uint16_t, uint32_t, 16> Q0_16;
+typedef FixedPoint<uint16_t, uint32_t, 0> U16F0;      // 0 .. 65536
+typedef FixedPoint<int16_t, int32_t, 0> S15F0;        // -32768 .. 32767
+typedef FixedPoint<int8_t, int16_t, 0> S7F0;          // -128 .. 127
 
-typedef FixedPoint<int16_t, int32_t, 0> Q15_0;
-typedef FixedPoint<int16_t, int32_t, 4> Q11_4;
-typedef FixedPoint<int16_t, int32_t, 15> Q0_15;
+typedef FixedPoint<uint16_t, uint32_t, 4> U12F4;      // 0 .. 4096.0
+typedef FixedPoint<uint16_t, uint32_t, 16> U0F16;     // 0 .. 0.9999
 
-typedef FixedPoint<int8_t, int16_t, 0> Q7_0;
-typedef FixedPoint<int8_t, int16_t, 7> Q0_7;
+typedef FixedPoint<int16_t, int32_t, 4> S11F4;        // -2048.0 .. 2047.9
+typedef FixedPoint<int16_t, int32_t, 15> S0F15;       // -0.9999 .. 0.9999
+
+typedef FixedPoint<int8_t, int16_t, 7> S0F7;          // -0.50 .. 0.49
