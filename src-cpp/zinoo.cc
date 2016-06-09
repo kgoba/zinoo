@@ -53,6 +53,8 @@ I2C Bus
   0x40    Humidity sensor HTU21D
   0x38    UV sensor VEML6070
   0x39    UV sensor VEML6070
+  0x18	  Linear acc. sensor LSM303D
+  0x38    Magnetic field sensor LSM303D
   
  *************************/
 
