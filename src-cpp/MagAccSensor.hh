@@ -7,75 +7,68 @@
 template<class I2CPeriph, byte SA0 = 0>
 class LSM303D {
 public:
-  static bool measureTemperature() {
-    byte cmd = kMeasureTempNoHold;
-    Device::send(&cmd, 1, I2CPeriph::kNoStop);    // will send repeated start
-    return true;
-  }
-  
-  static bool measureTemperature(word &result) {
-    byte cmd = kMeasureTemp;
-    // will send repeated start
-    if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
-      return false;
-    }
-    return readResult(result);
-  }
-  
-  static bool measureHumidity() {
-    byte cmd = kMeasureHumidNoHold;
-    return Device::send(&cmd, 1, I2CPeriph::kNoStop);    // will send repeated start
-  }
-  
-  static bool measureHumidity(word &result) {
-    byte cmd = kMeasureHumid;
-    // will send repeated start
-    if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
-      return false;
-    }    
-    return readResult(result);
-  }
-  
-  static bool readResult(word &result) {
-    byte data[3];
-    if (!Device::receive(data, ARRAY_SIZE(data))) {
-      return false;
-    }
-    result = data[0];
-    result = (result << 8) | data[1];
-    byte chkSum = data[2];
-    // TODO: check checksum
-    return true;
-  }
-  
-  static bool softReset() {
-    byte cmd = kSoftReset;
-    return Device::send(&cmd, 1);
+
+  static bool readTemperature(word &result) {
+    return Device::readWord(kRegTemp | 0x80, result);
   }
     
-private:
-  typedef I2CDevice<I2CPeriph, (0x18 | (SA0 & 1))> DevAcc;
-  typedef I2CDevice<I2CPeriph, (0x1E | (SA0 & 1))> DevMag;
+  static bool readMagnetometer(word &X, word &Y, word &Z) {
+    return readTriple(kOutXLoMag | 0x80);
+  }
+  
+  static bool readAccelerometer(word &X, word &Y, word &Z) {
+    return readTriple(kOutXLoMag | 0x80);
+  }
 
-  enum RegAcc {
-    kCtrlReg1Acc        = 0x20,
-    kCtrlReg2Acc        = 0x21,
-    kCtrlReg4Acc        = 0x23,
-    kStatusRegAcc       = 0x27,
+  static bool getStatusMag(byte &status) {
+    return Device::readByte(kRegStatusMag, status);
+  }
+  
+  static bool getStatusAcc(byte &status) {
+    return Device::readByte(kRegStatusMag, status);
+  }
+  
+ 
+private:
+  typedef I2CDevice<I2CPeriph, (0x1E - (SA0 & 1))> Device;
+
+  enum Registers {
+    kRegTemp         = 0x05,
+    kRegStatusMag    = 0x07,
+    kOutXLoMag       = 0x08,
+    kOutYLoMag       = 0x0A,
+    kOutZLoMag       = 0x0C,
+    kOffXLoMag       = 0x16,
+    kOffYLoMag       = 0x18,
+    kOffZLoMag       = 0x1A,
+    kRegCtrl0        = 0x1F,
+    kRegCtrl1        = 0x20,
+    kRegCtrl2        = 0x21,
+    kRegCtrl3        = 0x22,
+    kRegCtrl4        = 0x23,
+    kRegCtrl5        = 0x24,
+    kRegCtrl6        = 0x25,
+    kRegCtrl7        = 0x26,
+    kRegStatusAcc    = 0x27,
     kOutXLoAcc          = 0x28,
     kOutYLoAcc          = 0x2A,
     kOutZLoAcc          = 0x2C,
+    kMultipleRead       = 0x80
   };
-  enum RegMag {
-    kCtrlARegMag          = 0x00,
-    kCtrlBRegMag          = 0x01,
-    kModeRegMag           = 0x02,
-    kOutXLoMag          = 0x03,
-    kOutYLoMag          = 0x05,
-    kOutZLoMag          = 0x07,
-    kStatusRegMag         = 0x09,
-  };
-
+  
+  static bool readTriple(byte cmd, word &X, word &Y, word &Z) {
+    if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
+      return false;
+    }
+    byte data[6];
+    if (!Device::receive(data, ARRAY_SIZE(data))) {
+      return false;
+    }
+    X = ((word)data[0] << 8) | data[1];
+    Y = ((word)data[2] << 8) | data[3];
+    Z = ((word)data[4] << 8) | data[5];
+    return true;
+  }
 };
 
 
@@ -89,40 +82,27 @@ public:
   }
   
   static bool update() {
-    word result;
-    humidity = temperature = 0;
+    word result, X, Y, Z;
     
-    if (!Sensor::measureHumidity(result)) {
+    if (!Sensor::readMagnetometer(X, Y, Z)) {
       return false;
     }
-    // Calculate humidity as RH% x10 (1000 => 100%)
-    result /= 64; // Convert to 10-bit value
-    humidity = -60 + (39 * result) / 32;
-    
-    if (!Sensor::measureTemperature(result)) {
+
+    if (!Sensor::readAccelerometer(X, Y, Z)) {
       return false;
     }
-    // Calculate temperature as degrees C x10 (100 => 10 C)
-    result /= 32;
-    temperature = (-937 + (55 * result) / 32) >> 1;
+    
+    if (!Sensor::readTemperature(result)) {
+      return false;
+    }
     return true;
-  }
-  static int16_t getHumidity() {
-    return humidity;
-  }
-  static int16_t getTemperature() {
-    return temperature;
   }
 
 private:
-  typedef HTU21D<I2CPeriph> Sensor;
+  typedef LSM303D<I2CPeriph> Sensor;
   
-  static int16_t humidity;
-  static int16_t temperature;
 };
 
-template<class I2CPeriph>
-int16_t HumiditySensor<I2CPeriph>::humidity;
+//template<class I2CPeriph>
+//int16_t HumiditySensor<I2CPeriph>::humidity;
 
-template<class I2CPeriph>
-int16_t HumiditySensor<I2CPeriph>::temperature;
