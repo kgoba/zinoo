@@ -10,6 +10,7 @@
 #include <util/delay.h>
 
 #include "NTCSensor.hh"
+#include "MagAccSensor.hh"
 #include "HumiSensor.hh"
 #include "Barometer.hh"
 #include "UVSensor.hh"
@@ -49,12 +50,11 @@ I2C Bus
 
 
 /********** I2C devices ************
-  0x77    Barometer MS5607-02BA03
-  0x40    Humidity sensor HTU21D
+  0x1D	  Linear acc. sensor LSM303D
   0x38    UV sensor VEML6070
   0x39    UV sensor VEML6070
-  0x18	  Linear acc. sensor LSM303D
-  0x38    Magnetic field sensor LSM303D
+  0x40    Humidity sensor HTU21D
+  0x77    Barometer MS5607-02BA03
   
  *************************/
 
@@ -164,12 +164,14 @@ NTCSensor ntc(ntcConfig);
 class Sensors {
 public:
   static void initialize() {
+    magAccSensor::initialize();
     baroSensor::initialize();
     humiSensor::initialize();
     uvSensor::initialize();
   }
   
   static void update() {
+    magAccSensor::update();
     baroSensor::update();  
     humiSensor::update();
     uvSensor::update();    
@@ -195,13 +197,77 @@ public:
     return uvSensor::getUVLevel();
   }
   
+  static int16_t getMagX() {
+    int16_t X, Y, Z;
+    magAccSensor::getMagField(X, Y, Z);
+    return X;
+  }
+
+  static int16_t getMagY() {
+    int16_t X, Y, Z;
+    magAccSensor::getMagField(X, Y, Z);
+    return Y;
+  }  
+  
+  static int16_t getMagZ() {
+    int16_t X, Y, Z;
+    magAccSensor::getMagField(X, Y, Z);
+    return Z;
+  }
+
+  static int16_t getAccX() {
+    int16_t X, Y, Z;
+    magAccSensor::getAccel(X, Y, Z);
+    return X;
+  }
+
+  static int16_t getAccY() {
+    int16_t X, Y, Z;
+    magAccSensor::getAccel(X, Y, Z);
+    return Y;
+  }  
+  
+  static int16_t getAccZ() {
+    int16_t X, Y, Z;
+    magAccSensor::getAccel(X, Y, Z);
+    return Z;
+  }
+  
+  static int16_t getMagTemperature() {
+    return magAccSensor::getTemperature();
+  }  
+  
 private:
-  typedef Barometer<TWIMaster, 1>   baroSensor;
-  typedef HumiditySensor<TWIMaster> humiSensor;
-  typedef UVSensor<TWIMaster>       uvSensor;
+  typedef MagAccSensor<TWIMaster, 1>  magAccSensor;
+  typedef Barometer<TWIMaster, 1>     baroSensor;
+  typedef HumiditySensor<TWIMaster>   humiSensor;
+  typedef UVSensor<TWIMaster>         uvSensor;
 };
 
 Sensors sensors;
+
+void I2CDetect() {
+	for (byte addr = 8; addr < 126; addr++) {
+		byte data;
+		TWIMaster::write(addr, &data, 0);
+		
+		bool success = false;
+		
+		for (byte nTry = 0; nTry < 10; nTry++) {
+		  _delay_ms(5);
+		  if (TWIMaster::isReady()) {
+			  success = !TWIMaster::isError();
+			  break;
+		  }
+		}
+
+		if (success) {
+		  debug.print(addr, debug.eHex).eol();
+		}
+    
+    _delay_ms(1);
+	}
+}
 
 /*********** Hardware setup *************/
 
@@ -255,6 +321,19 @@ void loop()
   debug.tab();
   debug.print(sensors.getUVLevel());
 
+  debug.eol();
+    
+  _delay_ms(100);
+  debug.print(sensors.getMagX()).tab();
+  debug.print(sensors.getMagY()).tab();
+  debug.print(sensors.getMagZ()).tab();
+  debug.print(sensors.getMagTemperature() * 10 / 8);
+  debug.eol();
+
+  _delay_ms(100);
+  debug.print(sensors.getAccX()).tab();
+  debug.print(sensors.getAccY()).tab();
+  debug.print(sensors.getAccZ()).tab();
   debug.eol();
   
   //TWIMaster::TWISendStop();

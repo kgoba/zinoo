@@ -63,6 +63,7 @@ typedef FixedPoint<uint16_t, uint32_t, 4> U12F4;      // 0 .. 4096.0
 typedef FixedPoint<uint16_t, uint32_t, 16> U0F16;     // 0 .. 0.9999
 
 typedef FixedPoint<int16_t, int32_t, 4> S11F4;        // -2048.0 .. 2047.9
+typedef FixedPoint<int16_t, int32_t, 10> S5F10;        // -32.000 .. 31.999
 typedef FixedPoint<int16_t, int32_t, 15> S0F15;       // -0.9999 .. 0.9999
 
 typedef FixedPoint<int8_t, int16_t, 7> S0F7;          // -0.50 .. 0.49
