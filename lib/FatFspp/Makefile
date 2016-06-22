@@ -26,7 +26,7 @@ LFLAGS   += -g -mmcu=$(MCU) -Wl,--relax,--gc-sections
 LIBS 	 += 
 
 OBJPP = $(SRCPP:.cpp=.o)
-OBJ = $(SRC:.c=.o)
+OBJ = $(SRC:.c=.o) $(SRCPP:.cpp=.o)
 
 .PHONY: all clean fuse program
 
