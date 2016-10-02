@@ -22,7 +22,7 @@
 Digital extension bus
    PD2     RADIO_EN
    PD3     FSK_CMOS
-   PD4  
+   PD4
    PD5     GPS_TXO
    PD6
    PD7
@@ -33,7 +33,7 @@ Digital/Analog extension bus
    ADC3/PC3
 Analog internal
    ADC6    ADC_UNREG
-   ADC7    ADC_NTC 
+   ADC7    ADC_NTC
 Load switches
    PB0     RELEASE
    PB1     BUZZER (OC1A)
@@ -55,7 +55,7 @@ I2C Bus
   0x39    UV sensor VEML6070
   0x40    Humidity sensor HTU21D
   0x77    Barometer MS5607-02BA03
-  
+
  *************************/
 
 class NMEAParser;
@@ -70,7 +70,7 @@ template<byte fractionBits>
 void fixedPointToDecimal(int16_t fp, bool skipTrailingZeros = true) {
   // Determine maximum decimal digit value
   int16_t digitValue = (1000 << fractionBits);
-  
+
   // Process integer part
   while (digitValue > (1 << fractionBits)) {
     byte nextDigitValue = digitValue / 10;
@@ -169,14 +169,14 @@ public:
     humiSensor::initialize();
     uvSensor::initialize();
   }
-  
+
   static void update() {
     magAccSensor::update();
-    baroSensor::update();  
+    baroSensor::update();
     humiSensor::update();
-    uvSensor::update();    
+    uvSensor::update();
   }
-  
+
   static uint16_t getPressure() {
     return baroSensor::getPressure();
   }
@@ -184,7 +184,7 @@ public:
   static int16_t getTemperatureInt() {
     return baroSensor::getTemperature();
   }
-  
+
   static int16_t getTemperature() {
     return humiSensor::getTemperature();
   }
@@ -192,51 +192,23 @@ public:
   static int16_t getHumidity() {
     return humiSensor::getHumidity();
   }
-  
+
   static uint16_t getUVLevel() {
     return uvSensor::getUVLevel();
   }
-  
-  static int16_t getMagX() {
-    int16_t X, Y, Z;
-    magAccSensor::getMagField(X, Y, Z);
-    return X;
+
+  static int16_t getMagField(int16_t X, int16_t Y, int16_t Z) {
+    return magAccSensor::getMagField(X, Y, Z);
   }
 
-  static int16_t getMagY() {
-    int16_t X, Y, Z;
-    magAccSensor::getMagField(X, Y, Z);
-    return Y;
-  }  
-  
-  static int16_t getMagZ() {
-    int16_t X, Y, Z;
-    magAccSensor::getMagField(X, Y, Z);
-    return Z;
+  static bool getAccel(int16_t X, int16_t Y, int16_t Z) {
+    return magAccSensor::getAccel(X, Y, Z);
   }
 
-  static int16_t getAccX() {
-    int16_t X, Y, Z;
-    magAccSensor::getAccel(X, Y, Z);
-    return X;
-  }
-
-  static int16_t getAccY() {
-    int16_t X, Y, Z;
-    magAccSensor::getAccel(X, Y, Z);
-    return Y;
-  }  
-  
-  static int16_t getAccZ() {
-    int16_t X, Y, Z;
-    magAccSensor::getAccel(X, Y, Z);
-    return Z;
-  }
-  
   static int16_t getMagTemperature() {
     return magAccSensor::getTemperature();
-  }  
-  
+  }
+
 private:
   typedef MagAccSensor<TWIMaster, 1>  magAccSensor;
   typedef Barometer<TWIMaster, 1>     baroSensor;
@@ -250,9 +222,9 @@ void I2CDetect() {
 	for (byte addr = 8; addr < 126; addr++) {
 		byte data;
 		TWIMaster::write(addr, &data, 0);
-		
+
 		bool success = false;
-		
+
 		for (byte nTry = 0; nTry < 10; nTry++) {
 		  _delay_ms(5);
 		  if (TWIMaster::isReady()) {
@@ -264,7 +236,7 @@ void I2CDetect() {
 		if (success) {
 		  debug.print(addr, debug.eHex).eol();
 		}
-    
+
     _delay_ms(1);
 	}
 }
@@ -274,27 +246,27 @@ void I2CDetect() {
 void setup()
 {
   TWIMaster::setup();
-	
+
   //gpsSerial.setup();
   hwSerial.setup();
   hwSerial.enable();
 
 	/*
   ntc.update();
-  for (byte i = 0; i < ntc.getTemperature().getValue(); i++) {    
+  for (byte i = 0; i < ntc.getTemperature().getValue(); i++) {
     led.set();
     _delay_ms(1000);
     led.clear();
   }
   */
-  
-  //byte b = 72;  
+
+  //byte b = 72;
   //serial.print("Decimal: ").print(b).eol();
   //serial.print("Binary : ").print(b, serial.eBinary).eol();
   //serial.print("Hex    : ").print(b, serial.eHex).eol();
-  
+
   sei();
-  
+
   _delay_ms(50);
 
   sensors.initialize();
@@ -308,13 +280,13 @@ void loop()
   static word time = 0;
   //if (hwSerial.readByte(b)) {
   //  hwSerial.writeByte(b);
-  //}  
-  
+  //}
+
   _delay_ms(1000);
   debug.print(time).tab();
 
   sensors.update();
-  
+
   debug.print(sensors.getTemperatureInt()).tab().print(sensors.getPressure());
   debug.tab();
   debug.print(sensors.getTemperature()).tab().print(sensors.getHumidity());
@@ -322,20 +294,26 @@ void loop()
   debug.print(sensors.getUVLevel());
 
   debug.eol();
-    
-  _delay_ms(100);
-  debug.print(sensors.getMagX()).tab();
-  debug.print(sensors.getMagY()).tab();
-  debug.print(sensors.getMagZ()).tab();
-  debug.print(sensors.getMagTemperature() * 10 / 8);
-  debug.eol();
 
   _delay_ms(100);
-  debug.print(sensors.getAccX()).tab();
-  debug.print(sensors.getAccY()).tab();
-  debug.print(sensors.getAccZ()).tab();
-  debug.eol();
-  
+  int16_t mx, my, mz;
+  if (sensors.getMagField(mx, my, mz)) {
+    debug.print(mx).tab();
+    debug.print(my).tab();
+    debug.print(mz).tab();
+    debug.print(sensors.getMagTemperature() * 10 / 8);
+    debug.eol();
+  }
+
+  _delay_ms(100);
+  int16_t ax, ay, az;
+  if (sensors.getAccel(mx, my, mz)) {
+    debug.print(ax).tab();
+    debug.print(ay).tab();
+    debug.print(az).tab();
+    debug.eol();    
+  }
+
   //TWIMaster::TWISendStop();
   //UKHASSentence<> sentence("Zinoo5");
   time++;

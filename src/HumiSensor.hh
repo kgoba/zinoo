@@ -12,7 +12,7 @@ public:
     Device::send(&cmd, 1, I2CPeriph::kNoStop);    // will send repeated start
     return true;
   }
-  
+
   static bool measureTemperature(word &result) {
     byte cmd = kMeasureTemp;
     // will send repeated start
@@ -21,21 +21,21 @@ public:
     }
     return readResult(result);
   }
-  
+
   static bool measureHumidity() {
     byte cmd = kMeasureHumidNoHold;
     return Device::send(&cmd, 1, I2CPeriph::kNoStop);    // will send repeated start
   }
-  
+
   static bool measureHumidity(word &result) {
     byte cmd = kMeasureHumid;
     // will send repeated start
     if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
       return false;
-    }    
+    }
     return readResult(result);
   }
-  
+
   static bool readResult(word &result) {
     byte data[3];
     if (!Device::receive(data, ARRAY_SIZE(data))) {
@@ -47,15 +47,15 @@ public:
     // TODO: check checksum
     return true;
   }
-  
+
   static bool softReset() {
     byte cmd = kSoftReset;
     return Device::send(&cmd, 1);
   }
-    
+
 private:
   typedef I2CDevice<I2CPeriph, 0x40> Device;
-  
+
   enum Commands {
     kMeasureTemp        = 0xE3,
     kMeasureHumid       = 0xE5,
@@ -76,18 +76,18 @@ public:
     _delay_ms(20);
     return true;
   }
-  
+
   static bool update() {
     word result;
     humidity = temperature = 0;
-    
+
     if (!Sensor::measureHumidity(result)) {
       return false;
     }
     // Calculate humidity as RH% x10 (1000 => 100%)
     result /= 64; // Convert to 10-bit value
     humidity = -60 + (39 * result) / 32;
-    
+
     if (!Sensor::measureTemperature(result)) {
       return false;
     }
@@ -105,7 +105,7 @@ public:
 
 private:
   typedef HTU21D<I2CPeriph> Sensor;
-  
+
   static int16_t humidity;
   static int16_t temperature;
 };
