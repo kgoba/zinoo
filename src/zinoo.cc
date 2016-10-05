@@ -17,46 +17,6 @@
 
 #include "UKHAS.hh"
 
-/******** PINOUT ********
-
-Digital extension bus
-   PD2     RADIO_EN
-   PD3     FSK_CMOS
-   PD4
-   PD5     GPS_TXO
-   PD6
-   PD7
-Digital/Analog extension bus
-   ADC0/PC0
-   ADC1/PC1
-   ADC2/PC2
-   ADC3/PC3
-Analog internal
-   ADC6    ADC_UNREG
-   ADC7    ADC_NTC
-Load switches
-   PB0     RELEASE
-   PB1     BUZZER (OC1A)
-MicroSD Card
-   PB2     SS_SD
-   PB3     MOSI
-   PB4     MISO
-   PB5     SCK
-I2C Bus
-   PC4     SDA
-   PC5     SCL
-
-************************/
-
-
-/********** I2C devices ************
-  0x1D	  Linear acc. sensor LSM303D
-  0x38    UV sensor VEML6070
-  0x39    UV sensor VEML6070
-  0x40    Humidity sensor HTU21D
-  0x77    Barometer MS5607-02BA03
-
- *************************/
 
 class NMEAParser;
 //class UKHASBuilder;
@@ -65,38 +25,21 @@ class FSKTransmitter;
 class Manager;
 
 
+/*
+  initHardware();
+  startConsole();
 
-template<byte fractionBits>
-void fixedPointToDecimal(int16_t fp, bool skipTrailingZeros = true) {
-  // Determine maximum decimal digit value
-  int16_t digitValue = (1000 << fractionBits);
+  restoreState();
 
-  // Process integer part
-  while (digitValue > (1 << fractionBits)) {
-    byte nextDigitValue = digitValue / 10;
-    if (nextDigitValue < (1 << fractionBits)) {
-      skipTrailingZeros = false;
-    }
-    byte d = fp / digitValue;
-    if (!skipTrailingZeros || d != 0) {
-      // OUTPUT d + '0'
-    }
-    if (d != 0) {
-      fp -= d * digitValue;
-      skipTrailingZeros = false;
-    }
-    digitValue = nextDigitValue;
-  }
-  // Process fractional part
-  // OUTPUT '.'
-  while (digitValue > 0) {
-    fp *= 10;
-    byte d = (fp >> fractionBits);
-    // OUTPUT d + '0'
-    fp -= (int16_t)d << fractionBits;
-    digitValue /= 10;
-  }
-}
+  startTask(updateScienceData, 1000);
+  startTask(updateFlightData, 5000);
+  startTask(transmitData, 1000);
+  startTask(recordData, 5000);
+  startTask(saveState, 60000);
+  startTask(manageBuzzer, 1000);
+  startTask(consoleTask, 500);
+*/
+
 
 class GPSBaudTimer {
 public:
@@ -311,7 +254,7 @@ void loop()
     debug.print(ax).tab();
     debug.print(ay).tab();
     debug.print(az).tab();
-    debug.eol();    
+    debug.eol();
   }
 
   //TWIMaster::TWISendStop();
