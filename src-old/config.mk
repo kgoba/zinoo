@@ -1,5 +1,5 @@
 PROGRAMMER = arduino
-PROG_OPTS = -P /dev/ttyUSB0
+PROG_OPTS = -P /dev/tty.usbserial-A4004R3X
 F_CPU   = 16000000UL
 #MCU     = atmega328p
 MCU     = atmega32u4

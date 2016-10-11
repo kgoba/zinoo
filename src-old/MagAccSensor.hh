@@ -11,11 +11,11 @@ public:
   static bool readTemperature(word &result) {
     return readWord(kRegTemp | 0x80, result);
   }
-    
+
   static bool readMagnetometer(word &X, word &Y, word &Z) {
     return readTriple(kOutXLoMag | 0x80, X, Y, Z);
   }
-  
+
   static bool readAccelerometer(word &X, word &Y, word &Z) {
     return readTriple(kOutXLoAcc | 0x80, X, Y, Z);
   }
@@ -23,39 +23,39 @@ public:
   static bool getStatusMag(byte &status) {
     return readByte(kRegStatusMag, status);
   }
-  
+
   static bool getStatusAcc(byte &status) {
     return readByte(kRegStatusMag, status);
   }
-  
+
   static bool setCtrl0(byte value) {
     return writeByte(kRegCtrl0, value);
   }
-  
+
   static bool setCtrl1(byte value) {
     return writeByte(kRegCtrl1, value);
   }
-  
+
   static bool setCtrl2(byte value) {
     return writeByte(kRegCtrl2, value);
   }
-  
+
   static bool setCtrl3(byte value) {
     return writeByte(kRegCtrl3, value);
   }
-  
+
   static bool setCtrl4(byte value) {
     return writeByte(kRegCtrl4, value);
   }
-  
+
   static bool setCtrl5(byte value) {
     return writeByte(kRegCtrl5, value);
   }
-  
+
   static bool setCtrl6(byte value) {
     return writeByte(kRegCtrl6, value);
   }
-  
+
   static bool setCtrl7(byte value) {
     return writeByte(kRegCtrl7, value);
   }
@@ -63,7 +63,7 @@ public:
   static bool getCtrl5(byte &value) {
     return readByte(kRegCtrl5, value);
   }
- 
+
 private:
   typedef I2CDevice<I2CPeriph, (0x1E - (SA0 & 1))> Device;
 
@@ -90,7 +90,7 @@ private:
     kOutZLoAcc          = 0x2C,
     kMultipleRead       = 0x80
   };
-  
+
     static bool readWord(byte cmd, word &result) {
     if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
       return false;
@@ -124,7 +124,7 @@ private:
     }
     return true;
   }
-  
+
   static bool readTriple(byte cmd, word &X, word &Y, word &Z) {
     if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
       return false;
@@ -145,14 +145,15 @@ template<class I2CPeriph = TWIMaster, byte SA0 = 0>
 class MagAccSensor : public LSM303D<I2CPeriph, SA0> {
 public:
   static bool initialize() {
-    // byte ctrl0 = 0b00000000;    
+    validUpdate = false;
+    // byte ctrl0 = 0b00000000;
     // Acceleration rate 12.5 Hz, enable XYZ axes
-    byte ctrl1 = 0b00110111;    
+    byte ctrl1 = 0b00110111;
     // Acceleration anti-alias filter 50 Hz, range +- 4 g
-    byte ctrl2 = 0b11001000;    
-    // Enable temperature sensor, high magnetic resolution, 
+    byte ctrl2 = 0b11001000;
+    // Enable temperature sensor, high magnetic resolution,
     // 3.125 Hz magnetic sensor sample rate
-    byte ctrl5 = 0b11101000;    
+    byte ctrl5 = 0b11101000;
     // Full scale +- 2 Gauss
     byte ctrl6 = 0b00000000;
     // Enable continuous magnetic sensor mode
@@ -164,10 +165,11 @@ public:
     if (!Sensor::setCtrl7(ctrl7)) return false;
     return true;
   }
-  
+
   static bool update() {
     word result, X, Y, Z;
-    
+    validUpdate = false;
+
     if (!Sensor::readMagnetometer(mag[0], mag[1], mag[2])) {
       return false;
     }
@@ -175,40 +177,42 @@ public:
     if (!Sensor::readAccelerometer(acc[0], acc[1], acc[2])) {
       return false;
     }
-    
+
     if (!Sensor::readTemperature(result)) {
       return false;
     }
-    
+
     temperature = (25 << 3) + result;
-    
+
+    validUpdate = true;
     return true;
   }
-  
+
   static bool getMagField(int16_t &X, int16_t &Y, int16_t &Z) {
     X = mag[0];
     Y = mag[1];
     Z = mag[2];
-    return true;
+    return validUpdate;
   }
 
   static bool getAccel(int16_t &X, int16_t &Y, int16_t &Z) {
     X = acc[0];
     Y = acc[1];
     Z = acc[2];
-    return true;
+    return validUpdate;
   }
-    
+
   static int16_t getTemperature() {
     return temperature;
   }
 
 private:
   typedef LSM303D<I2CPeriph, SA0> Sensor;
-  
-  static word   acc[3];      // signed 
+
+  static word   acc[3];      // signed
   static word   mag[3];      // signed
   static word   temperature; // signed
+  static bool   validUpdate;
 };
 
 template<class I2CPeriph, byte SA0>
@@ -219,3 +223,6 @@ word MagAccSensor<I2CPeriph, SA0>::mag[3];
 
 template<class I2CPeriph, byte SA0>
 word MagAccSensor<I2CPeriph, SA0>::temperature;
+
+template<class I2CPeriph, byte SA0>
+bool MagAccSensor<I2CPeriph, SA0>::validUpdate;
