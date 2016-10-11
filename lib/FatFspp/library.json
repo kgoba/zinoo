@@ -1,0 +1,14 @@
+{
+    "name": "FatFs++",
+    "keywords": "fatfs, fat, sd, filesystem",
+    "description": "Library to access FAT filesystems, e.g. on SD cards",
+    "authors":
+    {
+        "name": "gallegojm",
+        "url": "https://github.com/gallegojm"
+    },
+    "version": "1.0",
+    "downloadUrl": "https://github.com/gallegojm/Arduino-FatFs/archive/master.zip",
+    "frameworks": "arduino",
+    "platforms": "atmelavr"
+}

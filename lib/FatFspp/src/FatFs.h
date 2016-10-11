@@ -18,7 +18,7 @@
  * along with the Arduino SdSpiCard Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
- 
+
 #ifndef FATFS_H
 #define FATFS_H
 
@@ -31,12 +31,12 @@ class FatFsClass
 {
 public:
   FatFsClass() {};
-  
+
   bool     begin( uint8_t csPin, uint8_t sckDiv = SPI_HALF_SPEED );
   int32_t  capacity();
   int32_t  free();
   uint8_t  error();
-  
+
   bool     mkdir( char * path );
   bool     rmdir( char * path );
   bool     remove( char * path );
@@ -58,7 +58,7 @@ class DirFs
 public:
   DirFs();
   ~DirFs();
-  
+
   bool     openDir( char * dirPath );
   bool     closeDir();
   bool     nextFile();
@@ -79,14 +79,14 @@ class FileFs
 {
 public:
   FileFs() {};
-  
+
   bool     open( char * fileName, uint8_t mode = FA_OPEN_EXISTING );
   bool     close();
-  
+
   uint32_t write( void * buf, uint32_t lbuf );
   int      writeString( char * str );
   bool     writeChar( char car );
-  
+
   uint32_t read( void * buf, uint32_t lbuf );
   int16_t  readString( char * buf, int len );
   char     readChar();
@@ -97,7 +97,7 @@ public:
   bool     seekSet( uint32_t cur );
 
   uint32_t fileSize();
-  
+
 private:
   FIL      ffile;
 };

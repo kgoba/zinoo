@@ -1,0 +1,19 @@
+{
+    "name": "SdFat",
+    "keywords": "fatfs, fat, sd, filesystem",
+    "description": "Library to access FAT filesystems, e.g. on SD cards",
+    "authors":
+    {
+        "name": "Bill Greiman",
+        "url": "https://github.com/greiman"
+    },
+    "version": "1.0",
+    "repository":
+    {
+      "type": "git",
+      "url": "https://github.com/greiman/PetitFS.git"
+    },
+
+    "frameworks": "arduino",
+    "platforms": "atmelavr"
+}

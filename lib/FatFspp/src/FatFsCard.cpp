@@ -129,25 +129,18 @@ bool FatFsCard::begin( uint8_t chipSelectPin, uint8_t sckDivisor )
   m_errorCode = m_type = 0;
   uint16_t t0 = (uint16_t) millis();  // 16-bit init start time allows over a minute
   uint32_t arg;
-  uint8_t csPin52 = 52;
 
   // initialize SPI for SD card
-  pinMode( m_CSPin, OUTPUT );
-  digitalWrite( m_CSPin, HIGH );
-  SPI.begin( m_CSPin );
-  
-  // set SCK rate for initialization commands
-  m_spifrec = spiFrec( SPI_SCK_INIT_DIVISOR );
+  //pinMode( m_CSPin, OUTPUT );
+  //digitalWrite( m_CSPin, HIGH );
+  SPI.begin();
 
-  // must supply min of 74 clock cycles with CS high.
-  // Use chip select 52 (default) or 4
-  if( csPin52 == m_CSPin )
-    csPin52 = 4;  
-  SPI.begin( csPin52 );
-  SPI.beginTransaction( csPin52, SPISettings( m_spifrec, MSBFIRST, SPI_MODE0 ));
+  chipSelect();
+  SPI.beginTransaction( SPISettings( SPI_SPEED, MSBFIRST, SPI_MODE0 ));
   for( uint8_t i = 0; i < 10; i++ )
-    SPI.transfer( csPin52, 0XFF );
+    SPI.transfer( 0XFF );
   SPI.endTransaction();
+  chipDeselect();
 
   // command to go idle in SPI mode
   while( cardCommand( CMD0, 0 ) != R1_IDLE_STATE )
@@ -212,10 +205,8 @@ bool FatFsCard::begin( uint8_t chipSelectPin, uint8_t sckDivisor )
       spiReceive();
   }
 
-  // set SCK rate
-  m_spifrec = spiFrec( sckDivisor );
-  SPI.beginTransaction( m_CSPin, SPISettings( m_spifrec, MSBFIRST, SPI_MODE0 ));
-  SPI.endTransaction();
+  //SPI.beginTransaction( SPISettings( SPI_SPEED, MSBFIRST, SPI_MODE0 ));
+  //SPI.endTransaction();
   return true;
 
 fail:
@@ -227,7 +218,7 @@ fail:
 uint8_t FatFsCard::cardCommand( uint8_t cmd, uint32_t arg )
  {
   // select card
-  // chipSelect();
+  chipSelect();
 
   // wait if busy
   waitNotBusy( SD_WRITE_TIMEOUT );
@@ -273,14 +264,14 @@ void FatFsCard::chipDeselect()
   digitalWrite( m_CSPin, HIGH );
   // insure MISO goes high impedance
   // spiSend( 0XFF );
-  SPI.endTransaction();
+  //SPI.endTransaction();
 }
 
 //
 
 void FatFsCard::chipSelect()
 {
-  SPI.beginTransaction( m_CSPin, SPISettings( m_spifrec, MSBFIRST, SPI_MODE0 ));
+  //SPI.beginTransaction( SPISettings( SPI_SPEED, MSBFIRST, SPI_MODE0 ));
   digitalWrite( m_CSPin, LOW );
 }
 
@@ -289,14 +280,15 @@ void FatFsCard::chipSelect()
 bool FatFsCard::isBusy()
 {
   bool rtn;
-  // chipSelect();
+
+  chipSelect();
   for( uint8_t i = 0; i < 8; i++ )
   {
     rtn = spiReceive() != 0XFF;
     if( ! rtn )
       break;
   }
-  // chipDeselect();
+  chipDeselect();
   return rtn;
 }
 
@@ -316,7 +308,7 @@ bool FatFsCard::readBlock( uint32_t blockNumber, uint8_t* dst )
   return readData( dst, 512 );
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -338,7 +330,7 @@ bool FatFsCard::readBlocks( uint32_t block, uint8_t* dst, size_t count )
 
 bool FatFsCard::readData( uint8_t *dst )
 {
-  // chipSelect();
+  chipSelect();
   return readData( dst, 512 );
 }
 
@@ -383,11 +375,11 @@ bool FatFsCard::readData( uint8_t* dst, size_t count )
   spiReceive();
   spiReceive();
 #endif  // USE_SD_CRC
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -403,11 +395,11 @@ bool FatFsCard::readStart( uint32_t blockNumber )
     error( SD_CARD_ERROR_CMD18 );
     goto fail;
   }
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -420,11 +412,11 @@ bool FatFsCard::readStop()
     error(SD_CARD_ERROR_CMD12);
     goto fail;
   }
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -462,11 +454,11 @@ bool FatFsCard::writeBlock( uint32_t blockNumber, const uint8_t* src )
   if( ! writeData( DATA_START_BLOCK, src ))
     goto fail;
 
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -486,18 +478,18 @@ bool FatFsCard::writeBlocks( uint32_t block, const uint8_t* src, size_t count)
 
 bool FatFsCard::writeData( const uint8_t* src )
 {
-  // chipSelect();
+   chipSelect();
   // wait for previous write to finish
   if( ! waitNotBusy( SD_WRITE_TIMEOUT ))
     goto fail;
   if( ! writeData( WRITE_MULTIPLE_TOKEN, src ))
     goto fail;
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
   error( SD_CARD_ERROR_WRITE_MULTIPLE );
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -524,7 +516,7 @@ bool FatFsCard::writeData( uint8_t token, const uint8_t* src )
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -547,11 +539,11 @@ bool FatFsCard::writeStart( uint32_t blockNumber, uint32_t eraseCount )
     error( SD_CARD_ERROR_CMD25 );
     goto fail;
   }
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -559,18 +551,18 @@ fail:
 
 bool FatFsCard::writeStop()
 {
-  // chipSelect();
+  chipSelect();
   if( ! waitNotBusy( SD_WRITE_TIMEOUT ))
     goto fail;
   spiSend( STOP_TRAN_TOKEN );
   if( ! waitNotBusy( SD_WRITE_TIMEOUT ))
     goto fail;
-  // chipDeselect();
+  chipDeselect();
   return true;
 
 fail:
   error( SD_CARD_ERROR_STOP_TRAN );
-  // chipDeselect();
+  chipDeselect();
   return false;
 }
 
@@ -580,43 +572,29 @@ fail:
 
    =========================================================== */
 
-//  Calculate frecuency in Hz
-//   SPI_FULL_SPEED  -> 50 / 2 = 25 MHz
-//   SPI_HALF_SPEED  -> 50 / 4 = 12,5 MHz
-//   ...
-//   SPI_CLOCK_DIV64 -> 50 / 64 = 781,25 kHz
-//   SPI_SCK_INIT_DIVISOR -> 250 kHz
-   
-uint32_t FatFsCard::spiFrec( uint8_t spiDivisor )
-{
-  if( spiDivisor <= 64 )
-    return 50000000 / spiDivisor ;
-  return 250000;
-}
-
 uint8_t FatFsCard::spiReceive()
 {
-  return SPI.transfer( m_CSPin, 0XFF );
+  return SPI.transfer( 0XFF );
 }
 
 uint8_t FatFsCard::spiReceive( uint8_t* buf, size_t n )
 {
   size_t i;
   for( i = 0; i < n - 1; i++ )
-    buf[i] = SPI.transfer( m_CSPin, 0XFF, SPI_CONTINUE );
-  buf[i] = SPI.transfer( m_CSPin, 0XFF );
+    buf[i] = SPI.transfer( 0XFF );
+  buf[i] = SPI.transfer( 0XFF );
   return 0;
 }
 
 void FatFsCard::spiSend( uint8_t data )
 {
-  SPI.transfer( m_CSPin, data );
+  SPI.transfer( data );
 }
 
 void FatFsCard::spiSend( const uint8_t* buf, size_t n )
 {
   size_t i;
   for( i = 0; i < n - 1; i++ )
-    SPI.transfer( m_CSPin, buf[i], SPI_CONTINUE );
-  SPI.transfer( m_CSPin, buf[i] );
+    SPI.transfer( buf[i] );
+  SPI.transfer( buf[i] );
 }

@@ -18,7 +18,7 @@
  * along with the Arduino SdSpiCard Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "FatFs.h"
 
 FatFsCard card;
@@ -51,17 +51,17 @@ extern "C" int sd_disk_write( uint8_t * buff, uint32_t sector, uint32_t count )
 extern "C" int sd_disk_ioctl( uint8_t cmd )
 {
   DRESULT res = RES_ERROR;
-  
+
   switch( cmd )
   {
-    case CTRL_SYNC :   // Make sure that data has been written  
+    case CTRL_SYNC :   // Make sure that data has been written
       res = RES_OK;
       // res = spiRec() == 0XFF ? RES_OK : RES_NOTRDY ;
-      // res = card.waitNotBusy( SD_WRITE_TIMEOUT ) ? RES_OK : RES_NOTRDY ;  
-      break;  
+      // res = card.waitNotBusy( SD_WRITE_TIMEOUT ) ? RES_OK : RES_NOTRDY ;
+      break;
 
-    default:  
-      res = RES_PARERR;  
+    default:
+      res = RES_PARERR;
   }
 }
 
@@ -115,7 +115,7 @@ int32_t FatFsClass::free()
 {
   uint32_t fre_clust;
   FATFS * fs;
-  
+
   if( f_getfree( "0:", & fre_clust, &fs ) != 0 )
     return -1;
   return fre_clust * ffs.csize >> 11;
@@ -180,11 +180,11 @@ bool FatFsClass::exists( char * path )
 {
   if( strcmp( path, "/" ) == 0 )
     return true;
-  
+
   FILINFO finfo;
   char    lfn[ _MAX_LFN + 1 ];    // Buffer to store the LFN
   char *  path0 = path;
-  
+
   finfo.lfname = lfn;
   finfo.lfsize = _MAX_LFN + 1;
   return f_stat( path0, & finfo ) == FR_OK;
@@ -196,11 +196,11 @@ bool FatFsClass::isDir( char * path )
 {
   if( strcmp( path, "/" ) == 0 )
     return true;
-  
+
   FILINFO finfo;
   char    lfn[ _MAX_LFN + 1 ];    // Buffer to store the LFN
   char *  path0 = path;
-  
+
   finfo.lfname = lfn;
   finfo.lfsize = _MAX_LFN + 1;
   return ( f_stat( path0, & finfo ) == FR_OK ) &&
@@ -213,7 +213,7 @@ bool FatFsClass::timeStamp( char * path, uint16_t year, uint8_t month, uint8_t d
                             uint8_t hour, uint8_t minute, uint8_t second )
 {
   FILINFO fno;
-  
+
   fno.fdate = ( year - 1980 ) << 9 | month << 5 | day;
   fno.ftime = hour << 11 | minute << 5 | second >> 1;
   return ffs_result == f_utime( path, &fno );
@@ -225,7 +225,7 @@ bool FatFsClass::getFileModTime( char * path, uint16_t * pdate, uint16_t * ptime
 {
   FILINFO finfo;
   finfo.lfname = NULL;
-  
+
   if( f_stat( path, & finfo ) != FR_OK )
     return false;
   * pdate = finfo.fdate;
@@ -278,7 +278,7 @@ bool DirFs::nextFile()
   return ffs_result == 0 && finfo.fname[0] != 0;
 }
 
-// Rewind the read index 
+// Rewind the read index
 
 bool DirFs::rewind()
 {
@@ -286,7 +286,7 @@ bool DirFs::rewind()
   return ffs_result == FR_OK;
 }
 
-// Return true if the pointed entry is a directory 
+// Return true if the pointed entry is a directory
 
 bool DirFs::isDir()
 {
@@ -297,7 +297,7 @@ bool DirFs::isDir()
 
 char * DirFs::fileName()
 {
-  return finfo.lfname[0] != 0 ? finfo.lfname : finfo.fname; 
+  return finfo.lfname[0] != 0 ? finfo.lfname : finfo.fname;
 }
 
 // Return the size of the pointed entry
@@ -332,7 +332,7 @@ uint16_t DirFs::fileModTime()
 //   mode : specifies the type of access and open method for the file
 //          (see ff.h for a description of possible values)
 // Return true if ok
-   
+
 bool FileFs::open( char * fileName, uint8_t mode )
 {
   char * fileName0 = fileName;
@@ -357,7 +357,7 @@ bool FileFs::close()
 uint32_t FileFs::write( void * buf, uint32_t lbuf )
 {
   uint32_t nwrt;
-  
+
   ffs_result = f_write( & ffile, buf, lbuf, & nwrt );
   return nwrt;
 }
@@ -388,7 +388,7 @@ bool FileFs::writeChar( char car )
 uint32_t FileFs::read( void * buf, uint32_t lbuf )
 {
   uint32_t nrd;
-  
+
   ffs_result = f_read( & ffile, buf, lbuf, & nrd );
   return nrd;
 }
@@ -418,7 +418,7 @@ char FileFs::readChar()
 {
   char     car;
   uint32_t nrd;
-  
+
   ffs_result = f_read( & ffile, & car, 1, & nrd );
   return nrd == 1 ? car : -1;
 }

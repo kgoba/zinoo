@@ -48,7 +48,7 @@
    * \param[in] sckDivisor SPI clock divisor.
    * \return true for success else false.
    */
-  bool begin( uint8_t chipSelectPin, uint8_t sckDivisor );
+  bool begin( uint8_t csPin, uint8_t sckDivisor );
 
   /**
    *  Set SD error code.
@@ -110,7 +110,7 @@
    * the value false is returned for failure.
    */
   bool readData( uint8_t *dst );
-  
+
   /** Start a read multiple blocks sequence.
    *
    * \param[in] blockNumber Address of first block in sequence.
@@ -122,14 +122,14 @@
    * the value false is returned for failure.
    */
   bool readStart( uint32_t blockNumber );
-  
+
   /** End a read multiple blocks sequence.
    *
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
   bool readStop();
-  
+
   /** Return the card type: SD V1, SD V2 or SDHC
    * \return 0 - SD V1, 1 - SD V2, or 3 - SDHC.
    */
@@ -147,7 +147,7 @@
    * the value false is returned for failure.
    */
   bool writeBlock( uint32_t blockNumber, const uint8_t* src );
-  
+
   /**
    * Write multiple 512 byte blocks to an SD card.
    *
@@ -158,14 +158,14 @@
    * the value false is returned for failure.
    */
   bool writeBlocks( uint32_t block, const uint8_t* src, size_t count );
-  
+
   /** Write one data block in a multiple block write sequence
    * \param[in] src Pointer to the location of the data to be written.
    * \return The value true is returned for success and
    * the value false is returned for failure.
    */
   bool writeData( const uint8_t* src );
-  
+
   /** Start a write multiple blocks sequence.
    *
    * \param[in] blockNumber Address of first block in sequence.
@@ -178,7 +178,7 @@
    * the value false is returned for failure.
    */
   bool writeStart( uint32_t blockNumber, uint32_t eraseCount );
-  
+
   /** End a write multiple blocks sequence.
    *
    * \return The value true is returned for success and
@@ -200,7 +200,6 @@
   void type (uint8_t value) { m_type = value; }
   bool writeData( uint8_t token, const uint8_t* src );
 
-  uint32_t spiFrec( uint8_t spiDivisor );
   uint8_t spiReceive();
   uint8_t spiReceive( uint8_t* buf, size_t n );
   void spiSend( uint8_t data );

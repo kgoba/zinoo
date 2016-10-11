@@ -42,8 +42,7 @@
 //  Set USE_SD_CRC to 2 to used a larger faster table driven CRC-CCITT function.
 #define USE_SD_CRC 0
 
-//  SPI SCK divisor for SD initialization commands.
-const uint8_t SPI_SCK_INIT_DIVISOR = 128;
+const uint32_t SPI_SPEED = 8000000;
 
 
 // SD card errors
