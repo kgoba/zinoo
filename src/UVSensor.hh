@@ -15,7 +15,7 @@ public:
     msb = data[0];
     return true;
   }
-  
+
   static bool readLSB(byte &lsb) {
     byte data[1];
     if (!Device::receive(data, ARRAY_SIZE(data))) {
@@ -33,15 +33,15 @@ private:
 template<class I2CPeriph = TWIMaster>
 class UVSensor : public VEML6070<I2CPeriph> {
 public:
-  static bool initialize() {
-    return true;
+  static bool begin() {
+    return update();
   }
-  
+
   static bool update() {
     uvLevel = 0;
 
     byte msb, lsb;
-    
+
     if (!Sensor::readMSB(msb)) {
       return false;
     }
@@ -51,17 +51,17 @@ public:
     }
 
     // Calculate UV level
-    uvLevel = ((word)msb << 8) | lsb;  
-    return true;  
+    uvLevel = ((word)msb << 8) | lsb;
+    return true;
   }
-  
+
   static word getUVLevel() {
     return uvLevel;
   }
 
 private:
   typedef VEML6070<I2CPeriph> Sensor;
-  
+
   static word uvLevel;
 };
 

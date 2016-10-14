@@ -91,7 +91,7 @@ private:
     kMultipleRead       = 0x80
   };
 
-    static bool readWord(byte cmd, word &result) {
+  static bool readWord(byte cmd, word &result) {
     if (!Device::send(&cmd, 1, I2CPeriph::kNoStop)) {
       return false;
     }
@@ -144,17 +144,17 @@ private:
 template<class I2CPeriph = TWIMaster, byte SA0 = 0>
 class MagAccSensor : public LSM303D<I2CPeriph, SA0> {
 public:
-  static bool initialize() {
+  static bool begin() {
     validUpdate = false;
     // byte ctrl0 = 0b00000000;
     // Acceleration rate 12.5 Hz, enable XYZ axes
     byte ctrl1 = 0b00110111;
-    // Acceleration anti-alias filter 50 Hz, range +- 4 g
+    // Acceleration range +- 4 g, anti-alias filter 50 Hz
     byte ctrl2 = 0b11001000;
     // Enable temperature sensor, high magnetic resolution,
-    // 3.125 Hz magnetic sensor sample rate
+    // 12.5 Hz magnetic sensor sample rate
     byte ctrl5 = 0b11101000;
-    // Full scale +- 2 Gauss
+    // Magnetic field range +- 2 Gauss
     byte ctrl6 = 0b00000000;
     // Enable continuous magnetic sensor mode
     byte ctrl7 = 0b00000000;

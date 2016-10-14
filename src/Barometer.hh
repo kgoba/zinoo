@@ -13,7 +13,7 @@ public:
     kOSR2048  = 3,
     kOSR4096  = 4
   };
-  
+
   enum ConversionType {
     kPressure       = 0,
     kTemperature    = 1
@@ -23,19 +23,19 @@ public:
 template<class I2CPeriph, byte subAddress = 0>
 class MS5607 : public MS5607Base {
 public:
-    
+
   static bool reset() {
     byte cmd = kCmdReset;
     return Device::send(cmd);
   }
-  
+
   static bool readPROM(byte address, word &result) {
     byte cmd[1];
     cmd[0] = kCmdReadPROM | ((address & 0x07) << 1);
     if (!Device::send(cmd, 1)) {
       return false;
     }
-    
+
     byte reply[2];
     if (!Device::receive(reply, ARRAY_SIZE(reply))) {
       return false;
@@ -44,45 +44,45 @@ public:
     result = ((word)reply[0] << 8) | reply[1];
     return true;
   }
-  
+
   static bool startConversion(ConversionType type, OversamplingRate osr = kOSR256) {
     byte cmd[1];
     cmd[0] = kCmdConvert | ((byte)type << 4) | ((byte)osr << 1);
     return Device::send(cmd, 1);
   }
-  
+
   static bool readResult24(long &result) {
     byte cmd[1];
     cmd[0] = kCmdReadADC;
     _delay_ms(5);
-    
+
     byte reply[3];
     Device::receive(reply, ARRAY_SIZE(reply));
     _delay_ms(5);
-    
+
     result = ((long)reply[0] << 16) | ((word)reply[1] << 8) | reply[2];
     return true;
   }
-  
+
   static bool readResult16(word &result) {
     byte cmd[1];
     cmd[0] = kCmdReadADC;
     if (!Device::send(cmd, 1)) {
       return false;
     }
-    
+
     byte reply[2];
     if (!Device::receive(reply, ARRAY_SIZE(reply))) {
       return false;
     }
-    
+
     result = ((word)reply[0] << 8) | reply[1];
     return true;
   }
-  
+
 private:
   typedef I2CDevice<I2CPeriph, (0x76 | (subAddress & 1))> Device;
-  
+
   enum Commands {
     kCmdReset      = 0b00011110,
     kCmdReadPROM   = 0b10100000,
@@ -94,12 +94,14 @@ private:
 template<class I2CPeriph, byte subAddress = 0>
 class Barometer : public MS5607<I2CPeriph, subAddress> {
 public:
-  static void initialize() {
+  static bool begin() {
     for (byte idx = 0; idx < 8; idx++) {
-      Base::readPROM(idx, PROM[idx]);
+      if (!Base::readPROM(idx, PROM[idx]))
+        return false;
     }
+    return true;
   }
-  
+
   /*
    * Measures and updates both temperature and pressure
    */
@@ -115,7 +117,7 @@ public:
     }
     int16_t dt = d2 - PROM[5];
     t = 2000 + (((int32_t)dt * PROM[6]) >> 15);
-    
+
     if (!Base::startConversion(Base::kPressure, Base::kOSR1024)) {
       return false;
     }
@@ -127,10 +129,10 @@ public:
     uint16_t off  = PROM[2] + ((PROM[4] * (int32_t)dt) >> 15);
     uint16_t sens = PROM[1] + ((PROM[3] * (int32_t)dt) >> 15);
     p = (((uint32_t)d1 * sens) >> 14) - off;
-    
+
     return true;
   }
-  
+
   static int16_t getTemperature() {
     return t;
   }
@@ -138,10 +140,10 @@ public:
   static uint16_t getPressure() {
     return p;
   }
-  
+
 private:
   typedef MS5607<I2CPeriph, subAddress> Base;
-    
+
   static uint16_t PROM[8];
   static int16_t  t;        // temperature in Celsium x100 (2000 = 20.00 C)
   static uint16_t p;        // pressure in Pascals / 4 (25000 = 100000 Pa = 1000 mbar)
