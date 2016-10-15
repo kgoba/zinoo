@@ -16,6 +16,8 @@
 #include "fstring.h"
 #include "debug.hh"
 
+#include "Config.hh"
+
 template<class I2CPeriph>
 class Buzzer {
 public:
@@ -35,8 +37,6 @@ $GPGSA, askjfkasjdhf
 $ZINOO, 125936, 5656.8471, 2408.9758, 12333, 45.4, 21.6, 296, -260, 7870, 10095, -16483, 32767, 22.50, 103028, 20.77
 
 */
-
-const int fskBaudrate = 300;
 
 DigitalIn<PortD, 4>   pinD4;
 DigitalIn<PortD, 5>   pinGPSData;
@@ -79,9 +79,8 @@ enum {
 };
 
 uint8_t gError;
-volatile uint8_t gFlags;
+//volatile uint8_t gFlags;
 volatile uint16_t gSeconds;     // 18h rollover
-volatile uint16_t gLastFixTime;
 
 void errorHalt(const char* msg)
 {
@@ -94,17 +93,17 @@ bool initSD()
 {
   if (!SD.begin()) {
     if (SD.card()->errorCode()) {
-      dbg.print("Error code: ");
+      dbg.print(F("Error code: 0x"));
       dbg.println(SD.card()->errorCode(), HEX);
-      dbg.print("Error data: ");
+      dbg.print(F("Error data: 0x"));
       dbg.println(SD.card()->errorData(), HEX);
     }
-    dbg.println("Cannot communicate with SD card");
+    dbg.println(F("Cannot communicate with SD card"));
     return false;
   }
 
   if (SD.vol()->fatType() == 0) {
-    dbg.println("Can't find a valid FAT16/FAT32 partition.");
+    dbg.println(F("Can't find a valid FAT16/FAT32 partition."));
     return false;
   }
 
@@ -119,7 +118,7 @@ bool initSD()
 void setup()
 {
   dbg.begin(115200);
-  dbg.println("Reset!");
+  dbg.println(F("Reset!"));
 
   i2cBus.begin(20000);  // Slow I2C
 
@@ -127,7 +126,7 @@ void setup()
   TCCR1A = _BV(WGM11);
   TCCR1B = _BV(WGM13) | _BV(WGM12);
   TCCR1C = 0;
-  const uint32_t clkDiv = (uint32_t)F_CPU / fskBaudrate;
+  const uint32_t clkDiv = (uint32_t)F_CPU / kFSKBaudrate;
 
   //dbg << "Timer1 divide = " << clkDiv << crlf;
   if (clkDiv < 65536) {
@@ -159,7 +158,7 @@ void setup()
 
   bool success;
 
-  dbg.print("Initializing pressure sensor...");
+  dbg.print(F("Initializing pressure sensor..."));
   success = false;
   for (uint8_t nTry = 10; nTry > 0; nTry--) {
     if (baroSensor.begin()) {
@@ -169,9 +168,9 @@ void setup()
     delay(100);
   }
   if (!success) bit_set(gError, kERROR_BARO);
-  dbg.println(success ? "OK" : "FAILED");
+  dbg.println(success ? F("OK") : F("FAILED"));
 
-  dbg.print("Initializing humidity sensor...");
+  dbg.print(F("Initializing humidity sensor..."));
   success = false;
   for (uint8_t nTry = 10; nTry > 0; nTry--) {
     if (humiSensor.begin()) {
@@ -181,9 +180,9 @@ void setup()
     delay(100);
   }
   if (!success) bit_set(gError, kERROR_HUMID);
-  dbg.println(success ? "OK" : "FAILED");
+  dbg.println(success ? F("OK") : F("FAILED"));
 
-  dbg.print("Initializing magnetic sensor...");
+  dbg.print(F("Initializing magnetic sensor..."));
   success = false;
   for (uint8_t nTry = 10; nTry > 0; nTry--) {
     if (magSensor.begin()) {
@@ -193,9 +192,9 @@ void setup()
     delay(100);
   }
   if (!success) bit_set(gError, kERROR_MAG);
-  dbg.println(success ? "OK" : "FAILED");
+  dbg.println(success ? F("OK") : F("FAILED"));
 
-  dbg.print("Initializing UV sensor...");
+  dbg.print(F("Initializing UV sensor..."));
   success = false;
   for (uint8_t nTry = 10; nTry > 0; nTry--) {
     if (uvSensor.begin()) {
@@ -205,22 +204,22 @@ void setup()
     delay(100);
   }
   if (!success) bit_set(gError, kERROR_UVSENS);
-  dbg.println(success ? "OK" : "FAILED");
+  dbg.println(success ? F("OK") : F("FAILED"));
 
-  dbg.println("Starting GPS serial...");
+  dbg.println(F("Starting GPS serial..."));
   gpsBegin();
 
-  dbg.println("Initializing SD card...");
+  dbg.println(F("Initializing SD card..."));
   if (!initSD()) bit_set(gError, kERROR_CARD);
   logfile = SD.open("LOG.TXT", FILE_WRITE);
   if (!logfile) {
     bit_set(gError, kERROR_FILE);
-    dbg.println("Could not open file!");
+    dbg.println(F("Could not open file!"));
   }
 
   //testFSWrite();
 
-  dbg.println("Setup complete");
+  dbg.println(F("Setup complete"));
   //logfile.println("*** INIT ****");
 }
 
@@ -234,11 +233,12 @@ void loop()
     bit_clear(gError, kERROR_RESET);
   }
 
+  static uint16_t lastFixTime;
   if (gpsParser.gpsInfo.fix == '3') {
-    gLastFixTime = gSeconds;
+    lastFixTime = gSeconds;
     bit_clear(gError, kERROR_GPSFIX);
   }
-  else if (gSeconds - gLastFixTime > 60) {
+  else if (gSeconds - lastFixTime > 60) {
     bit_set(gError, kERROR_GPSFIX);
   }
 
@@ -248,8 +248,10 @@ void loop()
     //dbg.print(c);
   }
 
-  if (gFlags & 1) {
-    gFlags &= ~1;
+  static uint16_t nextMeasureTime;
+
+  if (gSeconds >= nextMeasureTime) {
+    nextMeasureTime += kMeasureInterval;
 
     // Take measurement
     bool barOK = baroSensor.update();
@@ -324,26 +326,27 @@ void loop()
     dbg.print(line.buf);
 
     if (humOK) {
-      dbg.print("RH: "); dbg.print(rhum * 0.1f, 1); dbg.print(" t: "); dbg.println(temp * 0.1f, 1);
+      dbg << F("RH: "); dbg.print(rhum * 0.1f, 1);
+      dbg << F(" t: "); dbg.println(temp * 0.1f, 1);
     }
     else {
       //dbg.println("Failed to read humidity sensor");
     }
 
     if (magOK) {
-      dbg << "a: ";
-      dbg << ax << " / " << ay << " / " << az;
-      dbg << " m: ";
-      dbg << mx << " / " << my << " / " << mz;
-      dbg << " t: " << mtemp * 0.125f << crlf;
+      dbg << F("a: ");
+      dbg << ax << F(" / ") << ay << F(" / ") << az;
+      dbg << F(" m: ");
+      dbg << mx << F(" / ") << my << F(" / ") << mz;
+      dbg << F(" t: ") << mtemp * 0.125f << crlf;
     }
     else {
       //dbg.println("Failed to read acceleration sensor");
     }
 
     if (barOK) {
-      dbg << "p: " << (4UL * pressure);
-      dbg << " t: " << ptemp * 0.01f;
+      dbg << F("p: ") << (4UL * pressure);
+      dbg << F(" t: ") << ptemp * 0.01f;
       dbg << crlf;
     }
     else {
@@ -351,14 +354,14 @@ void loop()
     }
 
     if (uvOK) {
-      dbg << "UV: " << uvLevel;
+      dbg << F("UV: ") << uvLevel;
       dbg << crlf;
     }
     else {
       //dbg.println("Failed to read UV sensor");
     }
 
-    dbg.print("ERR: ");
+    dbg << F("ERR: 0b");
     dbg.println(gError, BIN);
 
     /*
@@ -385,18 +388,11 @@ ISR(TWI_vect) {
 }
 
 ISR(TIMER1_OVF_vect) {
-  static uint16_t cnt;
   static uint16_t cnt2;
 
-  if (++cnt2 >= fskBaudrate) {
+  if (++cnt2 >= kFSKBaudrate) {
     cnt2 = 0;
     gSeconds++;
-  }
-
-  if (++cnt >= 4 * fskBaudrate) {
-    cnt = 0;
-    // Once a second
-    gFlags |= 1;
   }
 
   fskTransmitter.tick();

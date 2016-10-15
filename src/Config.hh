@@ -1,4 +1,5 @@
 
+
 /******** PINOUT ********
 
 Digital extension bus
@@ -39,3 +40,6 @@ I2C Bus
   0x77    Barometer MS5607-02BA03
 
  *************************/
+
+const int kFSKBaudrate = 300;     // FSK baudrate
+const int kMeasureInterval = 4;   // seconds between sensor updates

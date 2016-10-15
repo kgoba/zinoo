@@ -1,58 +1,115 @@
 #pragma once
 #include <stdint.h>
 
+template<typename T>
+struct WiderType {
+  typedef void _wider;
+  _wider convert(T x) { return; }
+};
+
+template<>
+struct WiderType<uint8_t> {
+  typedef uint16_t _wider;
+  _wider convert(uint8_t x) { return x; }
+};
+
+template<>
+struct WiderType<int8_t> {
+  typedef int16_t _wider;
+  _wider convert(int8_t x) { return x; }
+};
+
+template<>
+struct WiderType<uint16_t> {
+  typedef uint32_t _wider;
+  _wider convert(uint16_t x) { return x; }
+};
+
+template<>
+struct WiderType<int16_t> {
+  typedef int32_t _wider;
+  _wider convert(int16_t x) { return x; }
+};
+
+
+
 template<typename T, typename T2, int shift>
 class FixedPoint {
-public:
-  FixedPoint(T value = 0) : _value(value) {}
-  //FixedPoint(float value) : _value((value + 0.5f) * (1 << shift)) {}
+private:
+  typedef FixedPoint<T, T2, shift>   FP;
 
-  FixedPoint<T, T2, shift> & operator *= (word rhs) {
+public:
+
+  FixedPoint() : _value(0) {}
+  FixedPoint(T value) : _value(value) {}
+  FixedPoint(float value) : _value(0.5f + value * (1 << shift)) {}
+
+  template<typename B>
+  FP & operator *= (B rhs) {
     _value *= rhs;
     return *this;
   }
 
   template<int shift2>
-  FixedPoint<T, T2, shift> & operator *= (FixedPoint<T, T2, shift2> const& rhs) {
-    _value = (_value * rhs.getExtendedValue()) >> shift2;
+  FP & operator *= (FixedPoint<T, T2, shift2> const& rhs) {
+    _value = (_value * rhs.getWideValue()) >> shift2;
     return *this;
   }
 
   template<int shift2>
-  FixedPoint<T, T2, shift> & operator /= (FixedPoint<T, T2, shift2> const& rhs) {
-    _value = (getExtendedValue() << shift2) / rhs.getValue();
+  FP & operator /= (FixedPoint<T, T2, shift2> const& rhs) {
+    _value = (getWideValue() << shift2) / rhs.getValue();
     return *this;
   }
 
-  FixedPoint<T, T2, shift> & operator += (FixedPoint<T, T2, shift> const& rhs) {
+  FP & operator += (FP const& rhs) {
     _value += rhs.getValue();
     return *this;
   }
 
+  FP & operator -= (FP const& rhs) {
+    _value -= rhs.getValue();
+    return *this;
+  }
+
   T getValue() const { return _value; }
-  T2 getExtendedValue() const { return _value; }
+  T2 getWideValue() const { return _value; }
 
 private:
   T _value;
 };
 
+
 template<typename T, typename T2, int shift, typename B>
-FixedPoint<T, T2, shift> operator * (FixedPoint<T, T2, shift> a, const B &b)
+inline FixedPoint<T, T2, shift> operator * (const B &b, FixedPoint<T, T2, shift> a)
 {
   return a *= b;
 }
 
 template<typename T, typename T2, int shift, typename B>
-FixedPoint<T, T2, shift> operator / (FixedPoint<T, T2, shift> a, const B &b)
+inline FixedPoint<T, T2, shift> operator * (FixedPoint<T, T2, shift> a, const B &b)
+{
+  return a *= b;
+}
+
+template<typename T, typename T2, int shift, typename B>
+inline FixedPoint<T, T2, shift> operator / (FixedPoint<T, T2, shift> a, const B &b)
 {
   return a /= b;
 }
 
 template<typename T, typename T2, int shift>
-FixedPoint<T, T2, shift> operator + (FixedPoint<T, T2, shift> a, const FixedPoint<T, T2, shift> &b)
+inline FixedPoint<T, T2, shift> operator + (FixedPoint<T, T2, shift> a, const FixedPoint<T, T2, shift> &b)
 {
   return a += b;
 }
+
+template<typename T, typename T2, int shift>
+inline FixedPoint<T, T2, shift> operator - (FixedPoint<T, T2, shift> a, const FixedPoint<T, T2, shift> &b)
+{
+  return a -= b;
+}
+
 
 
 typedef FixedPoint<uint16_t, uint32_t, 0> U16F0;      // 0 .. 65536
