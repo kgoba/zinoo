@@ -4,6 +4,7 @@
 
 #include <pins.hh>
 #include <i2c.hh>
+#include <fstring.hh>
 
 #include "UVSensor.hh"
 #include "Barometer.hh"
@@ -13,7 +14,6 @@
 #include "FSKTransmitter.hh"
 #include "GPS.hh"
 
-#include "fstring.h"
 #include "debug.hh"
 
 #include "Config.hh"
@@ -209,17 +209,20 @@ void setup()
   dbg.println(F("Starting GPS serial..."));
   gpsBegin();
 
-  dbg.println(F("Initializing SD card..."));
-  if (!initSD()) bit_set(gError, kERROR_CARD);
+  dbg << F("Initializing SD card...") << crlf;
+  if (!initSD()) {
+    dbg << F("Could not access SD card!") << crlf;
+    bit_set(gError, kERROR_CARD);
+  }
   logfile = SD.open("LOG.TXT", FILE_WRITE);
   if (!logfile) {
     bit_set(gError, kERROR_FILE);
-    dbg.println(F("Could not open file!"));
+    dbg << F("Could not open file!") << crlf;
   }
 
   //testFSWrite();
 
-  dbg.println(F("Setup complete"));
+  dbg << F("Setup complete") << crlf;
   //logfile.println("*** INIT ****");
 }
 

@@ -3,9 +3,9 @@
 //#include <stream.hh>
 
 #include <MinimumSerial.h>
-#include "FixedPoint.hh"
 
-#include "fstring.h"
+#include <fpoint.hh>
+#include <fstring.hh>
 
 
 extern MinimumSerial dbg;

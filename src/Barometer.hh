@@ -1,5 +1,4 @@
-#include "FixedPoint.hh"
-
+#include <fpoint.hh>
 #include <i2c.hh>
 
 #include <util/delay.h>
