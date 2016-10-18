@@ -45,9 +45,6 @@ int8_t FlightData::getMinutes() {
   return minutes.toUInt16();
 }
 
-void FlightData::updateTime() {
-}
-
 void FlightData::print() {
   char delim = ' ';
 
@@ -80,7 +77,9 @@ void FlightData::print() {
   dbg.println();
 }
 
-void FlightData::updateTemperature() {
+void FlightData::updateTemperature(int8_t tempExt, int8_t tempInt) {
+  temperatureInternal = tempInt;
+  temperatureExternal = tempExt;
   /*
   temperatureInternal = convertTemperature(adcRead(adcChanTempInt));
   temperatureExternal = convertTemperature(adcRead(adcChanTempExt));
@@ -98,17 +97,12 @@ void UKHASPacketizer::setPayloadName(const char *payloadName) {
 }
 
 void UKHASPacketizer::makePacket(const FlightData &data) {
-  char statusChar = (char)(data.status & 0x3F) | 0x40;
-
   uint8_t nibble = data.status >> 4;
   char statusChar1 = (nibble > 9) ? nibble - 10 + 'A' : nibble + '0';
   nibble = data.status & 0x0F;
   char statusChar2 = (nibble > 9) ? nibble - 10 + 'A' : nibble + '0';
 
   uint16_t altitude = (data.altitude > 0) ? data.altitude : data.barometricAltitude;
-
-  byte satCount = data.satCount;
-  if (satCount > 9) satCount = 9;
 
   int16_t tempInt = 60 + data.temperatureInternal;
   if (tempInt > 99) tempInt = 99;
@@ -137,7 +131,7 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   packet.append(','); packet.append((5 + altitude) / 10);
   packet.append(','); packet.append(data.time);
 
-  packet.append(','); packet.append(satCount);
+  packet.append(','); packet.append(data.satCount < 10 ? data.satCount : 9);
 
   //packet.append(','); packet.append(tempInt);
   packet.append(','); packet.append(data.temperatureInternal);
@@ -145,24 +139,15 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   //packet.append(','); packet.append(tempExt);
   packet.append(','); packet.append(data.temperatureExternal);
 
-  packet.append(','); packet.append(battVoltage);
-  //packet.append(','); packet.append(statusChar);
+  packet.append(','); packet.append(data.batteryVoltage);
   packet.append(',');
   if (statusChar1 != '0') packet.append(statusChar1);
   packet.append(statusChar2);
 
-  uint16_t pressureMBar = (data.pressure + 12) / 25;
-  packet.append(','); packet.append(pressureMBar);
+  uint16_t pressureMilliBar = (data.pressure + 12) / 25;
+  packet.append(','); packet.append(pressureMilliBar);
   packet.append(','); packet.append((5 + data.barometricAltitude) / 10);
 
-  /*
-  if (data.pressure > 0) {
-    uint16_t pressureMBar = (data.pressure + 12) / 25;
-    packet.append(pressureMBar);
-    packet.append('/');
-    packet.append(data.barometricAltitude);
-  }
-  */
 
   // Now compute CRC checksum and append it
   crc.clear();

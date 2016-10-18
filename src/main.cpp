@@ -13,6 +13,7 @@
 
 #include "FSKTransmitter.hh"
 #include "GPS.hh"
+#include "UKHAS.hh"
 
 #include "debug.hh"
 
