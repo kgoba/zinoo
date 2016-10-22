@@ -20,7 +20,7 @@
 #include "Config.hh"
 
 template<class I2CPeriph>
-class Buzzer {
+class BusBuzzer {
 public:
   static bool setMode(uint8_t mode) {
     uint8_t cmd[2];
@@ -56,7 +56,7 @@ UVSensor<TWIMaster>         uvSensor;
 
 FSKTransmitter<DigitalOut<PortD, 3>, DigitalOut<PortD, 2> > fskTransmitter;
 
-Buzzer<TWIMaster>  buzzer;
+BusBuzzer<TWIMaster>  buzzer;
 
 TWIMaster   i2cBus;
 
@@ -394,9 +394,35 @@ ISR(TWI_vect) {
 ISR(TIMER1_OVF_vect) {
   static uint16_t cnt2;
 
+  static uint8_t errorIdx;
+  static uint8_t errorBeepCnt;
+  static uint16_t errorBeepTicks;
+
   if (++cnt2 >= kFSKBaudrate) {
     cnt2 = 0;
     gSeconds++;
+  }
+
+
+  if (errorBeepTicks == 0) {
+    if (errorBeepCnt == 0) {
+      if (bit_check(gError, errorIdx)) {
+        errorBeepCnt = 2 * (errorIdx + 1);
+        errorBeepTicks = kFSKBaudrate;
+      }
+
+      errorIdx++;
+      errorIdx &= 0x07;
+    }
+    else {
+      if (errorBeepCnt & 1) pinBuzzer.clear();
+      else pinBuzzer.set();
+      errorBeepCnt--;
+      errorBeepTicks = kFSKBaudrate / 10;
+    }
+  }
+  else {
+    errorBeepTicks--;
   }
 
   fskTransmitter.tick();
