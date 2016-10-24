@@ -43,3 +43,4 @@ I2C Bus
 
 const int kFSKBaudrate = 300;     // FSK baudrate
 const int kMeasureInterval = 4;   // seconds between sensor updates
+const int kGPSLockTimeout = 60;

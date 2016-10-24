@@ -140,6 +140,41 @@ public:
     return p;
   }
 
+
+static uint16_t getAltitude() {
+  return getAltitude(p);
+}
+
+static uint16_t getAltitude(uint16_t pressure) {
+  // Atmospheric pressure in Pa/4 for altitudes 0..32 km in steps of 2 km
+  // Source: http://www.pdas.com/atmos.html
+  const uint16_t lookup[] = {
+    25325, 19875, 15415, 11805,
+    8913, 6625, 4850, 3543, 2588, 1891,
+    1382, 1012, 743, 547, 404, 299, 222
+  };
+
+  const uint16_t stepSize = 2000;     // 5C
+
+  // Find the pair of closest lookup table entries
+  uint8_t idx = 0;
+  uint16_t alt = 0;
+  while (lookup[idx] > pressure) {
+    idx++;
+    alt += stepSize;
+    if (alt > 32000) {
+      return 32000;
+    }
+  }
+  if (idx == 0) return 0;
+
+  // Linear interpolation between adjacent table entries
+  uint16_t diff = lookup[idx - 1] - lookup[idx];
+  alt -= ((uint32_t)stepSize * (pressure - lookup[idx]) + diff/2) / diff;
+
+  return alt;
+}
+
 private:
   typedef MS5607<I2CPeriph, subAddress> Base;
 

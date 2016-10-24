@@ -144,8 +144,8 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   if (statusChar1 != '0') packet.append(statusChar1);
   packet.append(statusChar2);
 
-  uint16_t pressureMilliBar = (data.pressure + 12) / 25;
-  packet.append(','); packet.append(pressureMilliBar);
+  uint16_t pressureMilliBar10 = (data.pressure * 2) / 5;
+  packet.append(','); packet.append(pressureMilliBar10);
   packet.append(','); packet.append((5 + data.barometricAltitude) / 10);
 
 

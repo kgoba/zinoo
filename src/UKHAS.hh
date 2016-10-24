@@ -40,7 +40,7 @@ struct FlightData {
 
 class UKHASPacketizer {
 public:
-  UKHASPacketizer(const char *payloadName);
+  UKHASPacketizer(const char *payloadName = "");
 
 
   void setPayloadName(const char *payloadName);

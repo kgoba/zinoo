@@ -10,6 +10,7 @@
 #include "Barometer.hh"
 #include "HumiSensor.hh"
 #include "MagAccSensor.hh"
+#include "Buzzer.hh"
 
 #include "FSKTransmitter.hh"
 #include "GPS.hh"
@@ -18,26 +19,6 @@
 #include "debug.hh"
 
 #include "Config.hh"
-
-template<class I2CPeriph>
-class BusBuzzer {
-public:
-  static bool setMode(uint8_t mode) {
-    uint8_t cmd[2];
-    cmd[0] = 0x00;
-    cmd[1] = mode;
-    return Device::send(cmd, 2);
-  }
-
-private:
-  typedef I2CDevice<I2CPeriph, 0x23> Device;
-};
-
-/*
-$GPGSA, askjfkasjdhf
-$ZINOO, 125936, 5656.8471, 2408.9758, 12333, 45.4, 21.6, 296, -260, 7870, 10095, -16483, 32767, 22.50, 103028, 20.77
-
-*/
 
 DigitalIn<PortD, 4>   pinD4;
 DigitalIn<PortD, 5>   pinGPSData;
@@ -53,20 +34,16 @@ Barometer<TWIMaster, 1>     baroSensor;
 MagAccSensor<TWIMaster, 1>  magSensor;
 HumiditySensor<TWIMaster>   humiSensor;
 UVSensor<TWIMaster>         uvSensor;
+BusBuzzer<TWIMaster>        buzzer;
 
 FSKTransmitter<DigitalOut<PortD, 3>, DigitalOut<PortD, 2> > fskTransmitter;
 
-BusBuzzer<TWIMaster>  buzzer;
-
 TWIMaster   i2cBus;
 
-const char *crlf = "\r\n";
-
 SdFat SD;
-
-//ArduinoOutStream cout(MinimumSerial);
-
 File logfile;
+
+const char *crlf = "\r\n";
 
 enum {
   kERROR_RESET,  // 1 if less than minute after Reset
@@ -80,7 +57,7 @@ enum {
 };
 
 uint8_t gError;
-//volatile uint8_t gFlags;
+
 volatile uint16_t gSeconds;     // 18h rollover
 
 void errorHalt(const char* msg)
@@ -171,18 +148,6 @@ void setup()
   if (!success) bit_set(gError, kERROR_BARO);
   dbg.println(success ? F("OK") : F("FAILED"));
 
-  dbg.print(F("Initializing humidity sensor..."));
-  success = false;
-  for (uint8_t nTry = 10; nTry > 0; nTry--) {
-    if (humiSensor.begin()) {
-      success = true;
-      break;
-    }
-    delay(100);
-  }
-  if (!success) bit_set(gError, kERROR_HUMID);
-  dbg.println(success ? F("OK") : F("FAILED"));
-
   dbg.print(F("Initializing magnetic sensor..."));
   success = false;
   for (uint8_t nTry = 10; nTry > 0; nTry--) {
@@ -193,6 +158,18 @@ void setup()
     delay(100);
   }
   if (!success) bit_set(gError, kERROR_MAG);
+  dbg.println(success ? F("OK") : F("FAILED"));
+
+  dbg.print(F("Initializing humidity sensor..."));
+  success = false;
+  for (uint8_t nTry = 10; nTry > 0; nTry--) {
+    if (humiSensor.begin()) {
+      success = true;
+      break;
+    }
+    delay(100);
+  }
+  if (!success) bit_set(gError, kERROR_HUMID);
   dbg.println(success ? F("OK") : F("FAILED"));
 
   dbg.print(F("Initializing UV sensor..."));
@@ -224,35 +201,58 @@ void setup()
   //testFSWrite();
 
   dbg << F("Setup complete") << crlf;
-  //logfile.println("*** INIT ****");
+  logfile.println("*** INIT ****");
 }
 
 GPSParser gpsParser;
 
-FString<120> line;
+FlightData gFlightData;
+UKHASPacketizer gPacketizer("ZLIEP");
 
 void loop()
 {
+  static FString<120> line;
+  static FString<120> gpsLine;
+  static uint16_t nextMeasureTime;
+
+  // Check time after reset
   if (gSeconds >= 60) {
     bit_clear(gError, kERROR_RESET);
   }
 
+  // Check GPS fix
   static uint16_t lastFixTime;
   if (gpsParser.gpsInfo.fix == '3') {
     lastFixTime = gSeconds;
     bit_clear(gError, kERROR_GPSFIX);
   }
-  else if (gSeconds - lastFixTime > 60) {
+  else if (gSeconds - lastFixTime > kGPSLockTimeout) {
     bit_set(gError, kERROR_GPSFIX);
   }
 
+  // Parse GPS serial buffer data
   while (gpsAvailable()) {
     char c = gpsRead();
     gpsParser.parse(c);
+
+    if (c == '\n' || c == '\r') {
+      if (gpsLine.size > 0) {
+        gpsLine.append(crlf);
+        gpsLine.append('\0');
+
+        //dbg << gpsLine.buf;
+        //logfile.print(gpsLine.buf);
+        //logfile.flush();    // Just to be sure
+        gpsLine.clear();
+
+        gFlightData.updateGPS(gpsParser.gpsInfo);
+      }
+    }
+    else {
+      gpsLine.append(c);
+    }
     //dbg.print(c);
   }
-
-  static uint16_t nextMeasureTime;
 
   if (gSeconds >= nextMeasureTime) {
     nextMeasureTime += kMeasureInterval;
@@ -269,6 +269,7 @@ void loop()
     uint16_t uvLevel = uvSensor.getUVLevel();
 
     uint16_t pressure = baroSensor.getPressure(); // Pascals /4
+    uint16_t altitude = baroSensor.getAltitude(); // meters
     int16_t ptemp = baroSensor.getTemperature();        // format D2
 
     int16_t mtemp = magSensor.getTemperature();         // format F3
@@ -287,6 +288,8 @@ void loop()
     line.append(gpsParser.gpsInfo.longitude);
     line.append(',');
     line.append(gpsParser.gpsInfo.altitude);
+    line.append(',');
+    line.append(gpsParser.gpsInfo.satCount);
     line.append(',');
 
     if (humOK) line.append(rhum);
@@ -332,6 +335,7 @@ void loop()
     if (humOK) {
       dbg << F("RH: "); dbg.print(rhum * 0.1f, 1);
       dbg << F(" t: "); dbg.println(temp * 0.1f, 1);
+      gFlightData.temperatureExternal = (temp + 5) / 10;
     }
     else {
       //dbg.println("Failed to read humidity sensor");
@@ -350,8 +354,12 @@ void loop()
 
     if (barOK) {
       dbg << F("p: ") << (4UL * pressure);
+      dbg << F(" h: ") << altitude;
       dbg << F(" t: ") << ptemp * 0.01f;
       dbg << crlf;
+      gFlightData.temperatureInternal = (ptemp + 50) / 100;
+      gFlightData.pressure = pressure;
+      gFlightData.barometricAltitude = altitude;
     }
     else {
       //dbg.println("Failed to read pressure sensor");
@@ -368,6 +376,8 @@ void loop()
     dbg << F("ERR: 0b");
     dbg.println(gError, BIN);
 
+    gFlightData.status = gError;
+
     /*
     if (gpsParser.gpsInfo.fix != 0) {
       dbg << "GPS Fix: " << (char)gpsParser.gpsInfo.fix << crlf;
@@ -376,9 +386,11 @@ void loop()
         << ' ' << (const char *)gpsParser.gpsInfo.latitude
         << ' ' << (const char *)gpsParser.gpsInfo.longitude << crlf;
     */
-
     //dbg << "Transmitting..." << crlf;
     if (!fskTransmitter.isBusy()) {
+      gPacketizer.makePacket(gFlightData);
+      fskTransmitter.transmit((const uint8_t *)gPacketizer.packet.buf, gPacketizer.packet.size);
+      dbg << gPacketizer.packet.buf;
       //fskTransmitter.transmit((const uint8_t *)line.buf, line.size);
     }
   }

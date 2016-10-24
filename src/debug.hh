@@ -8,7 +8,15 @@
 #include <fstring.hh>
 
 
+class NoDebug : public Print {
+public:
+  virtual size_t write(uint8_t) {
+    return 1;
+  }
+};
+
 extern MinimumSerial dbg;
+//extern NoDebug dbg;
 
 
 template<typename T>
