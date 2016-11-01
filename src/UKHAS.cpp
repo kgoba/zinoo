@@ -158,10 +158,6 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   // Must send a newline character as well
   packet.append('\n');
 
-  // Add terminating zero and print (only for debug)
-  packet.append('\0');
-  //dbg.print(packet.buf);
-
   sentenceID++;
 }
 

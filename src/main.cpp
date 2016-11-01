@@ -20,12 +20,12 @@
 
 #include "Config.hh"
 
-DigitalIn<PortD, 4>   pinD4;
+//DigitalOut<PortD, 2>  pinRadioEnable;
+//DigitalOut<PortD, 3>  pinRadioData;
+DigitalOut<PortD, 4>  pinESPEnable;
 DigitalIn<PortD, 5>   pinGPSData;
 DigitalIn<PortD, 6>   pinD6;
 DigitalIn<PortD, 7>   pinD7;
-//DigitalOut<PortD, 2>  pinRadioEnable;
-//DigitalOut<PortD, 3>  pinRadioData;
 
 DigitalOut<PortB, 0>  pinRelease;
 DigitalOut<PortB, 1>  pinBuzzer;
@@ -230,6 +230,22 @@ void loop()
     bit_set(gError, kERROR_GPSFIX);
   }
 
+  static bool espON = false;
+  if (gSeconds % 32 < 16) {
+    if (espON) {
+      dbg << F("Turning ESP off") << crlf;
+      espON = false;
+    }
+    pinESPEnable.clear();
+  }
+  else {
+    if (!espON) {
+      dbg << F("Turning ESP on") << crlf;
+      espON = true;
+    }
+    pinESPEnable.set();
+  }
+
   // Parse GPS serial buffer data
   while (gpsAvailable()) {
     char c = gpsRead();
@@ -390,7 +406,7 @@ void loop()
     if (!fskTransmitter.isBusy()) {
       gPacketizer.makePacket(gFlightData);
       fskTransmitter.transmit((const uint8_t *)gPacketizer.packet.buf, gPacketizer.packet.size);
-      dbg << gPacketizer.packet.buf;
+      dbg << gPacketizer.packet;
       //fskTransmitter.transmit((const uint8_t *)line.buf, line.size);
     }
   }
