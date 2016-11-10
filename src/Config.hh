@@ -41,6 +41,8 @@ I2C Bus
 
  *************************/
 
+#define kPayloadName    "LP1"
+
 const int kFSKBaudrate = 300;     // FSK baudrate
 const int kMeasureInterval = 4;   // seconds between sensor updates
 const int kGPSLockTimeout = 60;

@@ -20,6 +20,9 @@ struct GPSInfo {
   void setAltitude(const char *altitude);
   void setSatCount(const char *satCount);
   void print();
+
+  int8_t getSeconds();
+  int8_t getMinutes();
 };
 
 struct GPSParser {
@@ -30,7 +33,7 @@ struct GPSParser {
     SENTENCE_RMC
   };
 
-  void parse(char c);
+  bool parse(char c);
   void parseByChar(char c);
   void processField(byte sentence, byte index, const char *value, byte length);
 

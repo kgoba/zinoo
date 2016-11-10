@@ -20,6 +20,8 @@
 
 #include "Config.hh"
 
+const char *crlf = "\r\n";
+
 //DigitalOut<PortD, 2>  pinRadioEnable;
 //DigitalOut<PortD, 3>  pinRadioData;
 DigitalOut<PortD, 4>  pinESPEnable;
@@ -43,7 +45,10 @@ TWIMaster   i2cBus;
 SdFat SD;
 File logfile;
 
-const char *crlf = "\r\n";
+GPSParser gpsParser;
+
+FlightData gFlightData;
+UKHASPacketizer gPacketizer;
 
 enum {
   kERROR_RESET,  // 1 if less than minute after Reset
@@ -57,40 +62,19 @@ enum {
 };
 
 uint8_t gError;
+bool    gRecoveryMode;
 
-volatile uint16_t gSeconds;     // 18h rollover
+volatile uint16_t gSeconds;     // Seconds from reboot, 18h rollover
+
+bool initSD();
+void initTimer();
+void initSensors();
 
 void errorHalt(const char* msg)
 {
   dbg.print("Error: ");
   dbg.println(msg);
   while(1);
-}
-
-bool initSD()
-{
-  if (!SD.begin()) {
-    if (SD.card()->errorCode()) {
-      dbg.print(F("Error code: 0x"));
-      dbg.println(SD.card()->errorCode(), HEX);
-      dbg.print(F("Error data: 0x"));
-      dbg.println(SD.card()->errorData(), HEX);
-    }
-    dbg.println(F("Cannot communicate with SD card"));
-    return false;
-  }
-
-  if (SD.vol()->fatType() == 0) {
-    dbg.println(F("Can't find a valid FAT16/FAT32 partition."));
-    return false;
-  }
-
-  //uint32_t size = SD.card()->cardSize();
-  //uint32_t sizeMB = 0.000512 * size + 0.5;
-  //dbg.print("SD card size, blocks: "); dbg.println(size);
-  //dbg.print("SD card size, MB: "); dbg.println(sizeMB);
-  //dbg.print("Cluster size, bytes: "); dbg.println(512L * SD.vol()->blocksPerCluster());
-  return true;
 }
 
 void setup()
@@ -100,94 +84,18 @@ void setup()
 
   i2cBus.begin(20000);  // Slow I2C
 
-  // Timer1: Mode 14, Fast PWM, TOP = ICR1
-  TCCR1A = _BV(WGM11);
-  TCCR1B = _BV(WGM13) | _BV(WGM12);
-  TCCR1C = 0;
-  const uint32_t clkDiv = (uint32_t)F_CPU / kFSKBaudrate;
-
-  //dbg << "Timer1 divide = " << clkDiv << crlf;
-  if (clkDiv < 65536) {
-    TCCR1B |= 1;    // Prescaler 1024
-    ICR1 = clkDiv - 1;
-  }
-  else if (clkDiv / 8 < 65536) {
-    TCCR1B |= 2;
-    ICR1 = clkDiv / 8 - 1;
-  }
-  else if (clkDiv / 64 < 65536) {
-    TCCR1B |= 3;
-    ICR1 = clkDiv / 64 - 1;
-  }
-  else if (clkDiv / 256 < 65536) {
-    TCCR1B |= 4;
-    ICR1 = clkDiv / 256 - 1;
-  }
-  else if (clkDiv / 1024 < 65536) {
-    TCCR1B |= 5;
-    ICR1 = clkDiv / 1024 - 1;
-  }
-  TIMSK1 = _BV(TOIE1);
+  initTimer();
 
   set_sleep_mode(SLEEP_MODE_IDLE);
   sei();
 
   bit_set(gError, kERROR_RESET);
 
-  bool success;
-
-  dbg.print(F("Initializing pressure sensor..."));
-  success = false;
-  for (uint8_t nTry = 10; nTry > 0; nTry--) {
-    if (baroSensor.begin()) {
-      success = true;
-      break;
-    }
-    delay(100);
-  }
-  if (!success) bit_set(gError, kERROR_BARO);
-  dbg.println(success ? F("OK") : F("FAILED"));
-
-  dbg.print(F("Initializing magnetic sensor..."));
-  success = false;
-  for (uint8_t nTry = 10; nTry > 0; nTry--) {
-    if (magSensor.begin()) {
-      success = true;
-      break;
-    }
-    delay(100);
-  }
-  if (!success) bit_set(gError, kERROR_MAG);
-  dbg.println(success ? F("OK") : F("FAILED"));
-
-  dbg.print(F("Initializing humidity sensor..."));
-  success = false;
-  for (uint8_t nTry = 10; nTry > 0; nTry--) {
-    if (humiSensor.begin()) {
-      success = true;
-      break;
-    }
-    delay(100);
-  }
-  if (!success) bit_set(gError, kERROR_HUMID);
-  dbg.println(success ? F("OK") : F("FAILED"));
-
-  dbg.print(F("Initializing UV sensor..."));
-  success = false;
-  for (uint8_t nTry = 10; nTry > 0; nTry--) {
-    if (uvSensor.begin()) {
-      success = true;
-      break;
-    }
-    delay(100);
-  }
-  if (!success) bit_set(gError, kERROR_UVSENS);
-  dbg.println(success ? F("OK") : F("FAILED"));
+  initSensors();
 
   dbg.println(F("Starting GPS serial..."));
   gpsBegin();
 
-  dbg << F("Initializing SD card...") << crlf;
   if (!initSD()) {
     dbg << F("Could not access SD card!") << crlf;
     bit_set(gError, kERROR_CARD);
@@ -198,23 +106,14 @@ void setup()
     dbg << F("Could not open file!") << crlf;
   }
 
-  //testFSWrite();
+  gPacketizer.setPayloadName(kPayloadName);
 
   dbg << F("Setup complete") << crlf;
   logfile.println("*** INIT ****");
 }
 
-GPSParser gpsParser;
-
-FlightData gFlightData;
-UKHASPacketizer gPacketizer("ZLIEP");
-
 void loop()
 {
-  static FString<120> line;
-  static FString<120> gpsLine;
-  static uint16_t nextMeasureTime;
-
   // Check time after reset
   if (gSeconds >= 60) {
     bit_clear(gError, kERROR_RESET);
@@ -230,45 +129,43 @@ void loop()
     bit_set(gError, kERROR_GPSFIX);
   }
 
+  int8_t minutes = gpsParser.gpsInfo.getMinutes();
+
   static bool espON = false;
-  if (gSeconds % 32 < 16) {
-    if (espON) {
-      dbg << F("Turning ESP off") << crlf;
-      espON = false;
+  // start ESP every 10 minutes for 2 minutes
+  if (minutes > 0 && (minutes % 10) < 2) {
+    if (!espON) {
+      dbg << F("Turning ESP on at ") << minutes << crlf;
+      espON = true;
+      pinESPEnable.set();
     }
-    pinESPEnable.clear();
   }
   else {
-    if (!espON) {
-      dbg << F("Turning ESP on") << crlf;
-      espON = true;
+    if (espON) {
+      dbg << F("Turning ESP off at ") << minutes << crlf;
+      espON = false;
+      pinESPEnable.clear();
     }
-    pinESPEnable.set();
   }
 
   // Parse GPS serial buffer data
   while (gpsAvailable()) {
     char c = gpsRead();
-    gpsParser.parse(c);
+    if (gpsParser.parse(c)) {
+      gFlightData.updateGPS(gpsParser.gpsInfo);
 
-    if (c == '\n' || c == '\r') {
-      if (gpsLine.size > 0) {
-        gpsLine.append(crlf);
-        gpsLine.append('\0');
-
-        //dbg << gpsLine.buf;
-        //logfile.print(gpsLine.buf);
-        //logfile.flush();    // Just to be sure
-        gpsLine.clear();
-
-        gFlightData.updateGPS(gpsParser.gpsInfo);
+      if (gpsParser.gpsInfo.fix != '3') {
+        gRecoveryMode = true;
       }
-    }
-    else {
-      gpsLine.append(c);
+      else {
+        gRecoveryMode = gFlightData.altitude < 1000;
+      }
     }
     //dbg.print(c);
   }
+
+  static FString<120> line;
+  static uint16_t nextMeasureTime;
 
   if (gSeconds >= nextMeasureTime) {
     nextMeasureTime += kMeasureInterval;
@@ -279,6 +176,7 @@ void loop()
     bool humOK = humiSensor.update();
     bool uvOK  = uvSensor.update();
 
+    // Read sensor results
     int16_t rhum = humiSensor.getHumidity();    // format D1
     int16_t temp = humiSensor.getTemperature(); // format D1
 
@@ -294,8 +192,11 @@ void loop()
     magSensor.getMagField(mx, my, mz);
     magSensor.getAccel(ax, ay, az);
 
+    // Format logger line
     line.clear();
-    line.append("$ZINOO,");
+    line.append("$");
+    line.append(kPayloadName);
+    line.append(",");
 
     line.append(gpsParser.gpsInfo.time);
     line.append(',');
@@ -403,12 +304,13 @@ void loop()
         << ' ' << (const char *)gpsParser.gpsInfo.longitude << crlf;
     */
     //dbg << "Transmitting..." << crlf;
-    if (!fskTransmitter.isBusy()) {
-      gPacketizer.makePacket(gFlightData);
-      fskTransmitter.transmit((const uint8_t *)gPacketizer.packet.buf, gPacketizer.packet.size);
-      dbg << gPacketizer.packet;
-      //fskTransmitter.transmit((const uint8_t *)line.buf, line.size);
-    }
+  }
+
+  if (!fskTransmitter.isBusy()) {
+    gPacketizer.makePacket(gFlightData);
+    fskTransmitter.transmit((const uint8_t *)gPacketizer.packet.buf, gPacketizer.packet.size);
+    dbg << gPacketizer.packet;
+    //fskTransmitter.transmit((const uint8_t *)line.buf, line.size);
   }
 
   //delay(1000);
@@ -422,31 +324,44 @@ ISR(TWI_vect) {
 ISR(TIMER1_OVF_vect) {
   static uint16_t cnt2;
 
-  static uint8_t errorIdx;
-  static uint8_t errorBeepCnt;
-  static uint16_t errorBeepTicks;
-
   if (++cnt2 >= kFSKBaudrate) {
     cnt2 = 0;
     gSeconds++;
   }
 
 
+  static uint8_t errorIdx;      // index of the current error bit
+  static uint8_t errorBeepCnt;
+  static uint16_t errorBeepTicks;
+
   if (errorBeepTicks == 0) {
     if (errorBeepCnt == 0) {
-      if (bit_check(gError, errorIdx)) {
-        errorBeepCnt = 2 * (errorIdx + 1);
-        errorBeepTicks = kFSKBaudrate;
+      if (errorIdx == 8) {
+        errorBeepCnt = 8;
+        errorBeepTicks = kFSKBaudrate * 1;    // 1 second pause
+      }
+      else if (bit_check(gError, errorIdx)) {      // if error bit set
+        errorBeepCnt = 2 * (errorIdx + 1);    // bit 0: 1 beep, bit 1: 2 beeps, etc
+        errorBeepTicks = kFSKBaudrate * 1;    // 1 second pause
       }
 
       errorIdx++;
-      errorIdx &= 0x07;
+      if (errorIdx >= 9) {
+        errorIdx = 0;
+      }
+      pinBuzzer.clear();
     }
     else {
-      if (errorBeepCnt & 1) pinBuzzer.clear();
-      else pinBuzzer.set();
+      if (errorIdx > 0) {
+        if (errorBeepCnt & 1) pinBuzzer.clear();
+        else pinBuzzer.set();
+      }
+      else {
+        pinBuzzer.set();
+      }
+
+      errorBeepTicks = kFSKBaudrate / 8;
       errorBeepCnt--;
-      errorBeepTicks = kFSKBaudrate / 10;
     }
   }
   else {
@@ -516,3 +431,116 @@ bool testFSRead()
 }
 
 */
+
+void initTimer()
+{
+  // Timer1: Mode 14, Fast PWM, TOP = ICR1
+  TCCR1A = _BV(WGM11);
+  TCCR1B = _BV(WGM13) | _BV(WGM12);
+  TCCR1C = 0;
+  const uint32_t clkDiv = (uint32_t)F_CPU / kFSKBaudrate;
+
+  //dbg << "Timer1 divide = " << clkDiv << crlf;
+  if (clkDiv < 65536) {
+    TCCR1B |= 1;    // Prescaler 1024
+    ICR1 = clkDiv - 1;
+  }
+  else if (clkDiv / 8 < 65536) {
+    TCCR1B |= 2;
+    ICR1 = clkDiv / 8 - 1;
+  }
+  else if (clkDiv / 64 < 65536) {
+    TCCR1B |= 3;
+    ICR1 = clkDiv / 64 - 1;
+  }
+  else if (clkDiv / 256 < 65536) {
+    TCCR1B |= 4;
+    ICR1 = clkDiv / 256 - 1;
+  }
+  else if (clkDiv / 1024 < 65536) {
+    TCCR1B |= 5;
+    ICR1 = clkDiv / 1024 - 1;
+  }
+  TIMSK1 = _BV(TOIE1);
+}
+
+void initSensors()
+{
+  bool success;
+
+  dbg.print(F("Initializing pressure sensor..."));
+  success = false;
+  for (uint8_t nTry = 10; nTry > 0; nTry--) {
+    if (baroSensor.begin()) {
+      success = true;
+      break;
+    }
+    delay(100);
+  }
+  if (!success) bit_set(gError, kERROR_BARO);
+  dbg.println(success ? F("OK") : F("FAILED"));
+
+  dbg.print(F("Initializing magnetic sensor..."));
+  success = false;
+  for (uint8_t nTry = 10; nTry > 0; nTry--) {
+    if (magSensor.begin()) {
+      success = true;
+      break;
+    }
+    delay(100);
+  }
+  if (!success) bit_set(gError, kERROR_MAG);
+  dbg.println(success ? F("OK") : F("FAILED"));
+
+  dbg.print(F("Initializing humidity sensor..."));
+  success = false;
+  for (uint8_t nTry = 10; nTry > 0; nTry--) {
+    if (humiSensor.begin()) {
+      success = true;
+      break;
+    }
+    delay(100);
+  }
+  if (!success) bit_set(gError, kERROR_HUMID);
+  dbg.println(success ? F("OK") : F("FAILED"));
+
+  dbg.print(F("Initializing UV sensor..."));
+  success = false;
+  for (uint8_t nTry = 10; nTry > 0; nTry--) {
+    if (uvSensor.begin()) {
+      success = true;
+      break;
+    }
+    delay(100);
+  }
+  if (!success) bit_set(gError, kERROR_UVSENS);
+  dbg.println(success ? F("OK") : F("FAILED"));
+}
+
+bool initSD()
+{
+  dbg << F("Initializing SD card...") << crlf;
+
+  if (!SD.begin()) {
+    if (SD.card()->errorCode()) {
+      dbg.print(F("Error code: 0x"));
+      dbg.println(SD.card()->errorCode(), HEX);
+      dbg.print(F("Error data: 0x"));
+      dbg.println(SD.card()->errorData(), HEX);
+    }
+    dbg.println(F("Cannot communicate with SD card"));
+    return false;
+  }
+
+  if (SD.vol()->fatType() == 0) {
+    dbg.println(F("Can't find a valid FAT16/FAT32 partition."));
+    return false;
+  }
+
+  //uint32_t size = SD.card()->cardSize();
+  //uint32_t sizeMB = 0.000512 * size + 0.5;
+  //dbg.print("SD card size, blocks: "); dbg.println(size);
+  //dbg.print("SD card size, MB: "); dbg.println(sizeMB);
+  //dbg.print("Cluster size, bytes: "); dbg.println(512L * SD.vol()->blocksPerCluster());
+  return true;
+}

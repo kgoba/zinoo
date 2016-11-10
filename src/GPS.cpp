@@ -50,6 +50,18 @@ void GPSInfo::setSatCount(const char *satCount) {
   this->satCount = atoi(satCount);
 }
 
+int8_t GPSInfo::getSeconds() {
+  if (strlen(time) < 6) return -1;
+  FString<2> seconds(time + 4, 2);
+  return seconds.toUInt16();
+}
+
+int8_t GPSInfo::getMinutes() {
+  if (strlen(time) < 6) return -1;
+  FString<2> minutes(time + 2, 2);
+  return minutes.toUInt16();
+}
+
 /*
 void GPSInfo::print() {
   dbg.print(F("GPS:"));
@@ -81,15 +93,14 @@ void GPSInfo::print() {
 }
 */
 
-void GPSParser::parse(char c) {
-  // parseByChar(c);
-
-
+bool GPSParser::parse(char c) {
   static char    line[100];
   static uint8_t lineLength;
   static uint8_t checksum;
   static uint8_t checksumReported;
   static uint8_t checksumState;
+
+  bool isValidSentence = false;
 
   if (c == '\n') {
 
@@ -114,7 +125,6 @@ void GPSParser::parse(char c) {
     }
   }
   else {
-
     // parse entire line
     if (lineLength > 0) {
       line[lineLength] = 0;
@@ -124,6 +134,7 @@ void GPSParser::parse(char c) {
         //Serial.println("E: chk");
       }
       else {
+        isValidSentence = true;
         char *ptr = line;
         while (lineLength > 0) {
           parseByChar(*ptr);
@@ -139,7 +150,7 @@ void GPSParser::parse(char c) {
     checksumState = 0;
     lineLength = 0;
   }
-
+  return isValidSentence;
 }
 
 void GPSParser::parseByChar(char c) {

@@ -33,18 +33,6 @@ void FlightData::updateGPS(const GPSInfo &gps) {
   satCount = gps.satCount;
 }
 
-int8_t FlightData::getSeconds() {
-  if (time.size < 6) return -1;
-  FString<2> seconds = time.substr<2>(4);
-  return seconds.toUInt16();
-}
-
-int8_t FlightData::getMinutes() {
-  if (time.size < 6) return -1;
-  FString<2> minutes = time.substr<2>(2);
-  return minutes.toUInt16();
-}
-
 void FlightData::print() {
   char delim = ' ';
 

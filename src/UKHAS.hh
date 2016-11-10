@@ -31,9 +31,6 @@ struct FlightData {
   void updateGPS(const GPSInfo &gps);
   void updateTemperature(int8_t tempExt, int8_t tempInt);
 
-  int8_t getSeconds();
-  int8_t getMinutes();
-
   void print();
 };
 
