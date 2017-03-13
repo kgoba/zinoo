@@ -34,7 +34,7 @@ void FlightData::updateGPS(const GPSInfo &gps) {
 }
 
 void FlightData::print() {
-  char delim = ' ';
+//  char delim = ' ';
 
   dbg << F("FD: ");
   if (fix == '3') dbg << F("3D fix ");

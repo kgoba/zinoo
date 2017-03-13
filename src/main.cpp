@@ -22,8 +22,8 @@
 
 const char *crlf = "\r\n";
 
-//DigitalOut<PortD, 2>  pinRadioEnable;
-//DigitalOut<PortD, 3>  pinRadioData;
+DigitalOut<PortD, 2>  pinRadioEnable;
+DigitalOut<PortD, 3>  pinRadioData;
 DigitalOut<PortD, 4>  pinESPEnable;
 DigitalIn<PortD, 5>   pinGPSData;
 DigitalIn<PortD, 6>   pinD6;
@@ -163,6 +163,8 @@ void loop()
     }
     //dbg.print(c);
   }
+  //sleep_mode();
+  //return;
 
   static FString<120> line;
   static uint16_t nextMeasureTime;
