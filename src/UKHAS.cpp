@@ -2,6 +2,8 @@
 #include "Config.hh"
 #include "debug.hh"
 
+#include <EEPROM.h>
+
 #include <adc.hh>
 
 FlightData::FlightData() {
@@ -73,11 +75,13 @@ void FlightData::updateTemperature(int8_t tempExt, int8_t tempInt) {
   temperatureExternal = convertTemperature(adcRead(adcChanTempExt));
   batteryVoltage = adcRead(adcChanBattery) / 3;    // Approximation of x*330/1024
   */
+  //fixme: add baterry voltage
+  //batteryVoltage =analogRead(A6);
 }
 
 UKHASPacketizer::UKHASPacketizer(const char *payloadName) {
-  sentenceID = 1;
-  //fixme read from eeprom
+  EEPROM.get(0,sentenceID);         // added by JDat
+  //sentenceID = 1;                 // leave in case to reset counter
   setPayloadName(payloadName);
 }
 
@@ -148,7 +152,9 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   packet.append('\n');
 
   sentenceID++;
-  //fixme store to eeprom
+
+  EEPROM.update(1,(uint8_t)((sentenceID & 0xFF00)>>8));     //store only if number is changed
+  EEPROM.update(0,(uint8_t)(sentenceID & 0xFF));            //two lines because EEPROM.update is dumb an accept bytes
 }
 
 const uint8_t * UKHASPacketizer::getPacketBuffer() {
