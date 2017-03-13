@@ -77,6 +77,7 @@ void FlightData::updateTemperature(int8_t tempExt, int8_t tempInt) {
 
 UKHASPacketizer::UKHASPacketizer(const char *payloadName) {
   sentenceID = 1;
+  //fixme read from eeprom
   setPayloadName(payloadName);
 }
 
@@ -147,6 +148,7 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   packet.append('\n');
 
   sentenceID++;
+  //fixme store to eeprom
 }
 
 const uint8_t * UKHASPacketizer::getPacketBuffer() {
