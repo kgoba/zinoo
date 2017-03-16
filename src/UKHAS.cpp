@@ -4,7 +4,7 @@
 
 #include <EEPROM.h>
 
-#include <adc.hh>
+//#include <adc.hh>
 
 FlightData::FlightData() {
   temperatureInternal = 0;
@@ -106,9 +106,11 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   else if (tempExt < 0) tempExt = 0;
 
   //int16_t battVoltage = -60 + data.batteryVoltage;
-  //if (battVoltage > 99) battVoltage = 99;
-  //else if (battVoltage < 0) battVoltage = 0;
-  int16_t battVoltage = data.batteryVoltage;
+  int16_t battVoltage = (data.batteryVoltage-740)/2;
+  if (battVoltage > 99) battVoltage = 99;
+  else if (battVoltage < 0) battVoltage = 0;
+  //RF packet volt value to volts:
+  //volts on habhub=0.0080929066*(battVoltage*2+740)
 
   packet.clear();
   packet.append("$$");
@@ -132,7 +134,9 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   //packet.append(','); packet.append(tempExt);
   packet.append(','); packet.append(data.temperatureExternal);
 
-  packet.append(','); packet.append(data.batteryVoltage);
+  //packet.append(','); packet.append(data.batteryVoltage);
+  packet.append(','); packet.append(battVoltage);
+
   packet.append(',');
   if (statusChar1 != '0') packet.append(statusChar1);
   packet.append(statusChar2);

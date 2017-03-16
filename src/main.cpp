@@ -91,6 +91,7 @@ void setup()
 
   bit_set(gError, kERROR_RESET);
 
+  analogReference(INTERNAL);
   initSensors();
 
   dbg.println(F("Starting GPS serial..."));
@@ -194,6 +195,12 @@ void loop()
     magSensor.getMagField(mx, my, mz);
     magSensor.getAccel(ax, ay, az);
 
+
+    // Measure battery voltage
+    int batteryVoltage=analogRead(A6);
+    gFlightData.batteryVoltage=batteryVoltage;
+    //volts=adcVal*0.0080929066;
+
     // Format logger line
     line.clear();
     line.append("$");
@@ -239,6 +246,9 @@ void loop()
     line.append(',');
 
     if (uvOK) line.append(uvLevel);
+    line.append(',');
+
+    line.append(batteryVoltage);
     line.append(',');
 
     line.append(gError, HEX);
