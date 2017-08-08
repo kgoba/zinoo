@@ -1,33 +1,32 @@
 /*
-In this project,we'll show how to get GPS data from a remote Arduino via Wireless Lora Protocol 
+  (c) Dragino Project, https://github.com/dragino/Lora
+  (c) 2017 Karlis Goba
+
+  In this project,we'll show how to get GPS data from a remote Arduino via Wireless Lora Protocol 
 and show the track on the GoogleEarth.The construction of this project is similar to my last one:
 
-1) Client Side: Arduino + Lora/GPS Shield (868Mhz).
-2) Server Side: Arduino + Lora Shield (868Mhz) + Yun Shield + USB flash.
+1) Client Side: Arduino + Lora/GPS Shield
+2) Server Side: Arduino + Lora Shield
 
 Client side will get GPS data and keep sending out to the server via Lora wireless. Server side 
 will listin on the Lora wireless frequency, once it get the data from Client side, it will
 turn on the LED and log the sensor data to a USB flash. 
-Note: Over here we use the hardware serial to connect with the GPS and check the serial print by
-the software serial.You should make sure the GPS get fixed(3D_Fix LED flash).
-Press the "RST" button when you upload the sketch.
-More about this example, please see:
 
-
+This code uses SoftwareSerial and assumes that you have a 9600-baud serial GPS device 
+hooked up on pins 3(rx) and 4(tx).
 */
+
 #include <SoftwareSerial.h>
 #include <TinyGPS.h>
-/* This sample code demonstrates the normal use of a TinyGPS object.
-   It requires the use of SoftwareSerial, and assumes that you have a
-   9600-baud serial GPS device hooked up on pins 3(rx) and 4(tx).
-*/
 #include <SPI.h>
 #include <RH_RF95.h>
 
 // Singleton instance of the radio driver
 RH_RF95 rf95;
-TinyGPS gps;
+
 SoftwareSerial ss(3, 4);
+TinyGPS gps;
+
 String datastring="";
 String datastring1="";
 char databuf[100];
@@ -39,15 +38,17 @@ void setup()
 {
   Serial.begin(9600);
   ss.begin(9600);
-    if (!rf95.init())
-    Serial.println("init failed");
-    // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-    ss.print("Simple TinyGPS library v. "); ss.println(TinyGPS::library_version());
-    Serial.println();
+  //ss.print("Simple TinyGPS library v. "); ss.println(TinyGPS::library_version());
+  
+  if (!rf95.init()) {
+    Serial.println("LoRa init failed");      
+  }
+  // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+  // Change by calling rf96.setFrequency(mhz)
 }
 
 void loop()
-{ 
+{
   // Print Sending to rf95_server
   ss.println("Sending to rf95_server");
   bool newData = false;
@@ -55,10 +56,8 @@ void loop()
   unsigned short sentences, failed;
 
   // For one second we parse GPS data and report some key values
-  for (unsigned long start = millis(); millis() - start < 1000;)
-  {
-    while (Serial.available())
-    {
+  for (unsigned long start = millis(); millis() - start < 1000;) {
+    while (Serial.available()) {
       char c = Serial.read();
       // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
       if (gps.encode(c)) // Did a new valid sentence come in?
@@ -66,8 +65,7 @@ void loop()
     }
   }
   //Get the GPS data
-  if (newData)
-  {
+  if (newData) {
     float flat, flon;
     unsigned long age;
     gps.f_get_position(&flat, &flon, &age);
@@ -95,39 +93,32 @@ void loop()
     uint8_t indatabuf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(indatabuf);
 
-    if (rf95.waitAvailableTimeout(3000))
-     { 
-       // Should be a reply message for us now   
-       if (rf95.recv(indatabuf, &len))
-      {
-         // Serial print "got reply:" and the reply message from the server
-         ss.print("got reply: ");
-         ss.println((char*)indatabuf);
+    if (rf95.waitAvailableTimeout(3000)) { 
+      // Should be a reply message for us now   
+      if (rf95.recv(indatabuf, &len)) {
+        // Serial print "got reply:" and the reply message from the server
+        ss.print("got reply: ");
+        ss.println((char*)indatabuf);
       }
-      else
-      {
-      ss.println("recv failed");
+      else {
+        ss.println("recv failed");
       }
     }
-    else
-    {
+    else {
       // Serial print "No reply, is rf95_server running?" if don't get the reply .
       ss.println("No reply, is rf95_server running?");
     }
-  delay(400);
-    
- }
-  
-  gps.stats(&chars, &sentences, &failed);                                                                                                                                                                                                                                                                                                                                                                          
+    delay(400);
+  }
+
+  gps.stats(&chars, &sentences, &failed);                                                                                                                                                                                                                   
   ss.print(" CHARS=");
   ss.print(chars);
   ss.print(" SENTENCES=");
   ss.print(sentences);
   ss.print(" CSUM ERR=");
   ss.println(failed);
-  if (chars == 0)
-  ss.println("** No characters received from GPS: check wiring **");
+  if (chars == 0) {
+    ss.println("** No characters received from GPS: check wiring **");
+  }
 }
-
-
-
