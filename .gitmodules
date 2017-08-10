@@ -11,3 +11,6 @@
 [submodule "zinoo-lora-ground/lib/RadioHead"]
 	path = zinoo-lora-ground/lib/RadioHead
 	url = https://github.com/dragino/RadioHead.git
+[submodule "zinoo-lora/lib/TinyGPSPlus"]
+	path = zinoo-lora/lib/TinyGPSPlus
+	url = https://github.com/mikalhart/TinyGPSPlus.git
