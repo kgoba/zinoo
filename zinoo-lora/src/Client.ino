@@ -130,7 +130,7 @@ bool timeslot_go() {
 }
 
 void transmit() {
-    char tx_buf[80];    // Temporary buffer for LoRa message
+    char tx_buf[80];    // Temporary buffer for LoRa message (CHECK SIZE)
 
     // Build partial UKHAS sentence (without $$ and checksum)
     sprintf(tx_buf, "%s,%d,%02d%02d%02d,%.5f,%.5f,%d,%d",
