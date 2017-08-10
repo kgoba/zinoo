@@ -26,6 +26,9 @@ namespace config {
     // Our identifier
     const char * const callsign = "Z70";
     
+    // Transmit frequency. Set to 0 to use the default LoRa settings (434.0 MHz?)
+    const float frequency_mhz = 434.25;
+
     // Transmit every minute at the specified second 
     const int tx_timeslot = 30; 
 };
@@ -53,8 +56,10 @@ void setup() {
     if (!lora.init()) {
         Serial.println("LoRa init failed");      
     }
+
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-    // Change by calling rf96.setFrequency(mhz)
+    if (config::frequency_mhz != 0)
+        lora.setFrequency(config::frequency_mhz);
 }
 
 void loop() {
@@ -127,18 +132,13 @@ bool timeslot_go() {
 void transmit() {
     char tx_buf[80];    // Temporary buffer for LoRa message
 
-    // Build UKHAS sentence
-    sprintf(tx_buf, "$$%s,%d,%02d%02d%02d,%.5f,%.5f,%d,%d",
+    // Build partial UKHAS sentence (without $$ and checksum)
+    sprintf(tx_buf, "%s,%d,%02d%02d%02d,%.5f,%.5f,%d,%d",
         config::callsign, status.msg_id,
         hour(), minute(), second(),
         status.lat, status.lng, status.alt, status.n_sats
     );
-    
-    // Append checksum (ignoring $$) and a newline
-    char chksum_str[7];
-    sprintf(chksum_str, "*%04X\n", gps_CRC16_checksum(tx_buf + 2));
-    strcat(tx_buf, chksum_str);
-    
+        
     // Send the data to server
     lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
 
@@ -165,21 +165,3 @@ void transmit() {
     */       
 }
 
-uint16_t gps_CRC16_checksum(const char *msg) {
-    uint16_t crc = 0xFFFF;
-    while (*msg) {
-        crc = crc_xmodem_update(crc, *msg);
-        msg++;
-    }
-    return crc;
-}
-
-uint16_t crc_xmodem_update(uint16_t crc, uint8_t data) {
-    int i;
-    crc = crc ^ ((uint16_t)data << 8);
-    for (i=0; i<8; i++) {
-        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
-        else crc <<= 1;
-    }
-    return crc;
-}

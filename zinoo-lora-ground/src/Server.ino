@@ -17,8 +17,7 @@ turn on the LED and log the sensor data to a USB flash.
 #include <SPI.h>
 #include <RH_RF95.h>
 
-// Singleton instance of the radio driver
-RH_RF95 rf95;
+RH_RF95 lora;
 
 const int led = 4;
 const int reset_lora = 9;
@@ -38,7 +37,7 @@ void setup()
   delay(1000);
   digitalWrite(reset_lora, HIGH); 
   
-  if (!rf95.init()) {
+  if (!lora.init()) {
       Serial.println("LoRa init failed");
   }
   // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
@@ -48,18 +47,25 @@ void setup()
 void loop()
 {
   dataString="";
-  if (rf95.available())
+  if (lora.available())
   {
     Serial.println("Get new message");
     // Should be a message for us now   
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(buf);
-    if (rf95.recv(buf, &len))
+    if (lora.recv(buf, &len))
     {
+      buf[len] = '\0'; // Add zero termination, so it's a valid C string
+      
+      // Append checksum and a newline
+      char chksum_str[7];
+      sprintf(chksum_str, "*%04X\n", gps_CRC16_checksum(buf));
+      strcat((char *)buf, chksum_str);
+      
       digitalWrite(led, HIGH);
       //RH_RF95::printBuffer("request: ", buf, len);
       Serial.print("got message: "); Serial.println((char*)buf);
-      Serial.print("RSSI: "); Serial.println(rf95.lastRssi(), DEC);
+      Serial.print("RSSI: "); Serial.println(lora.lastRssi(), DEC);
 
       //make a string that start with a timestamp for assembling the data to log:
       dataString += String((char*)buf);
@@ -68,8 +74,8 @@ void loop()
 
       // Send a reply to client as ACK
       uint8_t data[] = "200 OK";
-      rf95.send(data, sizeof(data));
-      rf95.waitPacketSent();
+      lora.send(data, sizeof(data));
+      lora.waitPacketSent();
       Serial.println("Sent a reply");
 
       // Log the received message
@@ -91,4 +97,23 @@ String getTimeStamp() {
   //uint16_t  minutes = seconds / 60;
   String result(millis_now / 1000);
   return result;
+}
+
+uint16_t gps_CRC16_checksum(const uint8_t *msg) {
+    uint16_t crc = 0xFFFF;
+    while (*msg) {
+        crc = crc_xmodem_update(crc, *msg);
+        msg++;
+    }
+    return crc;
+}
+
+uint16_t crc_xmodem_update(uint16_t crc, uint8_t data) {
+    int i;
+    crc = crc ^ ((uint16_t)data << 8);
+    for (i=0; i<8; i++) {
+        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+        else crc <<= 1;
+    }
+    return crc;
 }
