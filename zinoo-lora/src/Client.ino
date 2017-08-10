@@ -17,108 +17,169 @@ hooked up on pins 3(rx) and 4(tx).
 */
 
 #include <SoftwareSerial.h>
+#include <TimeLib.h>
 #include <TinyGPS.h>
 #include <SPI.h>
 #include <RH_RF95.h>
 
-// Singleton instance of the radio driver
-RH_RF95 rf95;
+namespace config {
+    // Our identifier
+    const char * const callsign = "Z70";
+    
+    // Transmit every minute at the specified second 
+    const int tx_timeslot = 30; 
+};
 
 SoftwareSerial ss(3, 4);
 TinyGPS gps;
+RH_RF95 lora;
 
-String datastring="";
-String datastring1="";
-char databuf[100];
-uint8_t dataoutgoing[100];
-char gps_lon[20]={"\0"};  
-char gps_lat[20]={"\0"}; 
+struct Status {
+    uint16_t msg_id;
 
-void setup()
-{
-  Serial.begin(9600);
-  ss.begin(9600);
-  //ss.print("Simple TinyGPS library v. "); ss.println(TinyGPS::library_version());
-  
-  if (!rf95.init()) {
-    Serial.println("LoRa init failed");      
-  }
-  // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-  // Change by calling rf96.setFrequency(mhz)
+    float    lat, lng;  // Last valid coordinates
+    uint16_t alt;       // Last valid altitude
+    uint8_t  n_sats;    // Current satellites
+};
+
+Status status;
+
+
+void setup() {
+    Serial.begin(9600);
+    ss.begin(9600);
+    //ss.print("Simple TinyGPS library v. "); ss.println(TinyGPS::library_version());
+
+    if (!lora.init()) {
+        Serial.println("LoRa init failed");      
+    }
+    // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
+    // Change by calling rf96.setFrequency(mhz)
 }
 
-void loop()
-{
-  // Print Sending to rf95_server
-  ss.println("Sending to rf95_server");
-  bool newData = false;
-  unsigned long chars;
-  unsigned short sentences, failed;
+void loop() {
+    bool newData = false;
 
-  // For one second we parse GPS data and report some key values
-  for (unsigned long start = millis(); millis() - start < 1000;) {
     while (Serial.available()) {
-      char c = Serial.read();
-      // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
-      if (gps.encode(c)) // Did a new valid sentence come in?
-      newData = true;
+        char c = Serial.read();
+        // Serial.write(c); // uncomment this line if you want to see the GPS data flowing
+        if (gps.encode(c)) {// Did a new valid sentence come in?
+            newData = true;
+        }
     }
-  }
-  //Get the GPS data
-  if (newData) {
-    float flat, flon;
-    unsigned long age;
-    gps.f_get_position(&flat, &flon, &age);
-    ss.print("LAT=");
-    ss.print(flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6);
-    ss.print(" LON=");
-    ss.print(flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6);
-    ss.print(" SAT=");
-    ss.print(gps.satellites() == TinyGPS::GPS_INVALID_SATELLITES ? 0 : gps.satellites());
-    ss.print(" PREC=");
-    ss.print(gps.hdop() == TinyGPS::GPS_INVALID_HDOP ? 0 : gps.hdop());
-    flat == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flat, 6;          
-    flon == TinyGPS::GPS_INVALID_F_ANGLE ? 0.0 : flon, 6; 
-    // Once the GPS fixed,send the data to the server.
-    datastring +=dtostrf(flat, 0, 6, gps_lat); 
-    datastring1 +=dtostrf(flon, 0, 6, gps_lon);
-    ss.println(strcat(strcat(gps_lon,","),gps_lat));
-    strcpy(gps_lat,gps_lon);
-    ss.println(gps_lat); //Print gps_lon and gps_lat
-    strcpy((char *)dataoutgoing,gps_lat); 
+    if (!newData) return;
+    
+    // Sync time if necessary
+    if (newData && (timeStatus() == timeNotSet)) {
+        int year;
+        byte month, day, hour, minute, second;
+        unsigned long age;
+
+        gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, NULL, &age);
+        if (age < 500) {
+            // set the Time to the latest GPS reading
+            setTime(hour, minute, second, day, month, year);
+        }
+    }
+    
+    // Update coordinates if available
+    if (newData) {
+        float flat, flng;
+        unsigned long age;
+  
+        gps.f_get_position(&flat, &flng, &age);
+        if (age != TinyGPS::GPS_INVALID_AGE) {
+            // Convert altitude to 16 bit unsigned    
+            float falt = gps.f_altitude();
+            if (falt > 0) {
+                if (falt <= 65535) status.alt = (uint16_t)falt;
+                else status.alt = 65535;
+            }
+            else status.alt = 0;
+            
+            status.lat = flat;
+            status.lng = flng;
+            status.n_sats = gps.satellites();
+        }
+    }       
+    
+    // Transmit if our timeslot is up
+    if ((timeStatus() != timeNotSet) && timeslot_go()) {
+        transmit();
+    }
+}
+
+bool timeslot_go() {
+    static uint8_t last_minute = 0xFF;
+
+    // Is it still the same minute as previously?
+    if (minute() == last_minute) return false;
+
+    // Have we reached the second of our timeslot?
+    if (second() < config::tx_timeslot) 
+        return false;           
+    
+    // It's our timeslot. Update the minute so it's used up
+    last_minute = minute(); 
+    return true;
+}
+
+void transmit() {
+    char tx_buf[80];    // Temporary buffer for LoRa message
+
+    // Build UKHAS sentence
+    sprintf(tx_buf, "$$%s,%d,%02d%02d%02d,%.5f,%.5f,%d,%d",
+        config::callsign, status.msg_id,
+        hour(), minute(), second(),
+        status.lat, status.lng, status.alt, status.n_sats
+    );
+    
+    // Append checksum (ignoring $$) and a newline
+    char chksum_str[7];
+    sprintf(chksum_str, "*%04X\n", gps_CRC16_checksum(tx_buf + 2));
+    strcat(tx_buf, chksum_str);
+    
     // Send the data to server
-    rf95.send(dataoutgoing, sizeof(dataoutgoing));
-   
+    lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
+
+    /*
     // Now wait for a reply
-    uint8_t indatabuf[RH_RF95_MAX_MESSAGE_LEN];
+    static uint8_t indatabuf[RH_RF95_MAX_MESSAGE_LEN];
     uint8_t len = sizeof(indatabuf);
 
-    if (rf95.waitAvailableTimeout(3000)) { 
-      // Should be a reply message for us now   
-      if (rf95.recv(indatabuf, &len)) {
-        // Serial print "got reply:" and the reply message from the server
-        ss.print("got reply: ");
-        ss.println((char*)indatabuf);
-      }
-      else {
-        ss.println("recv failed");
-      }
+    if (lora.waitAvailableTimeout(3000)) { 
+        // Should be a reply message for us now   
+        if (lora.recv(indatabuf, &len)) {
+            // Serial print "got reply:" and the reply message from the server
+            ss.print("got reply: ");
+            ss.println((char*)indatabuf);
+        }
+        else {
+            ss.println("recv failed");
+        }
     }
     else {
-      // Serial print "No reply, is rf95_server running?" if don't get the reply .
-      ss.println("No reply, is rf95_server running?");
-    }
-    delay(400);
-  }
+        // Serial print "No reply, is lora_server running?" if don't get the reply .
+        ss.println("No reply, is lora_server running?");
+    }  
+    */       
+}
 
-  gps.stats(&chars, &sentences, &failed);                                                                                                                                                                                                                   
-  ss.print(" CHARS=");
-  ss.print(chars);
-  ss.print(" SENTENCES=");
-  ss.print(sentences);
-  ss.print(" CSUM ERR=");
-  ss.println(failed);
-  if (chars == 0) {
-    ss.println("** No characters received from GPS: check wiring **");
-  }
+uint16_t gps_CRC16_checksum(const char *msg) {
+    uint16_t crc = 0xFFFF;
+    while (*msg) {
+        crc = crc_xmodem_update(crc, *msg);
+        msg++;
+    }
+    return crc;
+}
+
+uint16_t crc_xmodem_update(uint16_t crc, uint8_t data) {
+    int i;
+    crc = crc ^ ((uint16_t)data << 8);
+    for (i=0; i<8; i++) {
+        if (crc & 0x8000) crc = (crc << 1) ^ 0x1021;
+        else crc <<= 1;
+    }
+    return crc;
 }
