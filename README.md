@@ -14,7 +14,7 @@ Please install PlatformIO to build the firmware (see [Installation guide](http:/
 pip install -U platformio
 ```
 
-To use the automatic upload script, `pyserial` library is required. You can install it by executing
+To use the telemetry upload script, the `pyserial` library is required. You can install it by executing
 
 ```bash
 pip install -U pyserial
@@ -46,7 +46,7 @@ pio run -t upload
 
 # Upload to *habhub*
 
-The script `habhub-upload.py` can be used to automatically upload received telemetry to the habhub platform. To do that, you need to specify the receiver callsign and the serial port device of the connected Arduino board, e.g.
+The script `habhub-upload.py` can be used to monitor, log, and upload received telemetry to the habhub platform. To do that, you need to specify the receiver callsign and the serial port device of the connected Arduino board, e.g.
 
 ```bash
 python habhub-upload.py GROUND-1 /dev/ttyUSB0
