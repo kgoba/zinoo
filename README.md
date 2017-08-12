@@ -14,6 +14,14 @@ Please install PlatformIO to build the firmware (see [Installation guide](http:/
 pip install -U platformio
 ```
 
+To use the automatic upload script, `pyserial` library is required. You can install it by executing
+
+```bash
+pip install -U pyserial
+```
+
+Note that you might want to add `sudo -H` in front of these commands, depending on your setup.
+
 # Building and uploading
 
 To build `zinoo-lora` and `zinoo-lora-ground`, change directory to the corresponding project and execute
