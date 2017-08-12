@@ -44,4 +44,4 @@ The script `habhub-upload.py` can be used to automatically upload received telem
 python habhub-upload.py GROUND-1 /dev/ttyUSB0
 ```
 
-The script will display all strings received from the serial port, as well as automatically attempt to upload strings beginning with `$$`. The script also creates a timestamped logfile in the current working directory, which contains the same information as is displayed in the console.
+The script will echo all strings received from the serial port, as well as automatically attempt to upload strings beginning with `$$`. All displayed information is also logged into a timestamped logfile, which is created in the current working directory.
