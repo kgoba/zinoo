@@ -16,15 +16,22 @@ turn on the LED and log the sensor data to a USB flash.
 //Include required lib so Arduino can talk with the Lora Shield
 #include <SPI.h>
 #include <RH_RF95.h>
+#include <TinyGPS.h>
 
-namespace config {
-    // Receive frequency. Set to 0 to use the default LoRa settings (434.0 MHz?)
-    const float frequency_mhz = 434.25;
-};
+// Transmit frequency in MHz
+#define FREQUENCY_MHZ 434.25
 
+// Bw125Cr45Sf128	   ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
+// Bw500Cr45Sf128	   ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
+// Bw31_25Cr48Sf512	   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
+// Bw125Cr48Sf4096     ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
+#define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
+
+#define GPS_UPDATE_INTERVAL 30
+
+TinyGPS gps;
 RH_RF95 lora;
 
-const int led = 4;
 const int reset_lora = 9;
 
 String dataString = "";
@@ -33,42 +40,73 @@ void setup() {
     Serial.begin(9600);
     Serial.println("RESET");
 
-    pinMode(led, OUTPUT); 
     pinMode(reset_lora, OUTPUT);     
 
     // reset lora module first. to make sure it will works properly
     digitalWrite(reset_lora, LOW);   
     delay(1000);
     digitalWrite(reset_lora, HIGH); 
+    delay(100);
   
     if (!lora.init()) {
         Serial.println("LoRa init failed");
     }
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
-    if (config::frequency_mhz != 0)
-        lora.setFrequency(config::frequency_mhz);
+    lora.setModemConfig(MODEM_MODE);
+    lora.setFrequency(FREQUENCY_MHZ);
 }
 
 void loop() {
-    if (!lora.available()) return;
+    static uint32_t next_GPS_update = 0;
+    bool newData = false;   // Did a new valid sentence come in?
+
+    // Feed data to GPS parser
+    if (Serial.available()) {
+        char c = Serial.read();
+        if (gps.encode(c)) {
+            newData = true; 
+        }
+    }
+    
+    if (lora.available()) {
+        // Should be a message for us now   
+        receive(); 
+    }
+    
+    if (millis() > next_GPS_update) {
+        next_GPS_update += GPS_UPDATE_INTERVAL * 1000;
+        
+        float flat, flng;
+        unsigned long age;
   
-    // Should be a message for us now   
+        gps.f_get_position(&flat, &flng, &age);
+        if (age != TinyGPS::GPS_INVALID_AGE) {
+            char str[40], lat_str[11], lng_str[11];
+            dtostrf(flat, 0, 5, lat_str);
+            dtostrf(flng, 0, 5, lng_str);
+            sprintf(str, "**LAT=%s LNG=%s", lat_str, lng_str);
+            Serial.println(str);
+        }
+    }
+}
+
+void receive() {
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN + 1];
     uint8_t len = sizeof(buf);
     if (lora.recv(buf, &len)) {
         // Add zero termination, so it's a valid C string
         buf[len] = '\0'; 
-      
-        // Append UKHAS checksum and a newline
-        char chksum_str[7];
-        sprintf(chksum_str, "*%04X\n", gps_CRC16_checksum(buf));
+  
+        // Append UKHAS checksum
+        char chksum_str[8];
+        sprintf(chksum_str, "*%04X", gps_CRC16_checksum(buf));
         strcat((char *)buf, chksum_str);
-      
-        digitalWrite(led, HIGH);
-        //RH_RF95::printBuffer("request: ", buf, len);
+  
         Serial.print("$$"); Serial.println((char*)buf);
-        Serial.print("RSSI: "); Serial.println(lora.lastRssi(), DEC);
-
+        Serial.print("  RSSI="); Serial.print(lora.lastRssi(), DEC);
+        
+        Serial.println();
+        
         /*
         //make a string that start with a timestamp for assembling the data to log:
         dataString="";
@@ -85,8 +123,6 @@ void loop() {
         // Log the received message
         Serial.println(dataString);
         */
-
-        digitalWrite(led, LOW);      
     }
     else {
         Serial.println("Receive failed");

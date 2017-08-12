@@ -17,3 +17,6 @@
 [submodule "zinoo-lora/lib/Time"]
 	path = zinoo-lora/lib/Time
 	url = https://github.com/PaulStoffregen/Time.git
+[submodule "zinoo-lora-ground/lib/TinyGPS"]
+	path = zinoo-lora-ground/lib/TinyGPS
+	url = https://github.com/mikalhart/TinyGPS.git
