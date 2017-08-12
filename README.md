@@ -8,6 +8,13 @@ Collection of High Altitude Balloon projects for Zinoo science center:
 
 # Getting Started
 
+If you cloned this repository, please make sure to update all the dependencies by executing
+
+```bash
+git submodule init
+git submodule update
+```
+
 Please install PlatformIO to build the firmware (see [Installation guide](http://docs.platformio.org/en/latest/installation.html)), e.g. by executing
 
 ```bash
