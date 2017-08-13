@@ -81,10 +81,19 @@ void loop() {
   
         gps.f_get_position(&flat, &flng, &age);
         if (age != TinyGPS::GPS_INVALID_AGE) {
-            char str[40], lat_str[11], lng_str[11];
+            // Convert altitude to 16 bit unsigned    
+            float falt = gps.f_altitude();
+            
+            byte hour, minute, second;
+            gps.crack_datetime(0, 0, 0, &hour, &minute, &second, NULL, 0);
+            
+            char str[40], lat_str[11], lng_str[11], alt_str[8];
             dtostrf(flat, 0, 5, lat_str);
             dtostrf(flng, 0, 5, lng_str);
-            sprintf(str, "**LAT=%s LNG=%s", lat_str, lng_str);
+            dtostrf(falt, 0, 0, alt_str);
+            sprintf(str, "**%02d%02d%02d,%s,%s,%s,%d", 
+                hour, minute, second,
+                lat_str, lng_str, alt_str, gps.satellites());
             Serial.println(str);
         }
     }
