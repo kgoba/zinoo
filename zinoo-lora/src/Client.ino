@@ -5,7 +5,7 @@
 
 #include <SoftwareSerial.h>
 #include <TimeLib.h>
-#include <TinyGPS.h>
+#include <TinyGPS++.h>
 #include <SPI.h>
 #include <RH_RF95.h>
 #include <EEPROM.h>
@@ -69,7 +69,7 @@ struct Status {
     }
 };
 
-TinyGPS gps;
+TinyGPSPlus gps;
 RH_RF95 lora;
 
 Status status;
@@ -125,48 +125,15 @@ void loop() {
     
     // Sync time if necessary
     if (newData && (timeStatus() != timeSet)) {
-        int year;
-        byte month, day, hour, minute, second;
-        unsigned long age;
-
-        gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, NULL, &age);
-        if (age < 500) {
-            // set the Time to the latest GPS reading
-            setTime(hour, minute, second, day, month, year);
-            Serial.print("Setting time to ");
-            Serial.print(year); Serial.print('.');
-            Serial.print(month); Serial.print('.');
-            Serial.print(day); Serial.print(' ');
-            Serial.print(hour); Serial.print(':');
-            Serial.print(minute); Serial.print(':');
-            Serial.println(second);
-        }
+        update_time_from_gps();
     }
     
     // Update last valid coordinates if available
     if (newData) {
-        float flat, flng;
-        unsigned long age;
-  
-        gps.f_get_position(&flat, &flng, &age);
-        if (age != TinyGPS::GPS_INVALID_AGE) {
-            // Convert altitude to 16 bit unsigned    
-            float falt = gps.f_altitude();
-            if ((falt > 0) && (falt != TinyGPS::GPS_INVALID_ALTITUDE)) {
-                if (falt <= 65535) status.alt = (uint16_t)falt;
-                else status.alt = 65535;
-            }
-            else status.alt = 0;
-            
-            status.fixValid = true;
-            status.lat = flat;
-            status.lng = flng;
-            status.n_sats = gps.satellites();
-            status.save();
-        }
+        update_location_from_gps();
     }       
     
-    // Transmit if it is our timeslot 
+    // Transmit if it is our timeslot and time is valid
     if ((timeStatus() != timeNotSet) && timeslot_go()) {
         transmit();
         status.msg_id++;
@@ -221,4 +188,87 @@ void transmit() {
 
     // Send the data to server
     lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
+}
+
+void update_time_from_gps() {
+    /*
+    int year;
+    byte month, day, hour, minute, second;
+    unsigned long age;
+
+    gps.crack_datetime(&year, &month, &day, &hour, &minute, &second, NULL, &age);
+    if (age < 500) {
+        // set the Time to the latest GPS reading
+        setTime(hour, minute, second, day, month, year);
+        Serial.print("Setting time to ");
+        Serial.print(year); Serial.print('.');
+        Serial.print(month); Serial.print('.');
+        Serial.print(day); Serial.print(' ');
+        Serial.print(hour); Serial.print(':');
+        Serial.print(minute); Serial.print(':');
+        Serial.println(second);
+    }
+    */
+    TinyGPSDate &date = gps.date;
+    TinyGPSTime &time = gps.time;
+
+    // Check for data validity (added satellite check, 
+    // otherwise GPS sends fake time/date information)
+    if (date.isValid() && time.isValid() 
+            && gps.satellites.isValid() && gps.satellites.value() > 0   
+            && time.age() < 500) 
+    {
+        setTime(time.hour(), time.minute(), time.second(), date.day(), date.month(), date.year());
+        Serial.print("Setting time to ");
+        Serial.print(date.year()); Serial.print('.');
+        Serial.print(date.month()); Serial.print('.');
+        Serial.print(date.day()); Serial.print(' ');
+        Serial.print(time.hour()); Serial.print(':');
+        Serial.print(time.minute()); Serial.print(':');
+        Serial.println(time.second());
+    }
+}
+
+void update_location_from_gps() {
+    /*
+    float flat, flng;
+    unsigned long age;
+
+    gps.f_get_position(&flat, &flng, &age);
+    if (age != TinyGPS::GPS_INVALID_AGE) {
+        // Convert altitude to 16 bit unsigned    
+        float falt = gps.f_altitude();
+        if ((falt > 0) && (falt != TinyGPS::GPS_INVALID_ALTITUDE)) {
+            if (falt <= 65535) status.alt = (uint16_t)falt;
+            else status.alt = 65535;
+        }
+        else status.alt = 0;
+        
+        status.fixValid = true;
+        status.lat = flat;
+        status.lng = flng;
+        status.n_sats = gps.satellites();
+    }
+    */
+    if (gps.satellites.isValid()) {
+        status.n_sats = gps.satellites.value();
+    }
+    else status.n_sats = 0;
+
+    if (gps.location.isValid()) {
+        float falt = 0;
+        if (gps.altitude.isValid()) falt = gps.altitude.meters();
+
+        // Convert altitude to 16 bit unsigned    
+        if (falt > 0) {
+            if (falt <= 65535) status.alt = (uint16_t)falt;
+            else status.alt = 65535;
+        }
+        else status.alt = 0;
+        
+        status.fixValid = true;
+        status.lat = gps.location.lat();
+        status.lng = gps.location.lng();
+    }
+    else status.fixValid = false;
 }
