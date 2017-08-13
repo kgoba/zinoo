@@ -10,6 +10,7 @@
 #include <RH_RF95.h>
 #include <EEPROM.h>
 
+
 #ifndef CALLSIGN
 #define CALLSIGN "Z00"              // Payload callsign
 #endif
@@ -31,6 +32,17 @@
 // * Bw31_25Cr48Sf512   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
 // * Bw125Cr48Sf4096    ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
 #define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
+
+#define LORA_RESET_PIN      9
+
+// NTC thermistor configuration
+#define NTC_PIN     0               // Analog pin number
+#define NTC_T0      (273+25)        // 25C in Kelvin
+#define NTC_R0      47000           // Resistance of the NTC at 25C, in ohms
+#define NTC_B       2700            // B coefficient of the NTC
+#define NTC_R1      10000           // Resistance of the resistor to the ground, in ohms
+
+
 
 struct Status {
     uint16_t msg_id;
@@ -62,7 +74,18 @@ RH_RF95 lora;
 
 Status status;
 
-const int pin_reset_lora = 9;
+float celsius_from_adc(uint16_t adc) {
+    float ratio = adc / 1024.0;
+    float R = (NTC_R1 / ratio) - NTC_R1;
+    float k1 = logf(R / NTC_R0) / NTC_B;
+    float T = 1 / (1 / NTC_T0 + k1);
+
+    return (T - 273.15);
+}
+
+float read_temperature() {
+    return celsius_from_adc(analogRead(NTC_PIN));
+}
 
 void setup() {
     setSyncInterval(60);
@@ -75,10 +98,10 @@ void setup() {
         Serial.println("LoRa init failed, retrying...");
         
         // reset LoRa module to make sure it will works properly
-        pinMode(pin_reset_lora, OUTPUT);
-        digitalWrite(pin_reset_lora, LOW);   
+        pinMode(LORA_RESET_PIN, OUTPUT);
+        digitalWrite(LORA_RESET_PIN, LOW);   
         delay(1000);
-        digitalWrite(pin_reset_lora, HIGH); 
+        digitalWrite(LORA_RESET_PIN, HIGH); 
     }
 
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
@@ -93,7 +116,7 @@ void loop() {
     bool newData = false;   // Did a new valid sentence come in?
 
     // Feed data to GPS parser
-    if (Serial.available()) {
+    while (Serial.available()) {
         char c = Serial.read();
         if (gps.encode(c)) {
             newData = true; 
@@ -182,12 +205,15 @@ void transmit() {
         lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
     }
     
+    int8_t temperature_ext = read_temperature();
+    
     // Build partial UKHAS sentence (without $$ and checksum)
-    // e.g. Z70,90,160900,51.03923,3.73228,31,9
-    sprintf(tx_buf, "%s,%d,%02d%02d%02d,%s,%s,%u,%d",
+    // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
+    sprintf(tx_buf, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d",
         CALLSIGN, status.msg_id,
         hour(), minute(), second(),
-        lat_str, lng_str, status.alt, status.n_sats
+        lat_str, lng_str, status.alt, status.n_sats, 
+        temperature_ext
     );
     
     // Log the message on serial
