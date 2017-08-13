@@ -116,7 +116,7 @@ try:
                 pos = extract_payload_position(line)
                 if myPos and pos:
                     d_km = distance_straight(myPos, pos) / 1000.0
-                    log(logfile, "  Distance: %.1f km (%.0f m)\n" % (d_km, 1000*d_km))
+                    log(logfile, "  Distance: %.3f km\n" % (d_km,))
             except Exception as e:
                 log(logfile, "  Failed to extract payload position (%s)\n" % str(e), error=True)
         

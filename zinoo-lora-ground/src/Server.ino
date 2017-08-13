@@ -42,7 +42,7 @@ void setup() {
 
     pinMode(reset_lora, OUTPUT);     
 
-    // reset lora module first. to make sure it will works properly
+    // reset LoRa module first to make sure it will works properly
     digitalWrite(reset_lora, LOW);   
     delay(1000);
     digitalWrite(reset_lora, HIGH); 
@@ -61,7 +61,7 @@ void loop() {
     bool newData = false;   // Did a new valid sentence come in?
 
     // Feed data to GPS parser
-    if (Serial.available()) {
+    while (Serial.available()) {
         char c = Serial.read();
         if (gps.encode(c)) {
             newData = true; 
@@ -73,9 +73,7 @@ void loop() {
         receive(); 
     }
     
-    if (millis() > next_GPS_update) {
-        next_GPS_update += GPS_UPDATE_INTERVAL * 1000;
-        
+    if (newData && (millis() > next_GPS_update)) {        
         float flat, flng;
         unsigned long age;
   
@@ -83,6 +81,7 @@ void loop() {
         if (age != TinyGPS::GPS_INVALID_AGE) {
             // Convert altitude to 16 bit unsigned    
             float falt = gps.f_altitude();
+            if (falt == TinyGPS::GPS_INVALID_ALTITUDE || falt > 9999) falt = 0; // GPS problem fix
             
             byte hour, minute, second;
             gps.crack_datetime(0, 0, 0, &hour, &minute, &second, NULL, 0);
@@ -95,6 +94,8 @@ void loop() {
                 hour, minute, second,
                 lat_str, lng_str, alt_str, gps.satellites());
             Serial.println(str);
+
+            next_GPS_update += GPS_UPDATE_INTERVAL * 1000;
         }
     }
 }
