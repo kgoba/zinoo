@@ -16,7 +16,7 @@ turn on the LED and log the sensor data to a USB flash.
 //Include required lib so Arduino can talk with the Lora Shield
 #include <SPI.h>
 #include <RH_RF95.h>
-#include <TinyGPS.h>
+#include <TinyGPS++.h>
 
 // Transmit frequency in MHz
 #define FREQUENCY_MHZ 434.25
@@ -27,9 +27,9 @@ turn on the LED and log the sensor data to a USB flash.
 // Bw125Cr48Sf4096     ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
 #define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
 
-#define GPS_UPDATE_INTERVAL 30
+#define GPS_UPDATE_INTERVAL 60
 
-TinyGPS gps;
+TinyGPSPlus gps;
 RH_RF95 lora;
 
 const int reset_lora = 9;
@@ -68,35 +68,26 @@ void loop() {
         }
     }
     
+    // Check for pending received messages on the radio
     if (lora.available()) {
-        // Should be a message for us now   
         receive(); 
     }
     
-    if (newData && (millis() > next_GPS_update)) {        
-        float flat, flng;
-        unsigned long age;
-  
-        gps.f_get_position(&flat, &flng, &age);
-        if (age != TinyGPS::GPS_INVALID_AGE) {
-            // Convert altitude to 16 bit unsigned    
-            float falt = gps.f_altitude();
-            if (falt == TinyGPS::GPS_INVALID_ALTITUDE || falt > 9999) falt = 0; // GPS problem fix
-            
-            byte hour, minute, second;
-            gps.crack_datetime(0, 0, 0, &hour, &minute, &second, NULL, 0);
-            
-            char str[40], lat_str[11], lng_str[11], alt_str[8];
-            dtostrf(flat, 0, 5, lat_str);
-            dtostrf(flng, 0, 5, lng_str);
-            dtostrf(falt, 0, 0, alt_str);
-            sprintf(str, "**%02d%02d%02d,%s,%s,%s,%d", 
-                hour, minute, second,
-                lat_str, lng_str, alt_str, gps.satellites());
-            Serial.println(str);
+    // Report our GPS location if necessary
+    if (newData && (millis() > next_GPS_update) && gps.location.isValid()) {
+        next_GPS_update = millis() + (GPS_UPDATE_INTERVAL * 1000UL);
 
-            next_GPS_update += GPS_UPDATE_INTERVAL * 1000;
-        }
+        float falt = 0;
+        if (gps.altitude.isValid()) falt = gps.altitude.meters();
+    
+        char str[40], lat_str[11], lng_str[11], alt_str[8];
+        dtostrf(gps.location.lat(), 0, 5, lat_str);
+        dtostrf(gps.location.lng(), 0, 5, lng_str);
+        dtostrf(falt, 0, 0, alt_str);
+        sprintf(str, "**%02d%02d%02d,%s,%s,%s,%u,%lu", 
+            gps.time.hour(), gps.time.minute(), gps.time.second(),
+            lat_str, lng_str, alt_str, (uint8_t)gps.satellites.value(), gps.location.age());
+        Serial.println(str);
     }
 }
 
@@ -137,15 +128,6 @@ void receive() {
     else {
         Serial.println("Receive failed");
     }
-}
-
-// This function returns a string with the time stamp (in full seconds)
-String getTimeStamp() {
-    uint32_t millis_now = millis();
-    //uint16_t seconds = millis_now / 1000;
-    //uint16_t  minutes = seconds / 60;
-    String result(millis_now / 1000);
-    return result;
 }
 
 uint16_t gps_CRC16_checksum(const uint8_t *msg) {

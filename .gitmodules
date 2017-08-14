@@ -20,3 +20,6 @@
 [submodule "zinoo-lora-ground/lib/TinyGPS"]
 	path = zinoo-lora-ground/lib/TinyGPS
 	url = https://github.com/mikalhart/TinyGPS.git
+[submodule "zinoo-lora-ground/lib/TinyGPSPlus"]
+	path = zinoo-lora-ground/lib/TinyGPSPlus
+	url = https://github.com/mikalhart/TinyGPSPlus.git
