@@ -70,7 +70,7 @@ def distance_straight(position1, position2):
     return d
 
 def extract_listener_position(line):
-    (time, lat, lng, alt, n_sats) = line[2:].split(',')
+    (time, lat, lng, alt) = line[2:].split(',')[:4]
     return (float(lat), float(lng), float(alt))
 
 def extract_payload_position(line):
