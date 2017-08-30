@@ -18,16 +18,16 @@ git submodule update
 Please install PlatformIO to build the firmware (see [Installation guide](http://docs.platformio.org/en/latest/installation.html)), e.g. by executing
 
 ```bash
-pip install -U platformio
+sudo -H pip install -U platformio
 ```
 
 To use the telemetry upload script, the `pyserial` library is required. You can install it by executing
 
 ```bash
-pip install -U pyserial
+sudo -H pip install -U pyserial
 ```
 
-Note that you might want to add `sudo -H` in front of these commands, depending on your setup.
+Note that you might want to skip the `sudo -H` in front of these commands, depending on your setup.
 
 # Building and uploading
 
