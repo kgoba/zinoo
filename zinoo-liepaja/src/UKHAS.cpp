@@ -2,7 +2,9 @@
 #include "Config.hh"
 #include "debug.hh"
 
-#include <adc.hh>
+#include <EEPROM.h>
+
+//#include <adc.hh>
 
 FlightData::FlightData() {
   temperatureInternal = 0;
@@ -34,7 +36,7 @@ void FlightData::updateGPS(const GPSInfo &gps) {
 }
 
 void FlightData::print() {
-  char delim = ' ';
+//  char delim = ' ';
 
   dbg << F("FD: ");
   if (fix == '3') dbg << F("3D fix ");
@@ -73,10 +75,13 @@ void FlightData::updateTemperature(int8_t tempExt, int8_t tempInt) {
   temperatureExternal = convertTemperature(adcRead(adcChanTempExt));
   batteryVoltage = adcRead(adcChanBattery) / 3;    // Approximation of x*330/1024
   */
+  //fixme: add baterry voltage
+  //batteryVoltage =analogRead(A6);
 }
 
 UKHASPacketizer::UKHASPacketizer(const char *payloadName) {
-  sentenceID = 1;
+  EEPROM.get(0,sentenceID);         // added by JDat
+  //sentenceID = 1;                 // leave in case to reset counter
   setPayloadName(payloadName);
 }
 
@@ -101,9 +106,11 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   else if (tempExt < 0) tempExt = 0;
 
   //int16_t battVoltage = -60 + data.batteryVoltage;
-  //if (battVoltage > 99) battVoltage = 99;
-  //else if (battVoltage < 0) battVoltage = 0;
-  int16_t battVoltage = data.batteryVoltage;
+  int16_t battVoltage = (data.batteryVoltage-740)/2;
+  if (battVoltage > 99) battVoltage = 99;
+  else if (battVoltage < 0) battVoltage = 0;
+  //RF packet volt value to volts:
+  //volts on habhub=0.0080929066*(battVoltage*2+740)
 
   packet.clear();
   packet.append("$$");
@@ -127,7 +134,9 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   //packet.append(','); packet.append(tempExt);
   packet.append(','); packet.append(data.temperatureExternal);
 
-  packet.append(','); packet.append(data.batteryVoltage);
+  //packet.append(','); packet.append(data.batteryVoltage);
+  packet.append(','); packet.append(battVoltage);
+
   packet.append(',');
   if (statusChar1 != '0') packet.append(statusChar1);
   packet.append(statusChar2);
@@ -147,6 +156,9 @@ void UKHASPacketizer::makePacket(const FlightData &data) {
   packet.append('\n');
 
   sentenceID++;
+
+  EEPROM.update(1,(uint8_t)((sentenceID & 0xFF00)>>8));     //store only if number is changed
+  EEPROM.update(0,(uint8_t)(sentenceID & 0xFF));            //two lines because EEPROM.update is dumb an accept bytes
 }
 
 const uint8_t * UKHASPacketizer::getPacketBuffer() {

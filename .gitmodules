@@ -1,4 +1,4 @@
-[submodule "PTLib"]
+[submodule "zinoo-liepaja/lib/PTLib"]
 	path = zinoo-liepaja/lib/PTLib
 	url = https://github.com/kgoba/PTLib
         branch = master

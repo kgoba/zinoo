@@ -22,8 +22,8 @@
 
 const char *crlf = "\r\n";
 
-//DigitalOut<PortD, 2>  pinRadioEnable;
-//DigitalOut<PortD, 3>  pinRadioData;
+DigitalOut<PortD, 2>  pinRadioEnable;
+DigitalOut<PortD, 3>  pinRadioData;
 DigitalOut<PortD, 4>  pinESPEnable;
 DigitalIn<PortD, 5>   pinGPSData;
 DigitalIn<PortD, 6>   pinD6;
@@ -91,6 +91,7 @@ void setup()
 
   bit_set(gError, kERROR_RESET);
 
+  analogReference(INTERNAL);
   initSensors();
 
   dbg.println(F("Starting GPS serial..."));
@@ -163,6 +164,8 @@ void loop()
     }
     //dbg.print(c);
   }
+  //sleep_mode();
+  //return;
 
   static FString<120> line;
   static uint16_t nextMeasureTime;
@@ -191,6 +194,12 @@ void loop()
     int16_t ax, ay, az;                             // SF15 wrt +-4 g
     magSensor.getMagField(mx, my, mz);
     magSensor.getAccel(ax, ay, az);
+
+
+    // Measure battery voltage
+    int batteryVoltage=analogRead(A6);
+    gFlightData.batteryVoltage=batteryVoltage;
+    //volts=adcVal*0.0080929066;
 
     // Format logger line
     line.clear();
@@ -237,6 +246,9 @@ void loop()
     line.append(',');
 
     if (uvOK) line.append(uvLevel);
+    line.append(',');
+
+    line.append(batteryVoltage);
     line.append(',');
 
     line.append(gError, HEX);
