@@ -7,8 +7,11 @@ from hashlib import sha256
 from datetime import datetime
 
 # Habitat Upload Functions
-def habitat_upload_payload_telemetry(sentence, listener_callsign, listener_telemetry = None):
+def habitat_upload_payload_telemetry(sentence, listener_callsign, listener_position = None):
+    # calculate Base-64 encoded message
     sentence_b64 = b64encode(sentence + '\n')
+    
+    # just use the current system time
     date = datetime.utcnow().isoformat("T") + "Z"
 
     data = {
@@ -24,8 +27,14 @@ def habitat_upload_payload_telemetry(sentence, listener_callsign, listener_telem
             },
     }
 
-    if listener_telemetry:
-        data["receivers"][listener_callsign]["latest_listener_telemetry"] = listener_telemetry
+    if listener_position:
+        listener_data = {
+            "time": date,
+            "latitude": listener_position[0],
+            "longitude": listener_position[1],
+            "altitude": listener_position[2]
+        }
+        data["receivers"][listener_callsign]["latest_listener_telemetry"] = listener_data
 
     c = httplib.HTTPConnection("habitat.habhub.org",timeout=4)
     c.request(
@@ -95,7 +104,7 @@ input = serial.Serial(port_name, port_speed)
 
 logfile = open("log-" + datetime.utcnow().isoformat("T") + ".txt", "w")
 
-myPos = None  # (lat, lng, alt)
+my_position = None  # (lat, lng, alt)
 try:
     for line in input:
         log(logfile, line)
@@ -104,7 +113,7 @@ try:
         if line.startswith('$$'):
             for nTry in reversed(range(10)):
                 try:
-                    habitat_upload_payload_telemetry(line, receiver_callsign)
+                    habitat_upload_payload_telemetry(line, receiver_callsign, my_position)
                     log(logfile, "  Uploaded to Habitat\n")
                     break
                 except Exception as e:
@@ -114,15 +123,15 @@ try:
                         log(logfile, "  Failed to upload to Habitat (%s), retrying...\n" % str(e), error=True)
             try:
                 pos = extract_payload_position(line)
-                if myPos and pos:
-                    d_km = distance_straight(myPos, pos) / 1000.0
+                if my_position and pos:
+                    d_km = distance_straight(my_position, pos) / 1000.0
                     log(logfile, "  Distance: %.3f km\n" % (d_km,))
             except Exception as e:
                 log(logfile, "  Failed to extract payload position (%s)\n" % str(e), error=True)
         
         if line.startswith('**'):
             try:
-                myPos = extract_listener_position(line)
+                my_position = extract_listener_position(line)
             except:
                 log(logfile, "  Failed to extract listener position\n", error=True)
 
