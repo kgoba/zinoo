@@ -43,7 +43,7 @@ The `zinoo-lora` project builds several variants of the firmware (see the projec
 pio run -t upload -e <variant>
 ```
 
-Where `<variant>` is currently one of `z71`, `z72`, `z73` or `z74`. Variants are defined in the project definition file.
+Where `<variant>` is currently one of `uno_z71`, `uno_z72`, `uno_z73` or `uno_z74`. Variants are defined in the project definition file.
 
 To upload the `zinoo-lora-ground` project, you can simply execute
 
