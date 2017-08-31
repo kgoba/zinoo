@@ -1,0 +1,4 @@
+pyserial==3.4
+couchdbkit==0.6.3
+couch-named-python==0.2.2
+strict-rfc3339==0.3
