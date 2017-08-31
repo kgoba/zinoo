@@ -256,10 +256,13 @@ def distance_straight(position1, position2):
     return d
 
 def extract_listener_position(line):
+    # parse listener telemetry
     (time, lat, lng, alt) = line[2:].split(',')[:4]
     return (float(lat), float(lng), float(alt))
 
 def extract_payload_position(line):
+    # parse payload telemetry: 
+    # $$Z72,123,152251,56.95790,24.13918,21,11,13*CRC16
     fields = line[2:].split(',')
     lat = fields[3]
     lng = fields[4]
@@ -273,46 +276,71 @@ def test_distance_straight():
     print "pos1-pos2 =", distance_straight(pos1, pos2)
     print "pos1-pos3 =", distance_straight(pos1, pos3)
 
-def crc16(data, poly = 0x1021, crc = 0xFFFF):
-    ''' CRC-16-CCITT Algorithm '''
-    for b in bytearray(data):
-        crc = crc ^ (b << 8)
-        for _ in range(8):
-            if (crc & 0x8000):
-                crc = (crc << 1) ^ poly
-            else:
-                crc <<= 1
-    return crc & 0xFFFF
+def test_telemetry(sentence_id = 0):
+    def crc16(data, poly = 0x1021, crc = 0xFFFF):
+        ''' CRC-16-CCITT Algorithm '''
+        for b in bytearray(data):
+            crc = crc ^ (b << 8)
+            for _ in range(8):
+                if (crc & 0x8000):
+                    crc = (crc << 1) ^ poly
+                else:
+                    crc <<= 1
+        return crc & 0xFFFF
+
+    raw_sentence = "Z72,%d,152251,56.95790,24.13918,21,11,13" % sentence_id
+    return "$$%s*%04X" % (raw_sentence, crc16(raw_sentence))
 
 def test_upload():
-    raw_payload_sentence = "Z71,29,152200,56.94790,24.14918,21,11,13"  # CRC A657
-    payload_sentence = "$$%s*%04X" % (raw_payload_sentence, crc16(raw_payload_sentence))
-    print payload_sentence
-    my_location = (51.05, 3.733333, 0)
-    #my_location = None
-    #habitat_upload_payload_telemetry(payload_sentence, "GROUND-TEST", my_location)
-    habitat_upload_listener_telemetry("GROUND-TEST", my_location)
+    callsign = "TEST7"
+    u = Uploader(callsign)
 
+    data1 = {
+        #"time": "12:40:12",
+        "latitude": 51.15,
+        "longitude": 3.733333,
+        "altitude": 12
+    }
 
-receiver_callsign = sys.argv[1]
-port_name = sys.argv[2]
-port_speed = 9600
-input = serial.Serial(port_name, port_speed)
-#input = sys.stdin # not a good idea, as stdin is normally buffered
+    data2 = {
+        #"name": "Test Receiver",
+        #"location": "Belgium",
+        "radio": "rtlsdr",
+        "antenna": "fake 434MHz Yagi"
+    }
 
-logfile = open("log-" + datetime.utcnow().isoformat("T") + ".txt", "w")
+    string = test_telemetry(sentence_id)    
+                
+    u.listener_telemetry(data1)
+    u.listener_information(data2)
 
-u = Uploader(receiver_callsign)
+    try:
+        print "Uploading telemetry..."
+        u.payload_telemetry(string)
+    except:
+        print "Error"
 
-data = {
-    #"name": "Receiver",
-    "radio": "LoRa",
-    "antenna": "434MHz Yagi"
-}
-u.listener_information(data)
+    return
 
-my_position = None  # (lat, lng, alt)
-try:
+def main():
+    receiver_callsign = sys.argv[1]
+    port_name = sys.argv[2]
+    port_speed = 9600
+    input = serial.Serial(port_name, port_speed)
+    #input = sys.stdin # not a good idea, as stdin is normally buffered
+
+    logfile = open("log-" + datetime.utcnow().isoformat("T") + ".txt", "w")
+
+    u = Uploader(receiver_callsign)
+
+    data = {
+        #"name": "Receiver",
+        "radio": "LoRa",
+        "antenna": "434MHz Yagi"
+    }
+    u.listener_information(data)
+
+    my_position = None  # (lat, lng, alt)
     for line in input:
         log(logfile, line)
 
@@ -347,6 +375,10 @@ try:
                 u.listener_telemetry(data)
             except:
                 log(logfile, "  Failed to extract listener position\n", error=True)
+    return
 
-except KeyboardInterrupt:
-    sys.exit(0)
+if __name__ == "__main__":
+    try:
+        main()    
+    except KeyboardInterrupt:
+        sys.exit(0)
