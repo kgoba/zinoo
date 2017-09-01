@@ -150,9 +150,9 @@ class Uploader(object):
         self._db.save_doc(doc)
 
         doc_id = doc["_id"]
-        print doc
         with self._lock:
             self._latest[doc_type] = doc_id
+        #print doc
         return doc_id
 
     def _set_time(self, thing, time_created):
@@ -207,7 +207,7 @@ class Uploader(object):
         for i in xrange(self._max_merge_attempts):
             try:
                 self._set_time(receiver_info, time_created)
-                doc_id = self._payload_telemetry_update(string, receiver_info)
+                doc_id = self._payload_telemetry_update(string + '\n', receiver_info)
             except couchdbkit.exceptions.ResourceConflict:
                 continue
             except restkit.errors.Unauthorized:
@@ -220,10 +220,11 @@ class Uploader(object):
     def _payload_telemetry_update(self, string, receiver_info):
         doc_id = hashlib.sha256(base64.b64encode(string)).hexdigest()
         doc_ish = {
-            "data": {"_raw": base64.b64encode(string + '\n')},  # added newline
+            "data": {"_raw": base64.b64encode(string)},  # added newline
             "receivers": {self._callsign: receiver_info}
         }
         url = "_design/payload_telemetry/_update/add_listener/" + doc_id
+        #print string, url, doc_ish
         self._db.res.put(url, payload=doc_ish).skip_body()
         return doc_id
 
@@ -293,7 +294,7 @@ def test_telemetry(sentence_id = 0):
     raw_sentence = "Z72,%d,152251,56.95790,24.13918,21,11,13" % sentence_id
     return "$$%s*%04X" % (raw_sentence, crc16(raw_sentence))
 
-def test_upload():
+def test():
     callsign = "TEST7"
     u = Uploader(callsign)
 
@@ -311,25 +312,31 @@ def test_upload():
         "antenna": "fake 434MHz Yagi"
     }
 
-    string = test_telemetry(sentence_id)    
+    string = test_telemetry(501)
                 
-    u.listener_telemetry(data1)
-    u.listener_information(data2)
+    #u.listener_telemetry(data1)
+    #u.listener_information(data2)
 
     try:
         print "Uploading telemetry..."
         u.payload_telemetry(string)
-    except:
-        print "Error"
+    except Exception as e:
+        print "Error:", type(e)
 
     return
 
 def main():
     receiver_callsign = sys.argv[1]
     port_name = sys.argv[2]
-    port_speed = 9600
-    input = serial.Serial(port_name, port_speed)
-    #input = sys.stdin # not a good idea, as stdin is normally buffered
+    
+    if port_name == '-f':
+        #input = sys.stdin # not a good idea, as stdin is normally buffered
+        input = open(sys.argv[3])
+        delay = 10
+    else:
+        port_speed = 9600
+        input = serial.Serial(port_name, port_speed)
+        delay = None
 
     logfile = open("log-" + datetime.utcnow().isoformat("T") + ".txt", "w")
 
@@ -352,6 +359,9 @@ def main():
                 try:
                     u.payload_telemetry(line)
                     log(logfile, "  Uploaded to Habitat\n")
+                    break
+                except UnmergeableError:
+                    log(logfile, "  Failed to upload to Habitat (cannot merge, data already exists)", error=True)
                     break
                 except Exception as e:
                     if nTry == 0:
@@ -377,10 +387,16 @@ def main():
                 u.listener_telemetry(data)
             except:
                 log(logfile, "  Failed to extract listener position\n", error=True)
+        
+        if delay:
+            time.sleep(delay)
     return
 
 if __name__ == "__main__":
     try:
-        main()    
+        if sys.argv[1] == 'test':
+            test()
+        else:
+            main()    
     except KeyboardInterrupt:
         sys.exit(0)
