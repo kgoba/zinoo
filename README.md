@@ -29,7 +29,9 @@ sudo -H pip install -U pyserial
 
 Note that you might want to skip the `sudo -H` in front of these commands, depending on your setup.
 
+```bash
 sudo pip install -r requirements.txt
+```
 
 # Building and uploading
 
