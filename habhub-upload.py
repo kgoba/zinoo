@@ -25,6 +25,8 @@ import base64
 import hashlib
 import couchdbkit
 import couchdbkit.exceptions
+import restkit
+import restkit.errors
 import threading
 import Queue
 import strict_rfc3339
