@@ -3,23 +3,14 @@
 	url = https://github.com/kgoba/PTLib
         branch = master
 [submodule "zinoo-lora/lib/TinyGPS"]
-	path = zinoo-lora/lib/TinyGPS
+	path = lib/TinyGPS
 	url = https://github.com/mikalhart/TinyGPS.git
 [submodule "zinoo-lora/lib/RadioHead"]
-	path = zinoo-lora/lib/RadioHead
-	url = https://github.com/dragino/RadioHead.git
-[submodule "zinoo-lora-ground/lib/RadioHead"]
-	path = zinoo-lora-ground/lib/RadioHead
+	path = lib/RadioHead
 	url = https://github.com/dragino/RadioHead.git
 [submodule "zinoo-lora/lib/TinyGPSPlus"]
-	path = zinoo-lora/lib/TinyGPSPlus
+	path = lib/TinyGPSPlus
 	url = https://github.com/mikalhart/TinyGPSPlus.git
 [submodule "zinoo-lora/lib/Time"]
-	path = zinoo-lora/lib/Time
+	path = lib/Time
 	url = https://github.com/PaulStoffregen/Time.git
-[submodule "zinoo-lora-ground/lib/TinyGPS"]
-	path = zinoo-lora-ground/lib/TinyGPS
-	url = https://github.com/mikalhart/TinyGPS.git
-[submodule "zinoo-lora-ground/lib/TinyGPSPlus"]
-	path = zinoo-lora-ground/lib/TinyGPSPlus
-	url = https://github.com/mikalhart/TinyGPSPlus.git
