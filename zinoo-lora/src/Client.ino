@@ -3,50 +3,16 @@
   (c) 2017 Karlis Goba
 */
 
-#include <SoftwareSerial.h>
+//#include <SoftwareSerial.h>
 #include <TimeLib.h>
 #include <TinyGPS++.h>
-#include <SPI.h>
 #include <RH_RF95.h>
 #include <EEPROM.h>
 
+// All hardware and software configuration is in config.h
+#include "config.h"
 
-#ifndef CALLSIGN
-#define CALLSIGN "Z_TEST"           // Payload callsign
-#endif
-
-#ifndef TIMESLOT
-#define TIMESLOT 0                  // Transmit offset in seconds
-#endif
-
-#ifndef TOTAL_SLOTS
-#define TOTAL_SLOTS 10              // Transmit period in seconds 
-#endif
-
-#define FREQUENCY_MHZ 434.25        // Transmit center frequency, MHz
-#define TX_POWER_DBM    5           // Transmit power in dBm (range +5 .. +23)
-
-/// Select LoRa mode (speed and bandwidth):
-// * Bw125Cr45Sf128	    ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
-// * Bw500Cr45Sf128	    ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
-// * Bw31_25Cr48Sf512   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
-// * Bw125Cr48Sf4096    ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
-#define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
-
-#define LORA_RESET_PIN      9       // Hardwired on the LoRa/GPS shield
-#define PPS_PIN             17      // Hardwired on the LoRa/GPS shield
-
-/// NTC thermistor configuration
-#define NTC_PIN     0               // Analog pin number
-#define NTC_T0      (273+25)        // 25C in Kelvin
-#define NTC_R0      47000           // Resistance of the NTC at 25C, in ohms
-#define NTC_B       2700            // B coefficient of the NTC
-#define NTC_R1      10000           // Resistance of the resistor to the ground, in ohms
-
-#define RELEASE_PIN         3       // Digital pin number (3, 4, 5, 14-16, 18-19)
-#define RELEASE_ALTITUDE    10000   // Release pin will go high above this altitude (m)
-#define RELEASE_SAFETIME    120     // Duration of safe mode in seconds since start (power on)
-
+// Class to keep track of our last known status (GPS data)
 struct Status {
     uint16_t msg_id;
 
@@ -73,8 +39,8 @@ struct Status {
 };
 
 TinyGPSPlus gps;
-RH_RF95 lora;
-Status status;
+RH_RF95     lora;
+Status      status;
 
 void setup() {
     setSyncInterval(60);    // This resets timeStatus periodically to "sync"

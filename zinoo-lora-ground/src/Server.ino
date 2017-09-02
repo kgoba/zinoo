@@ -1,51 +1,27 @@
 /*
   (c) Dragino Project, https://github.com/dragino/Lora
   (c) 2017 Karlis Goba
-
-  In this project,we'll show how to get GPS data from a remote Arduino via Wireless Lora Protocol 
-and show the track on the GoogleEarth.The construction of this project is similar to my last one:
-
-1) Client Side: Arduino + Lora/GPS Shield
-2) Server Side: Arduino + Lora Shield
-
-Client side will get GPS data and keep sending out to the server via Lora wireless. Server side 
-will listin on the Lora wireless frequency, once it get the data from Client side, it will
-turn on the LED and log the sensor data to a USB flash. 
 */
 
-//Include required lib so Arduino can talk with the Lora Shield
-#include <SPI.h>
 #include <RH_RF95.h>
 #include <TinyGPS++.h>
 
-// Transmit frequency in MHz
-#define FREQUENCY_MHZ 434.25
-
-// Bw125Cr45Sf128	   ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
-// Bw500Cr45Sf128	   ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
-// Bw31_25Cr48Sf512	   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
-// Bw125Cr48Sf4096     ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
-#define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
-
-#define GPS_UPDATE_INTERVAL 60
+// All hardware and software configuration is in config.h
+#include "config.h"
 
 TinyGPSPlus gps;
-RH_RF95 lora;
-
-const int reset_lora = 9;
-
-String dataString = "";
+RH_RF95     lora;
 
 void setup() {
     Serial.begin(9600);
     Serial.println("RESET");
 
-    pinMode(reset_lora, OUTPUT);     
+    pinMode(LORA_RESET_PIN, OUTPUT);     
 
     // reset LoRa module first to make sure it will works properly
-    digitalWrite(reset_lora, LOW);   
+    digitalWrite(LORA_RESET_PIN, LOW);   
     delay(1000);
-    digitalWrite(reset_lora, HIGH); 
+    digitalWrite(LORA_RESET_PIN, HIGH); 
     delay(100);
   
     if (!lora.init()) {
@@ -54,6 +30,10 @@ void setup() {
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     lora.setModemConfig(MODEM_MODE);
     lora.setFrequency(FREQUENCY_MHZ);
+    
+    // Setup GPS PPS synchronized timer (uses 16-bit Timer1)
+    setupHiresTimer();
+    attachInterrupt(digitalPinToInterrupt(PPS_PIN), resetHiresTimer, RISING);
 }
 
 void loop() {
@@ -109,20 +89,10 @@ void receive() {
         Serial.println();
         
         /*
-        //make a string that start with a timestamp for assembling the data to log:
-        dataString="";
-        dataString += String((char*)buf);
-        dataString += ",";
-        dataString += getTimeStamp();
-
         // Send a reply to client as ACK
         uint8_t data[] = "200 OK";
         lora.send(data, sizeof(data));
         lora.waitPacketSent();
-        Serial.println("Sent a reply");
-
-        // Log the received message
-        Serial.println(dataString);
         */
     }
     else {
@@ -147,4 +117,25 @@ uint16_t crc_xmodem_update(uint16_t crc, uint8_t data) {
         else crc <<= 1;
     }
     return crc;
+}
+
+void setupHiresTimer()
+{
+    // Configure Timer1: prescaler 1, normal mode, resolution 1/16 uS, TOP=0xFFFF
+    TCCR1A = 0;
+    TCCR1B = (1 << CS10);   
+    TCCR1C = 0;
+}
+
+uint16_t ppsPeriod;
+
+void resetHiresTimer()
+{
+    ppsPeriod = TCNT1;
+    TCNT1 = 0;
+}
+
+uint16_t readHiresTimer()
+{
+    return TCNT1;
 }
