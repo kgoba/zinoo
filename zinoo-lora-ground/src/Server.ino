@@ -72,12 +72,13 @@ void loop() {
 }
 
 void receive() {    
-    uint16_t rxTOA = readHiresTimer();  // Capture the time of arrival
-    
+    // Capture the time of arrival
+    uint16_t rxTOA = readHiresTimer();  
+
     // Copy the received message to RAM
+    uint8_t buf[RH_RF95_MAX_MESSAGE_LEN + 1];
+    uint8_t len = sizeof(buf);    
     if (lora.recv(buf, &len)) {
-        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN + 1];
-        uint8_t len = sizeof(buf);
         
         // Add zero termination to make a valid C string
         buf[len] = '\0'; 
