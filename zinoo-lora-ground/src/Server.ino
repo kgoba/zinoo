@@ -71,21 +71,26 @@ void loop() {
     }
 }
 
-void receive() {
-    uint8_t buf[RH_RF95_MAX_MESSAGE_LEN + 1];
-    uint8_t len = sizeof(buf);
+void receive() {    
+    uint16_t rxTOA = readHiresTimer();  // Capture the time of arrival
+    
+    // Copy the received message to RAM
     if (lora.recv(buf, &len)) {
-        // Add zero termination, so it's a valid C string
+        uint8_t buf[RH_RF95_MAX_MESSAGE_LEN + 1];
+        uint8_t len = sizeof(buf);
+        
+        // Add zero termination to make a valid C string
         buf[len] = '\0'; 
   
         // Append UKHAS checksum
         char chksum_str[8];
         sprintf(chksum_str, "*%04X", gps_CRC16_checksum(buf));
         strcat((char *)buf, chksum_str);
-  
+
         Serial.print("$$"); Serial.println((char*)buf);
+
         Serial.print("  RSSI="); Serial.print(lora.lastRssi(), DEC);
-        
+        Serial.print(" TOA="); Serial.print(rxTOA, DEC);
         Serial.println();
         
         /*
@@ -127,11 +132,8 @@ void setupHiresTimer()
     TCCR1C = 0;
 }
 
-uint16_t ppsPeriod;
-
 void resetHiresTimer()
 {
-    ppsPeriod = TCNT1;
     TCNT1 = 0;
 }
 
