@@ -279,7 +279,7 @@ def test_distance_straight():
     print "pos1-pos2 =", distance_straight(pos1, pos2)
     print "pos1-pos3 =", distance_straight(pos1, pos3)
 
-def test_telemetry(sentence_id = 0):
+def test_telemetry(sentence_id = 0, lat=58.3663, lon=26.6908, tim=0):
     def crc16(data, poly = 0x1021, crc = 0xFFFF):
         ''' CRC-16-CCITT Algorithm '''
         for b in bytearray(data):
@@ -291,11 +291,12 @@ def test_telemetry(sentence_id = 0):
                     crc <<= 1
         return crc & 0xFFFF
 
-    raw_sentence = "Z72,%d,152251,56.95790,24.13918,21,11,13" % sentence_id
+    #raw_sentence = "Z72,%d,152251,56.95790,24.13918,21,11,13" % sentence_id
+    raw_sentence = "spacetech2017,%d,%d,%f,%f,70,3,7" % (sentence_id, tim, lat, lon)
     return "$$%s*%04X" % (raw_sentence, crc16(raw_sentence))
 
 def test():
-    callsign = "TEST7"
+    callsign = "CrazyLatvians"
     u = Uploader(callsign)
 
     data1 = {
@@ -312,17 +313,21 @@ def test():
         "antenna": "fake 434MHz Yagi"
     }
 
-    string = test_telemetry(501)
+    #string = test_telemetry(501)
                 
     #u.listener_telemetry(data1)
     #u.listener_information(data2)
 
-    try:
-        print "Uploading telemetry..."
-        u.payload_telemetry(string)
-    except Exception as e:
-        print "Error:", type(e)
-
+    sent_id=200
+    while True:
+        try:
+            sent_id+=1
+            string = test_telemetry(sentence_id = sent_id, lat=58.3663, lon=26.6908, tim=152343+sent_id)
+            print "Uploading telemetry..."
+            u.payload_telemetry(string)
+        except Exception as e:
+            print "Error:", type(e)
+        time.sleep(1)            
     return
 
 def main():
