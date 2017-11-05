@@ -14,6 +14,7 @@
 #define LORA_RESET_PIN      9       // Hardwired on the LoRa/GPS shield
 #define PPS_PIN             17      // Hardwired on the LoRa/GPS shield
 
+#define UPLINK_TIMEOUT		3000	// Milliseconds to wait for an uplink command after transmit
 
 #ifndef CALLSIGN
 #define CALLSIGN "Z_TEST"           // Payload callsign
@@ -38,3 +39,8 @@
 #define RELEASE_PIN         3       // Digital pin number (3, 4, 5, 14-16, 18-19)
 #define RELEASE_ALTITUDE    10000   // Release pin will go high above this altitude (m)
 #define RELEASE_SAFETIME    120     // Duration of safe mode in seconds since start (power on)
+
+
+// Servo configuration
+#define SERVO1_PIN	A4
+#define SERVO2_PIN  A5

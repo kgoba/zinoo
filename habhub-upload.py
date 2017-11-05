@@ -17,8 +17,8 @@
 # along with habhub-upload.  If not, see <http://www.gnu.org/licenses/>.
 
 import serial
-import sys, time, math, struct, json
-from datetime import datetime
+import sys, time, math, struct, json, random
+import datetime
 
 import copy
 import base64
@@ -279,7 +279,7 @@ def test_distance_straight():
     print "pos1-pos2 =", distance_straight(pos1, pos2)
     print "pos1-pos3 =", distance_straight(pos1, pos3)
 
-def test_telemetry(sentence_id = 0, lat=58.3663, lon=26.6908, tim=0):
+def test_telemetry(sentence_id = 0, lat=58.3663, lon=26.6908, time=''):
     def crc16(data, poly = 0x1021, crc = 0xFFFF):
         ''' CRC-16-CCITT Algorithm '''
         for b in bytearray(data):
@@ -292,7 +292,7 @@ def test_telemetry(sentence_id = 0, lat=58.3663, lon=26.6908, tim=0):
         return crc & 0xFFFF
 
     #raw_sentence = "Z72,%d,152251,56.95790,24.13918,21,11,13" % sentence_id
-    raw_sentence = "spacetech2017,%d,%d,%f,%f,70,3,7" % (sentence_id, tim, lat, lon)
+    raw_sentence = "spacetech2017,%d,%s,%f,%f,70,3,7" % (sentence_id, time, lat, lon)
     return "$$%s*%04X" % (raw_sentence, crc16(raw_sentence))
 
 def test():
@@ -301,32 +301,32 @@ def test():
 
     data1 = {
         #"time": "12:40:12",
-        "latitude": 51.15,
-        "longitude": 3.733333,
+        "latitude": 58.2666, # 56.95790, # 51.15,
+        "longitude": 26.4650, # 24.13918, # 3.733333,
         "altitude": 12
     }
-
     data2 = {
         #"name": "Test Receiver",
         #"location": "Belgium",
-        "radio": "rtlsdr",
-        "antenna": "fake 434MHz Yagi"
+        "radio": "LoRa",
+        "antenna": "Rubber duck antenna"
     }
+    u.listener_telemetry(data1)
+    u.listener_information(data2)
 
-    #string = test_telemetry(501)
-                
-    #u.listener_telemetry(data1)
-    #u.listener_information(data2)
-
-    sent_id=200
+    sent_id = 200
     while True:
         try:
-            sent_id+=1
-            string = test_telemetry(sentence_id = sent_id, lat=58.3663, lon=26.6908, tim=152343+sent_id)
+            lat = 58.3663 + random.gauss(0, 0.0001)
+            lon = 26.6908 + random.gauss(0, 0.00025)
+            time_now = datetime.datetime.now().time()
+            time_string = "%02d%02d%02d" % (time_now.hour, time_now.minute, time_now.second)
+            string = test_telemetry(sentence_id = sent_id, lat=lat, lon=lon, time=time_string)
             print "Uploading telemetry..."
             u.payload_telemetry(string)
         except Exception as e:
             print "Error:", type(e)
+        sent_id += 1
         time.sleep(1)            
     return
 

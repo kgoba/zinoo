@@ -8,6 +8,7 @@
 #include <TinyGPS++.h>
 #include <RH_RF95.h>
 #include <EEPROM.h>
+#include <Servo.h>
 
 // All hardware and software configuration is in config.h
 #include "config.h"
@@ -41,6 +42,8 @@ struct Status {
 TinyGPSPlus gps;
 RH_RF95     lora;
 Status      status;
+Servo		servo1;
+Servo		servo2;
 
 void setup() {
     setSyncInterval(60);    // This resets timeStatus periodically to "sync"
@@ -69,11 +72,15 @@ void setup() {
     lora.setFrequency(FREQUENCY_MHZ);
     lora.setTxPower(TX_POWER_DBM);
     
+	servo1.attach(SERVO1_PIN);
+	servo2.attach(SERVO2_PIN);
+	
     status.restore();
 }
 
 void loop() {
-    bool newData = false;   // Did a new valid sentence come in?
+    uint8_t reply[RH_RF95_MAX_MESSAGE_LEN];	// Uplink data
+    bool 	newData = false;   // Whether a new valid NMEA sentence came in
 
     // Feed all available data to GPS parser
     while (Serial.available()) {
@@ -99,10 +106,28 @@ void loop() {
     }
     
     // Transmit if it is our timeslot and time is valid
-    if ((timeStatus() != timeNotSet) && timeslot_go()) {
+    //if ((timeStatus() != timeNotSet) && timeslot_go()) {
+	if (timeslot_go()) {
         transmit();
         status.msg_id++;
         status.save();
+    }
+
+	// Wait for a uplink command
+    if (lora.waitAvailableTimeout(UPLINK_TIMEOUT)) {
+	    uint8_t len = sizeof(reply);
+		if (lora.recv(reply, &len)) {
+			reply[len] = '\0';	// Add zero string termination
+		    // Log the command on serial
+		    Serial.print(">>> "); Serial.println((char *)reply);
+			
+			if (reply[0] == 'S') {
+				uint8_t status = (reply[1] - '0');
+				
+				servo1.write((status & 1) ? 180 : 0);
+				servo2.write((status & 2) ? 180 : 0);
+			}
+		}
     }
 }
 

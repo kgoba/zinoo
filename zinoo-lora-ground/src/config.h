@@ -16,3 +16,6 @@
 
 
 #define GPS_UPDATE_INTERVAL 60      // Time syncing interval
+
+#define BUTTON1_PIN			A4
+#define BUTTON2_PIN			A5

@@ -16,7 +16,7 @@ void setup() {
     Serial.begin(9600);
     Serial.println("RESET");
 
-    pinMode(LORA_RESET_PIN, OUTPUT);     
+    pinMode(LORA_RESET_PIN, OUTPUT);
 
     // reset LoRa module first to make sure it will works properly
     digitalWrite(LORA_RESET_PIN, LOW);   
@@ -30,6 +30,9 @@ void setup() {
     // Defaults after init are 434.0MHz, 13dBm, Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     lora.setModemConfig(MODEM_MODE);
     lora.setFrequency(FREQUENCY_MHZ);
+
+	pinMode(BUTTON1_PIN, INPUT_PULLUP);
+	pinMode(BUTTON2_PIN, INPUT_PULLUP);
     
     // Setup GPS PPS synchronized timer (uses 16-bit Timer1)
     setupHiresTimer();
@@ -69,6 +72,18 @@ void loop() {
             lat_str, lng_str, alt_str, (uint8_t)gps.satellites.value(), gps.location.age());
         Serial.println(str);
     }
+	
+	// Check buttons for uplink commands
+	uint8_t status = 0; 
+	if (digitalRead(BUTTON1_PIN) == LOW) status |= 1;
+	if (digitalRead(BUTTON2_PIN) == LOW) status |= 2;
+	{
+	    char tx_buf[3];
+		tx_buf[0] = 'S';
+		tx_buf[1] = ('0' + status);
+		tx_buf[2] = '\0';
+	    lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
+	}
 }
 
 void receive() {    
