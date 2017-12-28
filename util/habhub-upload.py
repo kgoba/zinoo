@@ -327,7 +327,7 @@ def test():
         except Exception as e:
             print "Error:", type(e)
         sent_id += 1
-        time.sleep(1)            
+        time.sleep(5)            
     return
 
 def main():
