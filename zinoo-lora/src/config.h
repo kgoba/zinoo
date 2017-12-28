@@ -44,3 +44,5 @@
 // Servo configuration
 #define SERVO1_PIN	A4
 #define SERVO2_PIN  A5
+
+#define BUZZER_PIN  A2

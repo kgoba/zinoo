@@ -75,6 +75,15 @@ void setup() {
 	servo1.attach(SERVO1_PIN);
 	servo2.attach(SERVO2_PIN);
 	
+	servo1.write(0);
+	servo2.write(0);
+	
+	TCCR2A = (1 << WGM21) | (1 << WGM20);								// Mode 7 (Fast PWM)
+	TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20) | (1 << WGM22);	// Prescaler 1024
+	TIMSK2 = (1 << TOIE2);							// Enable overflow interrupt (every 256)
+	OCR2A  = 125;
+	pinMode(BUZZER_PIN, OUTPUT);
+		
     status.restore();
 }
 
@@ -113,7 +122,7 @@ void loop() {
         status.save();
     }
 
-	// Wait for a uplink command
+	// Wait for an uplink command
     if (lora.waitAvailableTimeout(UPLINK_TIMEOUT)) {
 	    uint8_t len = sizeof(reply);
 		if (lora.recv(reply, &len)) {
@@ -121,7 +130,7 @@ void loop() {
 		    // Log the command on serial
 		    Serial.print(">>> "); Serial.println((char *)reply);
 			
-			if (reply[0] == 'S') {
+			if ((len > 1) && reply[0] == 'S') {
 				uint8_t status = (reply[1] - '0');
 				
 				servo1.write((status & 1) ? 180 : 0);
@@ -249,4 +258,18 @@ float read_temperature() {
 
 time_t noSync() {
     return 0;       // No sync, but we need this to set the status
+}
+
+ISR(TIMER2_OVF_vect)        // Called every 8 ms
+{
+	static uint16_t phase;
+	
+	phase++;
+	if (phase >= 3 * 125) {
+		phase = 0;
+		digitalWrite(BUZZER_PIN, HIGH);
+	}
+	if (phase == 0.6 * 125) {
+		digitalWrite(BUZZER_PIN, LOW);
+	}
 }
