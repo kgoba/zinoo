@@ -11,8 +11,9 @@
 #define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
 
 
-#define LORA_RESET_PIN      9       // Hardwired on the LoRa/GPS shield
-#define PPS_PIN             17      // Hardwired on the LoRa/GPS shield
+#define LORA_RST_PIN      	9       // Hardwired on the LoRa/GPS shield
+#define LORA_CS_PIN			3		// Modified on the LoRa/GPS shield!!!
+#define PPS_PIN             8       // Modified on the LoRa/GPS shield!!!
 
 #define UPLINK_TIMEOUT		3000	// Milliseconds to wait for an uplink command after transmit
 

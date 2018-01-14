@@ -8,7 +8,7 @@
 #include <TinyGPS++.h>
 #include <RH_RF95.h>
 #include <EEPROM.h>
-#include <Servo.h>
+//#include <Servo.h>
 
 // All hardware and software configuration is in config.h
 #include "config.h"
@@ -40,72 +40,98 @@ struct Status {
 };
 
 TinyGPSPlus gps;
-RH_RF95     lora;
+RH_RF95     lora(LORA_CS_PIN);
 Status      status;
+/*
 Servo		servo1;
 Servo		servo2;
+*/
 
 void setup() {
-    setSyncInterval(60);    // This resets timeStatus periodically to "sync"
-    setSyncProvider(noSync);
-    
-    Serial.begin(9600);
+    Serial.begin(9600);	
     Serial.println("RESET");
-    
+
+	gps_setup();
+	pyro_setup();	
+	lora_setup();
+	//servo_setup();	
+	buzzer_setup();
+		
+    status.restore();
+}
+
+void gps_setup()
+{
+    setSyncProvider(noSync);
+    setSyncInterval(60);    // This resets timeStatus periodically to "sync"
+}
+
+void pyro_setup()
+{
+    digitalWrite(RELEASE_PIN, LOW);	
     pinMode(RELEASE_PIN, OUTPUT);
-    digitalWrite(RELEASE_PIN, LOW);
-    
+}
+
+void lora_setup()
+{
     for (int n_try = 0; n_try < 5; n_try++) {
+        // reset LoRa module to make sure it will works properly
+        pinMode(LORA_RST_PIN, OUTPUT);
+        digitalWrite(LORA_RST_PIN, LOW);   
+        delay(1000);
+        digitalWrite(LORA_RST_PIN, HIGH); 
+
         if (lora.init()) break;
         Serial.println("LoRa init failed, retrying...");
-        
-        // reset LoRa module to make sure it will works properly
-        pinMode(LORA_RESET_PIN, OUTPUT);
-        digitalWrite(LORA_RESET_PIN, LOW);   
-        delay(1000);
-        digitalWrite(LORA_RESET_PIN, HIGH); 
     }
 
     // Defaults after init are 434.0MHz, 13dBm
     // Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     lora.setModemConfig(MODEM_MODE);
     lora.setFrequency(FREQUENCY_MHZ);
-    lora.setTxPower(TX_POWER_DBM);
-    
+    lora.setTxPower(TX_POWER_DBM);	
+}
+
+/*
+void servo_setup()
+{
 	servo1.attach(SERVO1_PIN);
 	servo2.attach(SERVO2_PIN);
 	
 	servo1.write(0);
 	servo2.write(0);
-	
+}
+*/
+
+void buzzer_setup()
+{
 	TCCR2A = (1 << WGM21) | (1 << WGM20);								// Mode 7 (Fast PWM)
 	TCCR2B = (1 << CS22) | (1 << CS21) | (1 << CS20) | (1 << WGM22);	// Prescaler 1024
 	TIMSK2 = (1 << TOIE2);							// Enable overflow interrupt (every 256)
 	OCR2A  = 125;
 	pinMode(BUZZER_PIN, OUTPUT);
-		
-    status.restore();
 }
 
 void loop() {
     uint8_t reply[RH_RF95_MAX_MESSAGE_LEN];	// Uplink data
-    bool 	newData = false;   // Whether a new valid NMEA sentence came in
+    bool 	newGPSData = false;   // Whether a new valid NMEA sentence came in
 
     // Feed all available data to GPS parser
     while (Serial.available()) {
         char c = Serial.read();
+        //Serial.write(c);
         if (gps.encode(c)) {
-            newData = true; 
+            newGPSData = true; 
         }
     }
     
     // Sync time if necessary
-    if (newData && (timeStatus() != timeSet)) {
+    if (newGPSData && (timeStatus() != timeSet)) {
         update_time_from_gps();
     }
     
     // Update last valid coordinates if available
-    if (newData) {
+    if (newGPSData) {
         update_location_from_gps();
         
         if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
@@ -123,6 +149,7 @@ void loop() {
     }
 
 	// Wait for an uplink command
+    /*
     if (lora.waitAvailableTimeout(UPLINK_TIMEOUT)) {
 	    uint8_t len = sizeof(reply);
 		if (lora.recv(reply, &len)) {
@@ -138,6 +165,7 @@ void loop() {
 			}
 		}
     }
+    */
 }
 
 /// Checks whether it is right time for transmission
@@ -196,30 +224,52 @@ void update_time_from_gps() {
 
     // Check for data validity (added satellite check, 
     // otherwise GPS sends fake time/date information)
+    if (date.isValid() && gps.satellites.isValid() && gps.satellites.value() > 0)   
+    {
+        setTime(hour(), minute(), second(), date.day(), date.month(), date.year());
+        
+        // Report date update
+        Serial.print("Setting date to ");
+        Serial.print(date.year()); Serial.print('.');
+        Serial.print(date.month()); Serial.print('.');
+        Serial.println(date.day());
+    }
     if (date.isValid() && time.isValid() 
             && gps.satellites.isValid() && gps.satellites.value() > 0   
             && time.age() < 500) 
     {
-        setTime(time.hour(), time.minute(), time.second(), date.day(), date.month(), date.year());
+        setTime(time.hour(), time.minute(), time.second(), day(), month(), year());
         
         // Report time update
         Serial.print("Setting time to ");
-        Serial.print(date.year()); Serial.print('.');
-        Serial.print(date.month()); Serial.print('.');
-        Serial.print(date.day()); Serial.print(' ');
         Serial.print(time.hour()); Serial.print(':');
         Serial.print(time.minute()); Serial.print(':');
         Serial.println(time.second());
     }
+    /*
+    else {
+        Serial.println("Skipping time sync...");
+        if (!date.isValid()) Serial.println("Date: invalid");
+        if (!time.isValid()) Serial.println("Time: invalid");
+        if (!gps.satellites.isValid()) Serial.println("Sats: invalid");
+        if (time.age() > 500) {
+            Serial.print("Age : "); Serial.println(time.age());
+        }
+        Serial.print("Time: "); 
+        Serial.print(time.hour()); Serial.print(':');
+        Serial.print(time.minute()); Serial.print(':');
+        Serial.println(time.second());
+    }
+    */
 }
 
 /// Updates status variable with the latest GPS location data
 // (if it is valid)
 void update_location_from_gps() {
-    if (gps.satellites.isValid()) {
+    //if (gps.satellites.isValid()) {
         status.n_sats = gps.satellites.value();
-    }
-    else status.n_sats = 0;
+    //}
+    //else status.n_sats = 0;
 
     if (gps.location.isValid()) {
         float falt = 0;
@@ -245,10 +295,11 @@ void update_location_from_gps() {
 float celsius_from_adc(uint16_t adc) {
     float ratio = adc / 1024.0;          // Convert to 0..1
     float R = (NTC_R1 / ratio) - NTC_R1; // Calculate NTC resistance
-    float k1 = logf(R / NTC_R0) / NTC_B; // Helper value
+    float k1 = log(R / NTC_R0) / NTC_B;  // Helper value
     float T = 1 / (1 / NTC_T0 + k1);     // Temperature in Kelvins
 
-    return (T - 273.15);                 // Convert to Celsius
+    if (T < 150) T = 150;               // Impose a limit of approx -123 C
+    return (T - 273.15);                // Convert to Celsius
 }
 
 /// Reads ADC value and converts to Celsius degrees
