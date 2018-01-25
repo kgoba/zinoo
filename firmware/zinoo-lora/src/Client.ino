@@ -7,37 +7,13 @@
 #include <TimeLib.h>
 #include <TinyGPS++.h>
 #include <RH_RF95.h>
-#include <EEPROM.h>
 //#include <Servo.h>
+#include <avr/wdt.h>
 
 // All hardware and software configuration is in config.h
 #include "config.h"
 
-// Class to keep track of our last known status (GPS data)
-struct Status {
-    uint16_t msg_id;
-
-    bool     fixValid;
-    float    lat, lng;  // Last valid coordinates
-    uint16_t alt;       // Last valid altitude
-    uint8_t  n_sats;    // Current satellites
-    
-    void restore() {
-        //EEPROM.get(0x00, status);
-        //if (status.msg_id == 0xFFFF) {
-            // Fresh EEPROM - reset the contents of status in RAM
-            msg_id = 1;
-            fixValid = false;
-            lat = lng = 0;
-            alt = n_sats = 0;
-            save();
-        //}        
-    }
-    
-    void save() {
-        //EEPROM.put(0x00, status);
-    }
-};
+#include "Status.h"
 
 TinyGPSPlus gps;
 RH_RF95     lora(LORA_CS_PIN);
@@ -48,12 +24,14 @@ Servo		servo2;
 */
 
 void setup() {
+    wdt_enable(WDTO_2S);
+
     Serial.begin(9600);	
     Serial.println("RESET");
 
 	gps_setup();
-	pyro_setup();	
 	lora_setup();
+	pyro_setup();	
 	//servo_setup();	
 	buzzer_setup();
 		
@@ -66,10 +44,33 @@ void gps_setup()
     setSyncInterval(60);    // This resets timeStatus periodically to "sync"
 }
 
+bool gps_feed()
+{
+    bool newData = false;
+    while (Serial.available()) {
+        char c = Serial.read();
+        //Serial.write(c);
+        if (gps.encode(c)) newData = true; 
+    }
+    return newData;
+}
+
 void pyro_setup()
 {
+#ifdef WITH_PYRO
     digitalWrite(RELEASE_PIN, LOW);	
     pinMode(RELEASE_PIN, OUTPUT);
+#endif    
+}
+
+void pyro_update()
+{
+#ifdef WITH_PYRO
+    if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
+        // Go HIGH and never go back
+        digitalWrite(RELEASE_PIN, HIGH);
+    }
+#endif    
 }
 
 void lora_setup()
@@ -79,7 +80,9 @@ void lora_setup()
         pinMode(LORA_RST_PIN, OUTPUT);
         digitalWrite(LORA_RST_PIN, LOW);   
         delay(1000);
-        digitalWrite(LORA_RST_PIN, HIGH); 
+        digitalWrite(LORA_RST_PIN, HIGH);
+
+        wdt_reset();
 
         if (lora.init()) break;
         Serial.println("LoRa init failed, retrying...");
@@ -113,17 +116,8 @@ void buzzer_setup()
 }
 
 void loop() {
-    uint8_t reply[RH_RF95_MAX_MESSAGE_LEN];	// Uplink data
-    bool 	newGPSData = false;   // Whether a new valid NMEA sentence came in
-
     // Feed all available data to GPS parser
-    while (Serial.available()) {
-        char c = Serial.read();
-        //Serial.write(c);
-        if (gps.encode(c)) {
-            newGPSData = true; 
-        }
-    }
+    bool newGPSData = gps_feed();   // Returns whether a new valid NMEA sentence came in
     
     // Sync time if necessary
     if (newGPSData && (timeStatus() != timeSet)) {
@@ -132,17 +126,17 @@ void loop() {
     
     // Update last valid coordinates if available
     if (newGPSData) {
+        wdt_reset();
+
         update_location_from_gps();
-        
-        if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
-            // Go HIGH and never go back
-            digitalWrite(RELEASE_PIN, HIGH);
-        }
+        pyro_update();
     }
     
     // Transmit if it is our timeslot and time is valid
     //if ((timeStatus() != timeNotSet) && timeslot_go()) {
 	if (timeslot_go()) {
+        status.temperature_ext = read_temperature();
+
         transmit();
         status.msg_id++;
         status.save();
@@ -151,6 +145,7 @@ void loop() {
 	// Wait for an uplink command
     /*
     if (lora.waitAvailableTimeout(UPLINK_TIMEOUT)) {
+        uint8_t reply[RH_RF95_MAX_MESSAGE_LEN];	// Uplink data
 	    uint8_t len = sizeof(reply);
 		if (lora.recv(reply, &len)) {
 			reply[len] = '\0';	// Add zero string termination
@@ -182,50 +177,28 @@ bool timeslot_go() {
 
 /// Constructs payload message and transmits it via radio
 void transmit() {
-    char tx_buf[80];    // Temporary buffer for LoRa message (CHECK SIZE)
-    char lat_str[11];
-    char lng_str[11];
+    char    tx_buf[80];    // Temporary buffer for LoRa message
 
-    if (status.fixValid) {
-        dtostrf(status.lat, 0, 5, lat_str);
-    } else {
-        lat_str[0] = '\0';  // Empty latitude field in case fix is invalid
+    if (status.build_string(tx_buf, 80)) {
+        // Log the message on serial
+        Serial.print(">>> "); Serial.println(tx_buf);
+        // Send the data to server
+        lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
     }
-    if (status.fixValid) {
-        dtostrf(status.lng, 0, 5, lng_str);        
-    } else {
-        lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
-    }
-    
-    int8_t temperature_ext = read_temperature();
-    
-    // Build partial UKHAS sentence (without $$ and checksum)
-    // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-    sprintf(tx_buf, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d",
-        CALLSIGN, status.msg_id,
-        hour(), minute(), second(),
-        lat_str, lng_str, status.alt, 
-        status.n_sats, 
-        temperature_ext
-    );
-    
-    // Log the message on serial
-    Serial.print(">>> "); Serial.println(tx_buf);
-
-    // Send the data to server
-    lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
 }
 
 /// Updates internal clock (using Time library) from GPS time data 
 // (if it is valid)
 void update_time_from_gps() {
-    TinyGPSDate &date = gps.date;
-    TinyGPSTime &time = gps.time;
-
     // Check for data validity (added satellite check, 
     // otherwise GPS sends fake time/date information)
-    if (date.isValid() && gps.satellites.isValid() && gps.satellites.value() > 0)   
-    {
+    if (!gps.satellites.isValid() || gps.satellites.value() == 0) {
+        // Do nothing, just return. Time data is not valid.
+        return;
+    }
+
+    TinyGPSDate &date = gps.date;
+    if (date.isValid()) {
         setTime(hour(), minute(), second(), date.day(), date.month(), date.year());
         
         // Report date update
@@ -234,10 +207,9 @@ void update_time_from_gps() {
         Serial.print(date.month()); Serial.print('.');
         Serial.println(date.day());
     }
-    if (date.isValid() && time.isValid() 
-            && gps.satellites.isValid() && gps.satellites.value() > 0   
-            && time.age() < 500) 
-    {
+
+    TinyGPSTime &time = gps.time;
+    if (time.isValid() && time.age() < 500) {
         setTime(time.hour(), time.minute(), time.second(), day(), month(), year());
         
         // Report time update
@@ -246,21 +218,6 @@ void update_time_from_gps() {
         Serial.print(time.minute()); Serial.print(':');
         Serial.println(time.second());
     }
-    /*
-    else {
-        Serial.println("Skipping time sync...");
-        if (!date.isValid()) Serial.println("Date: invalid");
-        if (!time.isValid()) Serial.println("Time: invalid");
-        if (!gps.satellites.isValid()) Serial.println("Sats: invalid");
-        if (time.age() > 500) {
-            Serial.print("Age : "); Serial.println(time.age());
-        }
-        Serial.print("Time: "); 
-        Serial.print(time.hour()); Serial.print(':');
-        Serial.print(time.minute()); Serial.print(':');
-        Serial.println(time.second());
-    }
-    */
 }
 
 /// Updates status variable with the latest GPS location data
@@ -296,7 +253,7 @@ float celsius_from_adc(uint16_t adc) {
     float ratio = adc / 1024.0;          // Convert to 0..1
     float R = (NTC_R1 / ratio) - NTC_R1; // Calculate NTC resistance
     float k1 = log(R / NTC_R0) / NTC_B;  // Helper value
-    float T = 1 / (1 / NTC_T0 + k1);     // Temperature in Kelvins
+    float T = 1 / (k1 + 1.0 / NTC_T0);     // Temperature in Kelvins
 
     if (T < 150) T = 150;               // Impose a limit of approx -123 C
     return (T - 273.15);                // Convert to Celsius
@@ -304,23 +261,32 @@ float celsius_from_adc(uint16_t adc) {
 
 /// Reads ADC value and converts to Celsius degrees
 float read_temperature() {
-    return celsius_from_adc(analogRead(NTC_PIN));
+    return celsius_from_adc(analogRead(NTC_PIN_AN));
 }
 
+/// Callback function used by the TimeLib library
 time_t noSync() {
     return 0;       // No sync, but we need this to set the status
 }
 
+// Buzzer timer ISR routine
 ISR(TIMER2_OVF_vect)        // Called every 8 ms
 {
 	static uint16_t phase;
-	
+
+    // Short, fast beeps = FIX INVALID
+    // Longer, rarer beeps = FIX VALID
+    uint16_t period = status.fixValid ? (3 * 125) : (1 * 125);
+    uint16_t pwm_on = status.fixValid ? (0.6 * 125) : (0.2 * 125);
+
 	phase++;
-	if (phase >= 3 * 125) {
+	if (phase >= period) {
 		phase = 0;
 		digitalWrite(BUZZER_PIN, HIGH);
 	}
-	if (phase == 0.6 * 125) {
-		digitalWrite(BUZZER_PIN, LOW);
-	}
+    else {
+        if (phase > pwm_on) {
+            digitalWrite(BUZZER_PIN, LOW);
+        }
+    }
 }
