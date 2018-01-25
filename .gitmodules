@@ -1,16 +1,16 @@
 [submodule "zinoo-liepaja/lib/PTLib"]
-	path = zinoo-liepaja/lib/PTLib
+	path = firmware/zinoo-liepaja/lib/PTLib
 	url = https://github.com/kgoba/PTLib
         branch = master
 [submodule "zinoo-lora/lib/TinyGPS"]
-	path = lib/TinyGPS
+	path = firmware/lib/TinyGPS
 	url = https://github.com/mikalhart/TinyGPS.git
 [submodule "zinoo-lora/lib/RadioHead"]
-	path = lib/RadioHead
+	path = firmware/lib/RadioHead
 	url = https://github.com/dragino/RadioHead.git
 [submodule "zinoo-lora/lib/TinyGPSPlus"]
-	path = lib/TinyGPSPlus
+	path = firmware/lib/TinyGPSPlus
 	url = https://github.com/mikalhart/TinyGPSPlus.git
 [submodule "zinoo-lora/lib/Time"]
-	path = lib/Time
+	path = firmware/lib/Time
 	url = https://github.com/PaulStoffregen/Time.git
