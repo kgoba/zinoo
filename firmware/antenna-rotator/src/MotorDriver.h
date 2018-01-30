@@ -10,6 +10,9 @@ public:
 
     void enable();
     void disable();
+
+    /// Duty cycle in the range from -100 to 100, corresponding to percent 
+    // of full PWM. 0 means active braking, if motor is enabled.
     void setDuty(int8_t percent);
 
 private:
