@@ -18,10 +18,10 @@
 TinyGPSPlus gps;
 RH_RF95     lora(LORA_CS_PIN);
 Status      status;
-/*
-Servo		servo1;
-Servo		servo2;
-*/
+//Servo		servo1;
+//Servo		servo2;
+
+uint32_t    switch_off[4];
 
 void setup() {
     wdt_enable(WDTO_2S);
@@ -58,17 +58,43 @@ bool gps_feed()
 void pyro_setup()
 {
 #ifdef WITH_PYRO
-    digitalWrite(RELEASE_PIN, LOW);	
-    pinMode(RELEASE_PIN, OUTPUT);
-#endif    
+    //digitalWrite(RELEASE_PIN, LOW);	
+    //pinMode(RELEASE_PIN, OUTPUT);
+
+    pinMode(SWITCH1_PIN, OUTPUT);
+    pinMode(SWITCH2_PIN, OUTPUT);
+    pinMode(SWITCH3_PIN, OUTPUT);
+    pinMode(SWITCH4_PIN, OUTPUT);
+#endif
 }
 
 void pyro_update()
 {
 #ifdef WITH_PYRO
+    uint32_t now = millis();
+
     if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
-        // Go HIGH and never go back
-        digitalWrite(RELEASE_PIN, HIGH);
+        digitalWrite(SWITCH1_PIN, HIGH);
+        status.switch_state |= 1;
+        switch_off[0] = now + SWITCH1_AUTO_OFF * 1000UL;
+    }
+
+    // Check for auto off timeouts
+    if (SWITCH1_AUTO_OFF > 0 && now > switch_off[0]) {
+        digitalWrite(SWITCH1_PIN, LOW);
+        status.switch_state &= ~1;        
+    }
+    if (SWITCH2_AUTO_OFF > 0 &&now > switch_off[1]) {
+        digitalWrite(SWITCH2_PIN, LOW);
+        status.switch_state &= ~2;        
+    }
+    if (SWITCH3_AUTO_OFF > 0 &&now > switch_off[2]) {
+        digitalWrite(SWITCH3_PIN, LOW);
+        status.switch_state &= ~4;        
+    }
+    if (SWITCH4_AUTO_OFF > 0 &&now > switch_off[3]) {
+        digitalWrite(SWITCH4_PIN, LOW);
+        status.switch_state &= ~8;        
     }
 #endif    
 }
@@ -137,30 +163,22 @@ void loop() {
 	if (timeslot_go()) {
         status.temperature_ext = read_temperature();
 
-        transmit();
+        lora_transmit();
         status.msg_id++;
         status.save();
     }
-
-	// Wait for an uplink command
-    /*
-    if (lora.waitAvailableTimeout(UPLINK_TIMEOUT)) {
-        uint8_t reply[RH_RF95_MAX_MESSAGE_LEN];	// Uplink data
-	    uint8_t len = sizeof(reply);
-		if (lora.recv(reply, &len)) {
-			reply[len] = '\0';	// Add zero string termination
-		    // Log the command on serial
-		    Serial.print(">>> "); Serial.println((char *)reply);
-			
-			if ((len > 1) && reply[0] == 'S') {
-				uint8_t status = (reply[1] - '0');
-				
-				servo1.write((status & 1) ? 180 : 0);
-				servo2.write((status & 2) ? 180 : 0);
-			}
-		}
+    
+    // If transmiting is complete, check (or switch to) uplink receiving
+    if (lora.mode() != lora.RHModeTx) {
+        // When transmit is complete, radio is automatically put in Idle mode
+        uint8_t rx_buf[20];	// Uplink data
+	    uint8_t len = sizeof(rx_buf) - 1;
+        // Puts radio to receive mode if it wasn't, checks for message, doesn't block
+		if (lora.recv(rx_buf, &len)) {
+            rx_buf[len] = '\0';	// Add zero string termination
+            lora_parse((const char *)rx_buf);
+        }
     }
-    */
 }
 
 /// Checks whether it is right time for transmission
@@ -176,7 +194,7 @@ bool timeslot_go() {
 }
 
 /// Constructs payload message and transmits it via radio
-void transmit() {
+void lora_transmit() {
     char    tx_buf[80];    // Temporary buffer for LoRa message
 
     if (status.build_string(tx_buf, 80)) {
@@ -185,6 +203,56 @@ void transmit() {
         // Send the data to server
         lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
     }
+}
+
+bool lora_parse(const char * rx_buf) {
+    // Log the command on serial
+	Serial.print(">>> "); Serial.println(rx_buf);
+
+#ifdef WITH_PYRO
+    if (strlen(rx_buf) != 2 || rx_buf[0] != 'S') 
+        return false;
+
+    switch (rx_buf[1] - '0') {
+    case 0:
+        digitalWrite(SWITCH1_PIN, HIGH);
+        status.switch_state |= 1;
+        switch_off[0] = millis() + SWITCH1_AUTO_OFF * 1000UL;
+        break;
+    case 1:
+        digitalWrite(SWITCH2_PIN, HIGH);
+        status.switch_state |= 2;
+        switch_off[1] = millis() + SWITCH2_AUTO_OFF * 1000UL;
+        break;
+    case 2:
+        digitalWrite(SWITCH3_PIN, HIGH);
+        status.switch_state |= 4;
+        switch_off[2] = millis() + SWITCH3_AUTO_OFF * 1000UL;
+        break;
+    case 3:
+        digitalWrite(SWITCH4_PIN, HIGH);
+        status.switch_state |= 8;
+        switch_off[3] = millis() + SWITCH4_AUTO_OFF * 1000UL;
+        break;
+    case 4:
+        digitalWrite(SWITCH3_PIN, LOW);
+        status.switch_state &= ~4;
+        break;
+    case 5:
+        digitalWrite(SWITCH4_PIN, LOW);
+        status.switch_state &= ~8;
+        break;
+    }
+#endif
+    //servo1.write((status & 1) ? 180 : 0);
+    //servo2.write((status & 2) ? 180 : 0);
+
+    // Send ACK
+    //char    tx_buf[2];    // Temporary buffer for LoRa message
+    //tx_buf[0] = 'A';
+    //tx_buf[1] = cmd_id;
+    //lora.send((const uint8_t *)tx_buf, 2);
+    return true;
 }
 
 /// Updates internal clock (using Time library) from GPS time data 

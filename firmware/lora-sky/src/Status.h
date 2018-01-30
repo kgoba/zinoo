@@ -10,6 +10,8 @@ struct Status {
     uint8_t  n_sats;    // Current satellites
     int8_t   temperature_ext;   // External temperature, Celsius
     
+    uint8_t  switch_state;
+
     void restore();
     void save();
 

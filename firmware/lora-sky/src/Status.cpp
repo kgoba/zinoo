@@ -35,15 +35,17 @@ bool Status::build_string(char *buf, uint8_t buf_len) {
     } else {
         lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
     }
+
+    char status_ch = ((switch_state > 9) ? ('A' - 10) : '0') + switch_state;
         
     // Build partial UKHAS sentence (without $$ and checksum)
     // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d",
+    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d,S%c",
         CALLSIGN, msg_id,
         hour(), minute(), second(),
         lat_str, lng_str, alt, 
         n_sats, 
-        temperature_ext
+        temperature_ext, status_ch
     );
 
     return (buf_req < buf_len); // true if buf had sufficient space
