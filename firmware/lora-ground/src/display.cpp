@@ -4,6 +4,7 @@
 #include "geo.h"
 
 #include <TinyGPS++.h>
+#include <RH_RF95.h>
 
 int16_t TimeHMS::delta_i16(const TimeHMS &t1, const TimeHMS &t2) {
     int16_t delta = 0;
@@ -62,7 +63,7 @@ void DisplayInfo::update_azim_elev() {
 }
 
 #include <TFT.h>
-TFT         display(TFT_CS, TFT_DC, TFT_RST);
+TFT         display(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN);
 DisplayInfo gFields;
 
 enum FieldType {
@@ -145,7 +146,7 @@ void tft_print_multiline(const char *text, uint8_t row) {
 
 void tft_setup() {
     display.begin();
-    display.setRotation(3);
+    display.setRotation(1);
     display.background(255,255,255);  // clear the screen
   
 	char line[40] = "LoRa RX ";

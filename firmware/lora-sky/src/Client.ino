@@ -74,9 +74,9 @@ void pyro_update()
     uint32_t now = millis();
 
     if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
-        digitalWrite(SWITCH1_PIN, HIGH);
-        status.switch_state |= 1;
-        switch_off[0] = now + SWITCH1_AUTO_OFF * 1000UL;
+        digitalWrite(SWITCH4_PIN, HIGH);
+        status.switch_state |= 8;
+        switch_off[3] = now + SWITCH4_AUTO_OFF * 1000UL;
     }
 
     // Check for auto off timeouts
@@ -84,17 +84,17 @@ void pyro_update()
         digitalWrite(SWITCH1_PIN, LOW);
         status.switch_state &= ~1;        
     }
-    if (SWITCH2_AUTO_OFF > 0 &&now > switch_off[1]) {
+    if (SWITCH2_AUTO_OFF > 0 && now > switch_off[1]) {
         digitalWrite(SWITCH2_PIN, LOW);
         status.switch_state &= ~2;        
     }
-    if (SWITCH3_AUTO_OFF > 0 &&now > switch_off[2]) {
+    if (SWITCH3_AUTO_OFF > 0 && now > switch_off[2]) {
         digitalWrite(SWITCH3_PIN, LOW);
-        status.switch_state &= ~4;        
+        //status.switch_state &= ~4;        
     }
-    if (SWITCH4_AUTO_OFF > 0 &&now > switch_off[3]) {
+    if (SWITCH4_AUTO_OFF > 0 && now > switch_off[3]) {
         digitalWrite(SWITCH4_PIN, LOW);
-        status.switch_state &= ~8;        
+        //status.switch_state &= ~8;        
     }
 #endif    
 }
@@ -210,37 +210,42 @@ bool lora_parse(const char * rx_buf) {
 	Serial.print(">>> "); Serial.println(rx_buf);
 
 #ifdef WITH_PYRO
+    // Commands: S1, S2, ... S6
     if (strlen(rx_buf) != 2 || rx_buf[0] != 'S') 
         return false;
 
-    switch (rx_buf[1] - '0') {
-    case 0:
-        digitalWrite(SWITCH1_PIN, HIGH);
-        status.switch_state |= 1;
-        switch_off[0] = millis() + SWITCH1_AUTO_OFF * 1000UL;
-        break;
-    case 1:
-        digitalWrite(SWITCH2_PIN, HIGH);
-        status.switch_state |= 2;
-        switch_off[1] = millis() + SWITCH2_AUTO_OFF * 1000UL;
-        break;
-    case 2:
-        digitalWrite(SWITCH3_PIN, HIGH);
-        status.switch_state |= 4;
-        switch_off[2] = millis() + SWITCH3_AUTO_OFF * 1000UL;
-        break;
-    case 3:
+    char cmd_id = rx_buf[1];
+    switch (cmd_id) {
+    case '1':
         digitalWrite(SWITCH4_PIN, HIGH);
-        status.switch_state |= 8;
+        status.switch_state |= (1 << 3);
         switch_off[3] = millis() + SWITCH4_AUTO_OFF * 1000UL;
         break;
-    case 4:
-        digitalWrite(SWITCH3_PIN, LOW);
-        status.switch_state &= ~4;
+    case '2':
+        digitalWrite(SWITCH3_PIN, HIGH);
+        status.switch_state |= (1 << 2);
+        switch_off[2] = millis() + SWITCH3_AUTO_OFF * 1000UL;
+        digitalWrite(SWITCH4_PIN, HIGH);
+        status.switch_state |= (1 << 3);
+        switch_off[3] = millis() + SWITCH4_AUTO_OFF * 1000UL;
         break;
-    case 5:
-        digitalWrite(SWITCH4_PIN, LOW);
-        status.switch_state &= ~8;
+    case '3':
+        digitalWrite(SWITCH2_PIN, HIGH);
+        status.switch_state |= (1 << 1);
+        switch_off[1] = millis() + SWITCH2_AUTO_OFF * 1000UL;
+        break;
+    case '4':
+        digitalWrite(SWITCH2_PIN, LOW);
+        status.switch_state &= ~(1 << 1);
+        break;
+    case '5':
+        digitalWrite(SWITCH1_PIN, HIGH);
+        status.switch_state |= (1 << 0);
+        switch_off[0] = millis() + SWITCH1_AUTO_OFF * 1000UL;
+        break;
+    case '6':
+        digitalWrite(SWITCH1_PIN, LOW);
+        status.switch_state &= ~(1 << 0);
         break;
     }
 #endif

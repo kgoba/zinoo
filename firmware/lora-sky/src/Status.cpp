@@ -37,15 +37,24 @@ bool Status::build_string(char *buf, uint8_t buf_len) {
     }
 
     char status_ch = ((switch_state > 9) ? ('A' - 10) : '0') + switch_state;
+    char status_str[5];
+
+    uint8_t tmp = 0;
+    if (switch_state & 8) status_str[tmp++] = 'B';  // Burst
+    if (switch_state & 4) status_str[tmp++] = 'I';  // Ignite
+    if (switch_state & 2) status_str[tmp++] = 'C';  // Camera
+    if (switch_state & 1) status_str[tmp++] = 'A';  // Aux
+    if (tmp == 0) status_str[tmp++] = '-';
+    status_str[tmp] = '\0';
         
     // Build partial UKHAS sentence (without $$ and checksum)
     // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d,S%c",
+    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%d,%d,%s",
         CALLSIGN, msg_id,
         hour(), minute(), second(),
         lat_str, lng_str, alt, 
         n_sats, 
-        temperature_ext, status_ch
+        temperature_ext, status_str
     );
 
     return (buf_req < buf_len); // true if buf had sufficient space

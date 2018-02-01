@@ -1,7 +1,7 @@
 #pragma once
 
 #define FREQUENCY_MHZ 434.25        // Transmit center frequency, MHz
-#define TX_POWER_DBM    5           // Transmit power in dBm (range +5 .. +23)
+#define TX_POWER_DBM   13           // Transmit power in dBm (range +5 .. +23)
 
 /// Select LoRa mode (speed and bandwidth):
 // * Bw125Cr45Sf128	    ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
@@ -18,13 +18,18 @@
 
 
 #define GPS_UPDATE_INTERVAL 60      // Time syncing interval (seconds)
+#define UPLINK_INTERVAL     1
 
-#define BUTTON1_PIN			A4
-#define BUTTON2_PIN			A5
+#define BUTTON1_PIN			A5
+#define BUTTON2_PIN			A4
+#define BUTTON3_PIN			A3
+#define BUTTON4_PIN			A2
+#define BUTTON5_PIN			A1
+#define BUTTON6_PIN			A0
 
-#define TFT_CS    7
-#define TFT_DC    6
-#define TFT_RST   5
+#define TFT_CS_PIN    7
+#define TFT_DC_PIN    6
+#define TFT_RST_PIN   5
 
 #ifndef USE_TFT
 #define USE_TFT		false

@@ -44,6 +44,10 @@ void setup() {
 
 	pinMode(BUTTON1_PIN, INPUT_PULLUP);
 	pinMode(BUTTON2_PIN, INPUT_PULLUP);    
+	pinMode(BUTTON3_PIN, INPUT_PULLUP);    
+	pinMode(BUTTON4_PIN, INPUT_PULLUP);    
+	pinMode(BUTTON5_PIN, INPUT_PULLUP);    
+	pinMode(BUTTON6_PIN, INPUT_PULLUP);    
 }
 
 void lora_setup() {
@@ -72,6 +76,7 @@ void lora_setup() {
 
 void loop() {
     static uint32_t next_GPS_update = 0;
+    static uint32_t next_uplink = 0;
 	static uint32_t next_report = 0;
     bool newGPSData = false;   // Did a new valid sentence come in?
 
@@ -116,20 +121,10 @@ void loop() {
     
 	if (millis() > next_report) {
 		next_report += 1000;
-		
-        tft_update();
 
-    /*
-		//Serial.print(" Period="); 
-		Serial.print(gTonePeriod); Serial.print(' ');
-		//Serial.print(" Comp="); 
-		Serial.print(gToneCompensation); Serial.print(' ');
-		//Serial.print(" F="); Serial.print(gToneFrequency);
-		//Serial.print(" TCNT1="); 
-		Serial.print(gTonePhase); Serial.print(' ');
-		//Serial.print(gToneDelta); Serial.print(' ');
-		Serial.println();
-    */
+#if USE_TFT
+        tft_update();
+#endif
 	}
 	
     // Report our GPS location if necessary
@@ -150,15 +145,19 @@ void loop() {
     }
 	
 	// Check buttons for uplink commands
-	uint8_t status = 0; 
-	if (digitalRead(BUTTON1_PIN) == LOW) status |= 1;
-	if (digitalRead(BUTTON2_PIN) == LOW) status |= 2;
-	if (false) {
-	    char tx_buf[3];
+	uint8_t cmd_id = 0; 
+	if (digitalRead(BUTTON1_PIN) == LOW) cmd_id = 1;
+	if (digitalRead(BUTTON2_PIN) == LOW) cmd_id = 2;
+	if (digitalRead(BUTTON3_PIN) == LOW) cmd_id = 3;
+	if (digitalRead(BUTTON4_PIN) == LOW) cmd_id = 4;
+	if (digitalRead(BUTTON5_PIN) == LOW) cmd_id = 5;
+	if (digitalRead(BUTTON6_PIN) == LOW) cmd_id = 6;
+	if (cmd_id && (millis() > next_uplink)) {
+        next_uplink = millis() + (UPLINK_INTERVAL * 1000UL);
+	    char tx_buf[2];
 		tx_buf[0] = 'S';
-		tx_buf[1] = ('0' + status);
-		tx_buf[2] = '\0';
-	    lora.send((const uint8_t *)tx_buf, strlen(tx_buf));
+		tx_buf[1] = ('0' + cmd_id);
+	    lora.send((const uint8_t *)tx_buf, 2);
 	}
 }
 
