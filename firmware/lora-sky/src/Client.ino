@@ -165,10 +165,7 @@ void loop() {
 
         lora_transmit();
         status.msg_id++;
-        
-        if (status.msg_id % 16 == 0) {
-            status.save();
-        }
+        status.save();
     }
     
     // If transmiting is complete, check (or switch to) uplink receiving
