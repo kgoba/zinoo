@@ -8,6 +8,7 @@
 
 #include <RH_RF95.h>
 #include <TinyGPS++.h>
+//#include <EEPROM.h>
 
 #include "tone.h"
 #include "display.h"
@@ -19,7 +20,7 @@ public:
     TimeHMS  time;
     float    lat;
     float    lng;
-    uint16_t alt;
+    float    alt;
 
     void parse_string(const char *buf);
 };
@@ -35,19 +36,26 @@ void setup() {
     Serial.begin(9600);
     //Serial.println("RESET");
 		
-#if USE_TFT
+#ifdef WITH_DISPLAY
 	tft_setup();    // Initialize TFT and display static content
 #endif
 
 	lora_setup();   // Initialize LoRa module
 	tone_setup();   // Setup GPS PPS synchronized timer (uses 16-bit Timer1)
 
+#ifdef WITH_BUTTONS
 	pinMode(BUTTON1_PIN, INPUT_PULLUP);
 	pinMode(BUTTON2_PIN, INPUT_PULLUP);    
 	pinMode(BUTTON3_PIN, INPUT_PULLUP);    
 	pinMode(BUTTON4_PIN, INPUT_PULLUP);    
 	pinMode(BUTTON5_PIN, INPUT_PULLUP);    
 	pinMode(BUTTON6_PIN, INPUT_PULLUP);    
+#endif
+
+#ifdef WITH_LCD
+    pinMode(SWITCH1_PIN, INPUT_PULLUP);
+    pinMode(SWITCH2_PIN, OUTPUT);
+#endif
 }
 
 void lora_setup() {
@@ -91,19 +99,17 @@ void loop() {
     // Check for pending received messages on the radio
     if (lora.available()) {
         if (lora_receive()) {
-#if USE_TFT
             gLastPacket.parse_string((const char *)gLastPacketRaw);
-
+#ifdef WITH_DISPLAY
             tft_print_multiline((const char *)gLastPacketRaw, 2);
-
+#endif
             gFields.msg_recv++;
             gFields.rssi = lora.lastRssi();
             gFields.update_remote_position(gLastPacket.lat, gLastPacket.lng, gLastPacket.alt, gLastPacket.time);
-#endif
         }
     }
 	
-#if USE_TFT
+#ifdef WITH_DISPLAY
     if (newGPSData) {
         if (gps.location.isUpdated() || gps.altitude.isUpdated()) {
             gFields.update_local_position(gps.location.lat(), gps.location.lng(), gps.altitude.meters());
@@ -122,7 +128,7 @@ void loop() {
 	if (millis() > next_report) {
 		next_report += 1000;
 
-#if USE_TFT
+#ifdef WITH_DISPLAY
         tft_update();
 #endif
 	}
@@ -138,12 +144,13 @@ void loop() {
         dtostrf(gps.location.lat(), 0, 5, lat_str);
         dtostrf(gps.location.lng(), 0, 5, lng_str);
         dtostrf(falt, 0, 0, alt_str);
-        sprintf(str, "**%02d%02d%02d,%s,%s,%s,%u,%lu", 
+        sprintf(str, "**%02d%02d%02d,%s,%s,%s,%u", 
             gps.time.hour(), gps.time.minute(), gps.time.second(),
-            lat_str, lng_str, alt_str, (uint8_t)gps.satellites.value(), gps.location.age());
-		//Serial.println(str);
+            lat_str, lng_str, alt_str, (uint8_t)gps.satellites.value());
+		Serial.println(str);
     }
 	
+#ifdef WITH_BUTTONS
 	// Check buttons for uplink commands
 	uint8_t cmd_id = 0; 
 	if (digitalRead(BUTTON1_PIN) == LOW) cmd_id = 1;
@@ -159,6 +166,7 @@ void loop() {
 		tx_buf[1] = ('0' + cmd_id);
 	    lora.send((const uint8_t *)tx_buf, 2);
 	}
+#endif
 }
 
 void RemoteData::parse_string(const char *buf) {
@@ -192,7 +200,8 @@ void RemoteData::parse_string(const char *buf) {
                 //sscanf(field, "%f", &packet.lng);
                 break;
             case 5:
-                alt = strtoul(field, NULL, 10);
+                //alt = strtoul(field, NULL, 10);
+                alt = strtod(field, NULL);
                 //sscanf(field, "%d", &packet.alt);
                 break;
             }

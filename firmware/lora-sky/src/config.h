@@ -72,7 +72,7 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 // CH3 - Ignition (uplink)
 // CH4 - Balloon Burst (uplink + automatic altitude threshold w/ safe timer)
 
-#define RELEASE_ALTITUDE    15000   // Release pin will go high above this altitude (m)
+#define RELEASE_ALTITUDE    20000   // Release pin will go high above this altitude (m)
 #define RELEASE_SAFETIME    120     // Duration of safe mode in seconds since start (power on/reset)
 
 #define SWITCH1_PIN         4

@@ -62,9 +62,12 @@ void DisplayInfo::update_azim_elev() {
     */
 }
 
+DisplayInfo gFields;
+
+#ifdef WITH_TFT
+
 #include <TFT.h>
 TFT         display(TFT_CS_PIN, TFT_DC_PIN, TFT_RST_PIN);
-DisplayInfo gFields;
 
 enum FieldType {
     eFLD_INT8,
@@ -93,7 +96,7 @@ const FieldDescriptor kFields[] = {
     // "56.95790  24.13918  12345"
     {NULL,    0,  7, 8, NULL,  &gFields.lat,    eFLD_FLOAT_LAT},
     {NULL,    9,  7, 9, NULL,  &gFields.lng,    eFLD_FLOAT_LNG},
-    {NULL,   19,  7, 5, "m",   &gFields.alt,    eFLD_UINT16},
+    {NULL,   19,  7, 5, "m",   &gFields.alt,    eFLD_FLOAT},
     // "H/V +13m/s -16m/s HDG 234"
     {"H/V",   4,  8, 3, NULL,  &gFields.hspeed, eFLD_FLOAT},
     {"/",    10,  8, 4, "m/s", &gFields.vspeed, eFLD_FLOAT},
@@ -105,7 +108,7 @@ const FieldDescriptor kFields[] = {
     // "56.95790N 124.13918E 12345m"
     {NULL,    0, 10, 8, NULL,  &gFields.loc_lat,    eFLD_FLOAT_LAT},
     {NULL,    9, 10, 9, NULL,  &gFields.loc_lng,    eFLD_FLOAT_LNG},
-    {NULL,   19, 10, 5, "m",   &gFields.loc_alt,    eFLD_UINT16},
+    {NULL,   19, 10, 5, "m",   &gFields.loc_alt,    eFLD_FLOAT},
     // "SAT 25           12:13:15"  
     {"SAT",   4, 11, 2, NULL,  &gFields.loc_fix,    eFLD_INT8},
     {NULL,   17, 11, 8, NULL,  &gFields.loc_time,   eFLD_HMS}
@@ -252,3 +255,103 @@ void tft_update() {
     	ATOMIC_BLOCK_END;
     }
 }
+
+#endif
+
+#ifdef WITH_LCD
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
+
+LiquidCrystal_I2C display(0x27,16,2); // set the LCD address to 0x27 for a 16 chars and 2 line display
+
+void tft_setup() {
+    display.init(); //initialize the lcd
+    display.backlight(); //open the backlight 
+}
+
+void tft_print_multiline(const char *text, uint8_t row) {
+    //display.setCursor(15, 0);
+    //display.print("TEST");
+}
+
+void tft_update() {
+    display.clear();
+
+    char str[16];
+    uint8_t prec;
+
+    if (digitalRead(SWITCH1_PIN)) {
+        // LOCAL DATA
+        //display.setCursor(0, 0);
+        if (gFields.loc_fix >= 3) {
+            display.setCursor(0, 0);
+            display.print("RANGE");
+            display.setCursor(7, 0);
+            display.print("AZ");
+            display.setCursor(10, 0);
+            display.print("EL");
+
+            // RANGE
+            display.setCursor(0, 1);
+            if (gFields.range >= 10) {
+                dtostrf(gFields.range, 0, 0, str);
+                display.print(str);
+                display.print("km");
+            }
+            else {
+                dtostrf(gFields.range * 1000, 0, 0, str);
+                display.print(str);
+                display.print("m");            
+            }
+
+            // AZIM
+            display.setCursor(6, 1);
+            display.print(gFields.azim);
+
+            // ELEV
+            display.setCursor(10, 1);
+            display.print(gFields.elev);
+        }
+        else {
+            display.print("NO FIX");
+        }
+        display.setCursor(13, 0);
+        display.print("SAT");
+        display.setCursor(15, 1);
+        display.print((gFields.loc_fix > 9) ? 9 : gFields.loc_fix);
+    }
+    else {
+        // REMOTE DATA
+        //display.setCursor(0, 0);    // COL, ROW
+        if (gFields.msg_recv > 0) {
+            // LATITUDE
+            dtostrf(gFields.lat, 0, 4, str);
+            display.print(str);
+            //display.print((gFields.lat > 0) ? 'N' : 'S');
+
+            // LONGITUDE
+            dtostrf(gFields.lng, 0, 4, str);
+            display.setCursor(16 - strlen(str), 0);    // COL, ROW
+            display.print(str);
+            //display.print((gFields.lng > 0) ? 'E' : 'W');
+
+            // ALTITUDE
+            display.setCursor(0, 1);    // COL, ROW
+            dtostrf(gFields.alt, 0, 0, str);
+            display.print(str);
+            //display.print(gFields.alt);
+            display.print('m');
+
+            display.setCursor(10, 1);    // COL, ROW
+            //uint8_t hour_local = gFields.time.hour + LOCAL_TIME_OFFSET_HOURS;
+            //if (hour_local > 24) hour_local -= 24;
+            sprintf(str, "%02d%02d%02d", gFields.time.hour, gFields.time.minute, gFields.time.second);
+            display.print(str);
+        }
+        else {
+            display.print("NO DATA");
+        }
+    }
+}
+
+#endif

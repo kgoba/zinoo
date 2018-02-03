@@ -14,20 +14,21 @@ struct DisplayInfo {
     int8_t   loc_fix;        // 0 5 12  
     float    loc_lat;
     float    loc_lng;
-    uint16_t loc_alt; 
+    float    loc_alt; 
     TimeHMS  loc_time;
     
     float    lat;     // -89.12345
     float    lng;    // -150.12345
-    uint16_t alt;    // 12345
+    float    alt;    // 12345
     TimeHMS  time;
 
     uint16_t hdg;    // 0 90 359
     float    vspeed;   // 0 -5 -12 +18
     float    hspeed;   // 0 -5 -12 +18
-    float    range;    // 0.00 0.99 9.99 12.3 34.9
+    float    range;    // 0.00 0.99 9.99 12.3 34.9 (kilometers)
     uint16_t azim;  // 0 90 359
     int8_t   elev;    // -9 0 14 37
+
     uint16_t msg_recv;
     uint16_t msg_age;
     int8_t   rssi;

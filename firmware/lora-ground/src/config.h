@@ -12,27 +12,44 @@
 
 #define LORA_MAX_MESSAGE_LEN    80
 
-#define LORA_RST_PIN      	9       // Hardwired on the LoRa/GPS shield
-#define LORA_CS_PIN			3		// Modified on the LoRa/GPS shield!!!
-#define PPS_PIN             8       // Modified on the LoRa/GPS shield!!!
+#define LORA_RST_PIN          9       // Hardwired on the LoRa/GPS shield
+
+#ifdef LORA_MODIFIED
+#define LORA_CS_PIN           3       // Modified on the LoRa/GPS shield!!!
+#define PPS_PIN               8       // Modified on the LoRa/GPS shield!!!
+#else
+#define LORA_CS_PIN          10       // Original configuration on the LoRa/GPS shield
+#define PPS_PIN              A3       // Original configuration on the LoRa/GPS shield
+#endif
 
 
 #define GPS_UPDATE_INTERVAL 60      // Time syncing interval (seconds)
 #define UPLINK_INTERVAL     1
 
+//#define LOCAL_TIME_OFFSET_HOURS     2
+
+#ifdef WITH_BUTTONS
 #define BUTTON1_PIN			A5
 #define BUTTON2_PIN			A4
 #define BUTTON3_PIN			A3
 #define BUTTON4_PIN			A2
 #define BUTTON5_PIN			A1
 #define BUTTON6_PIN			A0
+#endif
 
+#ifdef WITH_TFT
 #define TFT_CS_PIN    7
 #define TFT_DC_PIN    6
 #define TFT_RST_PIN   5
+#endif
 
-#ifndef USE_TFT
-#define USE_TFT		false
+#ifdef WITH_LCD
+#define SWITCH1_PIN      A2
+#define SWITCH2_PIN      A3
+#endif
+
+#if defined(WITH_TFT) || defined(WITH_LCD)
+#define WITH_DISPLAY
 #endif
 
 #define TONE_FREQUENCY		1000

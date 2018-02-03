@@ -5,19 +5,29 @@
 #include <TimeLib.h>
 
 void Status::restore() {
-    //EEPROM.get(0x00, status);
-    //if (status.msg_id == 0xFFFF) {
+    uint16_t test;
+    EEPROM.get(0x00, test);
+
+    if (test == 0xFFFF) {
         // Fresh EEPROM - reset the contents of status in RAM
         msg_id = 1;
-        fixValid = false;
-        lat = lng = 0;
-        alt = n_sats = 0;
-        save();
-    //}        
+        //fixValid = false;
+        //lat = lng = 0;
+        //alt = n_sats = 0;
+        //save();
+    } 
+    else {
+        //EEPROM.get(0x00, *this);    
+        EEPROM.get(0x00, msg_id);
+        msg_id += 16;
+    }
 }
 
 void Status::save() {
-    //EEPROM.put(0x00, status);
+    //EEPROM.put(0x00, *this);
+    if (msg_id % 16 == 0) {
+        EEPROM.put(0x00, msg_id);
+    }
 }
 
 /// Constructs payload message and transmits it via radio

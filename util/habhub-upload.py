@@ -343,7 +343,7 @@ def main():
         input = serial.Serial(port_name, port_speed)
         delay = None
 
-    logfile = open("log-" + datetime.utcnow().isoformat("T") + ".txt", "w")
+    logfile = open("log-" + datetime.datetime.utcnow().isoformat("T") + ".txt", "w")
 
     u = Uploader(receiver_callsign)
 
