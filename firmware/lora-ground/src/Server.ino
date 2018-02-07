@@ -165,6 +165,10 @@ void loop() {
 		tx_buf[0] = 'S';
 		tx_buf[1] = ('0' + cmd_id);
 	    lora.send((const uint8_t *)tx_buf, 2);
+        #ifdef WITH_DISPLAY
+            tft_print_multiline("UPLINK", 2);
+        #endif
+
 	}
 #endif
 }

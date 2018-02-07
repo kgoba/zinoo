@@ -1,7 +1,7 @@
 #pragma once
 
 #define FREQUENCY_MHZ 434.25        // Transmit center frequency, MHz
-#define TX_POWER_DBM   13           // Transmit power in dBm (range +5 .. +23)
+#define TX_POWER_DBM   23           // Transmit power in dBm (range +5 .. +23)
 
 /// Select LoRa mode (speed and bandwidth):
 // * Bw125Cr45Sf128	    ///< Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Default medium range
