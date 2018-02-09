@@ -11180,6 +11180,10 @@ protection</text>
 <wire x1="35.56" y1="154.94" x2="30.48" y2="154.94" width="0.1524" layer="91"/>
 <label x="30.48" y="154.94" size="1.4224" layer="95" rot="R180" xref="yes"/>
 </segment>
+<segment>
+<wire x1="86.36" y1="147.32" x2="81.28" y2="147.32" width="0.1524" layer="91"/>
+<label x="86.36" y="147.32" size="1.4224" layer="95" xref="yes"/>
+</segment>
 </net>
 <net name="N$12" class="0">
 <segment>
@@ -11364,10 +11368,10 @@ protection</text>
 </net>
 <net name="N$15" class="0">
 <segment>
-<pinref part="J1" gate="G$1" pin="D8"/>
-<wire x1="60.96" y1="139.7" x2="71.12" y2="139.7" width="0.1524" layer="91"/>
 <pinref part="R7" gate="G$1" pin="2"/>
-<wire x1="71.12" y1="99.06" x2="71.12" y2="139.7" width="0.1524" layer="91"/>
+<wire x1="71.12" y1="99.06" x2="71.12" y2="134.62" width="0.1524" layer="91"/>
+<pinref part="J1" gate="G$1" pin="*D10"/>
+<wire x1="60.96" y1="134.62" x2="71.12" y2="134.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$23" class="0">
