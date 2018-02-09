@@ -31,5 +31,4 @@
 .DS_Store
 /Release/
 /.project
-.*
 .piolibdeps
