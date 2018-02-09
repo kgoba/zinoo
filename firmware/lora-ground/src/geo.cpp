@@ -42,3 +42,14 @@ void geo_look_at(
     azim = degrees(atan2(re, -rs));
     if (azim < 0) azim += 360;
 }
+
+
+int16_t TimeHMS::delta_i16(const TimeHMS &t1, const TimeHMS &t2) {
+    int16_t delta = 0;
+    delta += (int16_t)t2.hour - t1.hour;
+    delta *= 60;
+    delta += (int16_t)t2.minute - t1.minute;
+    delta *= 60;
+    delta += (int16_t)t2.second - t1.second;
+    return delta;
+}

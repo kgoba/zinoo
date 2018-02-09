@@ -12,18 +12,7 @@
 
 #include "tone.h"
 #include "display.h"
-
-struct RemoteData {
-public:
-    //char     callsign[8];
-    //uint16_t msg_id;
-    TimeHMS  time;
-    float    lat;
-    float    lng;
-    float    alt;
-
-    void parse_string(const char *buf);
-};
+#include "telemetry.h"
 
 RemoteData  gLastPacket;
 
@@ -118,9 +107,11 @@ void loop() {
             gFields.loc_fix = gps.satellites.value();
         }
         if (gps.time.isValid()) {
-            gFields.loc_time.hour = gps.time.hour();
-            gFields.loc_time.minute = gps.time.minute();
-            gFields.loc_time.second = gps.time.second();
+            TimeHMS local_time;
+            local_time.hour = gps.time.hour();
+            local_time.minute = gps.time.minute();
+            local_time.second = gps.time.second();
+            gFields.update_local_time(local_time);
         }
     }
 #endif
@@ -171,50 +162,6 @@ void loop() {
 
 	}
 #endif
-}
-
-void RemoteData::parse_string(const char *buf) {
-    uint8_t field_idx = 0;
-
-    while (field_idx < 6) {
-        char *f_end = strchr(buf, ',');
-        uint8_t f_len;
-
-        if (f_end) f_len = f_end - buf;
-        else f_len = strlen(buf);
-
-        if (f_len < 10) {
-            char field[11];
-            field[10] = '\0';
-            strncpy(field, buf, 10);
-            switch (field_idx) {
-            case 2:
-                time.second = strtoul(field + 4, NULL, 10);
-                field[4] = '\0';
-                time.minute = strtoul(field + 2, NULL, 10);
-                field[2] = '\0';
-                time.hour = strtoul(field, NULL, 10);
-                break;
-            case 3:
-                lat = strtod(field, NULL);
-                //sscanf(field, "%f", &packet.lat);
-                break;
-            case 4:
-                lng = strtod(field, NULL);
-                //sscanf(field, "%f", &packet.lng);
-                break;
-            case 5:
-                //alt = strtoul(field, NULL, 10);
-                alt = strtod(field, NULL);
-                //sscanf(field, "%d", &packet.alt);
-                break;
-            }
-        }
-
-        if (!f_end) break;
-        buf = f_end + 1;
-        field_idx++;
-    }
 }
 
 bool lora_receive() {    

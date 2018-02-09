@@ -6,15 +6,6 @@
 #include <TinyGPS++.h>
 #include <RH_RF95.h>
 
-int16_t TimeHMS::delta_i16(const TimeHMS &t1, const TimeHMS &t2) {
-    int16_t delta = 0;
-    delta += (int16_t)t2.hour - t1.hour;
-    delta *= 60;
-    delta += (int16_t)t2.minute - t1.minute;
-    delta *= 60;
-    delta += (int16_t)t2.second - t1.second;
-    return delta;
-}
 
 void DisplayInfo::update_remote_position(float new_lat, float new_lng, float new_alt, TimeHMS new_time) {
     // Distance travelled horizontally since last update (2D path across sphere)
@@ -46,6 +37,11 @@ void DisplayInfo::update_local_position(float new_lat, float new_lng, float new_
     loc_alt = new_alt;
 
     update_azim_elev();
+}
+
+void DisplayInfo::update_local_time(TimeHMS new_time) {
+    loc_time = new_time;
+    msg_age = TimeHMS::delta_i16(time, loc_time);
 }
 
 void DisplayInfo::update_azim_elev() {

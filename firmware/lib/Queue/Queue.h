@@ -35,7 +35,7 @@ public:
     return T();
   }
 
-  T at(Size rank) {
+  T peek(Size rank) {
       if (rank > _count) return T();
 
       Size index = _head + rank;

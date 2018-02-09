@@ -73,7 +73,8 @@ void pyro_update()
 #ifdef WITH_PYRO
     uint32_t now = millis();
 
-    if (status.alt >= RELEASE_ALTITUDE && (millis() >= RELEASE_SAFETIME * 1000UL)) {
+    // Auto-burst above a threshold altitude
+    if (status.fixValid && (status.alt >= RELEASE_ALTITUDE) && (now >= RELEASE_SAFETIME * 1000UL)) {
         digitalWrite(SWITCH4_PIN, HIGH);
         status.switch_state |= 8;
         switch_off[3] = now + SWITCH4_AUTO_OFF * 1000UL;
@@ -88,6 +89,7 @@ void pyro_update()
         digitalWrite(SWITCH2_PIN, LOW);
         status.switch_state &= ~2;        
     }
+    // Do NOT reset the state for pyro outputs (they are one-shot anyway)
     if (SWITCH3_AUTO_OFF > 0 && now > switch_off[2]) {
         digitalWrite(SWITCH3_PIN, LOW);
         //status.switch_state &= ~4;        
@@ -175,6 +177,10 @@ void loop() {
 	    uint8_t len = sizeof(rx_buf) - 1;
         // Puts radio to receive mode if it wasn't, checks for message, doesn't block
 		if (lora.recv(rx_buf, &len)) {
+            // Update RX stats
+            status.rssi_last = lora.lastRssi();
+            status.msg_recv++;
+
             rx_buf[len] = '\0';	// Add zero string termination
             lora_parse((const char *)rx_buf);
         }

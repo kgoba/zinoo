@@ -12,6 +12,9 @@ struct Status {
     
     uint8_t  switch_state;
 
+    uint16_t msg_recv;
+    int8_t   rssi_last;
+
     void restore();
     void save();
 

@@ -2,13 +2,7 @@
 
 #include <stdint.h>
 
-struct TimeHMS {
-    uint8_t hour;
-    uint8_t minute;
-    uint8_t second;
-
-    static int16_t delta_i16(const TimeHMS &t1, const TimeHMS &t2);
-};
+#include "geo.h"
 
 struct DisplayInfo {
     int8_t   loc_fix;        // 0 5 12  
@@ -35,6 +29,8 @@ struct DisplayInfo {
 
     void update_remote_position(float new_lat, float new_lng, float new_alt, TimeHMS new_time);
     void update_local_position(float loc_lat, float loc_lng, float loc_alt);
+    void update_local_time(TimeHMS new_time);
+
     void update_azim_elev();
 };
 
