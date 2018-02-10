@@ -58,6 +58,7 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 #define PPS_PIN              A3       // Original configuration on the LoRa/GPS shield
 #endif
 
+#define GPS_TX_PIN           2
 
 // NTC thermistor configuration
 #define NTC_PIN_AN  1               // Analog pin number

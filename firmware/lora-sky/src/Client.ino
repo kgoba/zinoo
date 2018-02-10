@@ -14,6 +14,7 @@
 #include "config.h"
 
 #include "Status.h"
+#include "quectel.h"
 
 TinyGPSPlus gps;
 RH_RF95     lora(LORA_CS_PIN);
@@ -42,6 +43,23 @@ void gps_setup()
 {
     setSyncProvider(noSync);
     setSyncInterval(60);    // This resets timeStatus periodically to "sync"
+    
+    // Configure TX pin and set line in idle state (MARK)
+    pinMode(GPS_TX_PIN, OUTPUT);
+    digitalWrite(GPS_TX_PIN, HIGH);
+
+    delay(10);              // Just to give time to GPS module to boot up
+    gps_set_balloon_mode();
+    
+    // Echo the response (the next line)
+    while (Serial.available()) {
+        char c = Serial.read();
+        if (c == '\r' || c == '\n') {
+            Serial.println();
+            break;
+        }
+        Serial.write(c);
+    }
 }
 
 bool gps_feed()
