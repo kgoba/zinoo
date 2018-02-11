@@ -1,6 +1,8 @@
+#include <Arduino.h>
+
 #include "quectel.h"
 
-#include <Arduino.h>
+#include "config.h"
 
 /*
 
@@ -34,16 +36,55 @@ Checksum        Hexadecimal checksum
 
 */
 
-static void bang_9600(int pin, const char *data);
-    
-void gps_set_balloon_mode() {
-    const char *cmd_balloon_mode = "$PMTK886,3*2B\r\n";
-    
-    // Bit bang the data
-    bang_9600(GPS_TX_PIN, cmd_balloon_mode);
+static void gps_bang_9600(int pin, const char *data);
+static int gps_readline(char *line, int length);
+
+bool gps_set_balloon_mode() {
+    const char *cmd_balloon_mode = "$PMTK886,3*2B\x0D\x0A";
+
+    char line[80];
+
+    // Configure TX pin and set line in idle state (MARK)
+    pinMode(GPS_TX_PIN, OUTPUT);
+    digitalWrite(GPS_TX_PIN, HIGH);
+
+    for (uint8_t n_try1 = 0; n_try1 < 10; n_try1++) {
+        gps_readline(line, 80);
+        Serial.println("Sending PMTK 868 command...");
+        // Bit bang the data
+        gps_bang_9600(GPS_TX_PIN, cmd_balloon_mode);
+        for (uint8_t n_try2 = 0; n_try2 < 10; n_try2++) {
+            gps_readline(line, 80);
+            Serial.print("Got response: ");
+            Serial.print(line);
+            if (strcmp(line, "$PMTK001,886,3*36\x0D\x0A") == 0) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
-static void bang_9600(int pin, const char *data) {
+static int gps_readline(char *line, int length) {
+    uint8_t count = 0;
+    while (true) {
+      if (Serial.available()) {
+          char c = Serial.read();
+          if (length > 1) {
+              *line++ = c;
+              length--;
+          }
+          count++;
+          if (c == '\x0A') break;   // <LF> is the last char in string
+      }
+    }
+    if (length > 0) {
+        *line = '\0';
+    }
+    return count;
+}
+
+static void gps_bang_9600(int pin, const char *data) {
     const int period = (1000000/9600) - 1;
     
     while (*data) {
@@ -52,12 +93,12 @@ static void bang_9600(int pin, const char *data) {
         delayMicroseconds(period);
         
         // Go through all bits in the current byte
-        uint8_t byte = *data;
+        uint8_t b = *data;
         for (uint8_t bit = 0; bit < 8; bit++) {
             // Send data bit
-            digitalWrite(pin, (byte & 0x01) ? HIGH : LOW);
+            digitalWrite(pin, (b & 0x01) ? HIGH : LOW);
             delayMicroseconds(period);
-            byte >>= 1;
+            b >>= 1;
         }
         
         // Send stop bit (MARK)

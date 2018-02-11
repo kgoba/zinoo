@@ -1,3 +1,3 @@
 #pragma once 
 
-void gps_set_balloon_mode();
+bool gps_set_balloon_mode();
