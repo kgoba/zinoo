@@ -8352,9 +8352,9 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <label x="327.66" y="149.86" size="1.27" layer="95" rot="MR0" xref="yes"/>
 </segment>
 <segment>
-<label x="548.64" y="134.62" size="1.27" layer="95" rot="MR0" xref="yes"/>
-<wire x1="548.64" y1="134.62" x2="568.96" y2="134.62" width="0.1524" layer="91"/>
-<pinref part="U$29" gate="G$1" pin="PB2"/>
+<label x="614.68" y="134.62" size="1.27" layer="95" rot="MR180" xref="yes"/>
+<pinref part="U$29" gate="G$1" pin="PB10"/>
+<wire x1="599.44" y1="134.62" x2="614.68" y2="134.62" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="!RFM_RST" class="0">
@@ -8369,7 +8369,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <pinref part="U$29" gate="G$1" pin="PA11"/>
 </segment>
 </net>
-<net name="CMD1" class="0">
+<net name="D_PYRO2" class="0">
 <segment>
 <wire x1="429.26" y1="-83.82" x2="426.72" y2="-83.82" width="0.1524" layer="91"/>
 <label x="421.64" y="-83.82" size="1.27" layer="95" rot="R180" xref="yes"/>
@@ -8385,7 +8385,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <label x="546.1" y="137.16" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="CMD2" class="0">
+<net name="D_PYRO1" class="0">
 <segment>
 <wire x1="429.26" y1="-111.76" x2="426.72" y2="-111.76" width="0.1524" layer="91"/>
 <label x="421.64" y="-111.76" size="1.27" layer="95" rot="MR0" xref="yes"/>
@@ -8464,7 +8464,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="307.34" y1="27.94" x2="307.34" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="V_BATT_SENSE" class="0">
+<net name="SENSE_VBATT" class="0">
 <segment>
 <label x="551.18" y="162.56" size="1.27" layer="95" rot="R180" xref="yes"/>
 <wire x1="551.18" y1="162.56" x2="568.96" y2="162.56" width="0.1524" layer="91"/>
@@ -8703,7 +8703,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="779.78" y1="78.74" x2="779.78" y2="76.2" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="PYRO_SENSE" class="0">
+<net name="SENSE_VPYRO" class="0">
 <segment>
 <pinref part="R16" gate="G$1" pin="2"/>
 <wire x1="363.22" y1="-58.42" x2="368.3" y2="-58.42" width="0.1524" layer="91"/>
@@ -8745,7 +8745,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="477.52" y1="-38.1" x2="459.74" y2="-38.1" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="SENSE1" class="0">
+<net name="SENSE_P2" class="0">
 <segment>
 <pinref part="R21" gate="G$1" pin="2"/>
 <wire x1="480.06" y1="-73.66" x2="482.6" y2="-73.66" width="0.1524" layer="91"/>
@@ -8761,7 +8761,7 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <wire x1="568.96" y1="149.86" x2="546.1" y2="149.86" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="SENSE2" class="0">
+<net name="SENSE_P1" class="0">
 <segment>
 <pinref part="R22" gate="G$1" pin="2"/>
 <wire x1="480.06" y1="-101.6" x2="482.6" y2="-101.6" width="0.1524" layer="91"/>

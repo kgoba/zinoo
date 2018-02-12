@@ -2486,12 +2486,12 @@ Low profile connectors, straight&lt;p&gt;
 <element name="C19" library="kg-generic" package="C603" value="100n" x="-9" y="-13.5"/>
 <element name="R56" library="kg-generic" package="R0603" value="1k" x="-8" y="-20.5"/>
 <element name="R57" library="kg-generic" package="R0603" value="100" x="87.5" y="33.5" rot="R180"/>
-<element name="J14" library="kg-amp-ct" package="JST-3-PTH-VERT" value="1WIRE" x="-1" y="-49.5"/>
-<element name="SV2" library="con-ml" package="ML6" value="I2C/GPS" x="-1.5" y="-66.5">
-<attribute name="OC_FARNELL" value="unknown" x="-1.5" y="-66.5" size="1.778" layer="27" display="off"/>
-<attribute name="MPN" value="" x="-1.5" y="-66.5" size="1.778" layer="27" display="off"/>
-<attribute name="OC_NEWARK" value="unknown" x="-1.5" y="-66.5" size="1.778" layer="27" display="off"/>
-<attribute name="MF" value="" x="-1.5" y="-66.5" size="1.778" layer="27" display="off"/>
+<element name="J14" library="kg-amp-ct" package="JST-3-PTH-VERT" value="1WIRE" x="68.5" y="37.5"/>
+<element name="SV2" library="con-ml" package="ML6" value="I2C/GPS" x="80" y="6.5">
+<attribute name="OC_FARNELL" value="unknown" x="80" y="6.5" size="1.778" layer="27" display="off"/>
+<attribute name="MPN" value="" x="80" y="6.5" size="1.778" layer="27" display="off"/>
+<attribute name="OC_NEWARK" value="unknown" x="80" y="6.5" size="1.778" layer="27" display="off"/>
+<attribute name="MF" value="" x="80" y="6.5" size="1.778" layer="27" display="off"/>
 </element>
 </elements>
 <signals>
