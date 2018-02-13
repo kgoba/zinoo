@@ -16,7 +16,9 @@
 # You should have received a copy of the GNU General Public License
 # along with habhub-upload.  If not, see <http://www.gnu.org/licenses/>.
 
+import argparse
 import serial
+from serial.tools.list_ports import comports
 import sys, time, math, struct, json, random
 import datetime
 
@@ -330,20 +332,34 @@ def test():
         time.sleep(5)            
     return
 
-def main():
-    receiver_callsign = sys.argv[1]
-    port_name = sys.argv[2]
-    
-    if port_name == '-f':
+def get_port(args):
+    if args.port:
+        return args.port
+    for (port, desc, hwid) in sorted(comports()):
+        if desc == "Arduino Uno":
+            return port
+    return None
+
+def get_input(args):
+    if args.file:
         #input = sys.stdin # not a good idea, as stdin is normally buffered
-        input = open(sys.argv[3])
+        input = open(args.file)
+    else:
+        port_name = get_port(args)
+        if port_name == None:
+            return None
+        sys.stderr.write('Using port %s\n' % port_name)
+
+        port_speed = args.baud
+        input = serial.Serial(port_name, port_speed)
+    return input
+
+def process_input(args, input, logfile):
+    receiver_callsign = args.callsign
+    if args.file:
         delay = 10
     else:
-        port_speed = 9600
-        input = serial.Serial(port_name, port_speed)
         delay = None
-
-    logfile = open("log-" + datetime.datetime.utcnow().isoformat("T") + ".txt", "w")
 
     u = Uploader(receiver_callsign)
 
@@ -397,11 +413,37 @@ def main():
             time.sleep(delay)
     return
 
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("callsign", help = "Receiver callsign (free format)")
+    parser.add_argument("--port", help = "Serial port name")
+    parser.add_argument("--baud", help = "Serial port baudrate (9600)", default=9600, type=int)
+    parser.add_argument("--file", help = "Read input from file (for testing)")
+    args = parser.parse_args()    
+   
+    logfile = open("log-" + datetime.datetime.utcnow().isoformat("T") + ".txt", "w")
+
+    while True:
+        try:
+            sys.stderr.write('Waiting for input device...\n')
+            while True:
+                input = get_input(args)
+                if input != None:
+                    break
+                time.sleep(5)
+            process_input(args, input, logfile)
+        except KeyboardInterrupt:
+            raise
+        #except serial.serialutil.SerialException:
+        #   
+        #   pass
+        except Exception as e:
+            sys.stderr.write('Exception: %s\n' % str(e))
+            time.sleep(5)
+    return
+
 if __name__ == "__main__":
     try:
-        if sys.argv[1] == 'test':
-            test()
-        else:
-            main()    
+        main()    
     except KeyboardInterrupt:
         sys.exit(0)
