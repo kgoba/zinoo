@@ -15,6 +15,8 @@ struct Status {
     uint16_t msg_recv;
     int8_t   rssi_last;
 
+    float    pyro_voltage;
+
     void restore();
     void save();
 

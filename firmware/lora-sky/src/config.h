@@ -62,8 +62,8 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 // NTC thermistor configuration
 #define NTC_PIN_AN  1               // Analog pin number
 #define NTC_T0      (273.15+25)     // 25C in Kelvin
-#define NTC_R0      22000           // Resistance of the NTC at 25C, in ohms
-#define NTC_B       2700            // B coefficient of the NTC
+#define NTC_R0      3300            // Resistance of the NTC at 25C, in ohms
+#define NTC_B       3977            // B coefficient of the NTC
 #define NTC_R1      100000          // Value of the ground resistor, in ohms
 
 #ifdef WITH_PYRO
@@ -72,7 +72,7 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 // CH3 - Ignition (uplink)
 // CH4 - Balloon Burst (uplink + automatic altitude threshold w/ safe timer)
 
-#define RELEASE_ALTITUDE    20000   // Release pin will go high above this altitude (m)
+//#define RELEASE_ALTITUDE    20000   // Release pin will go high above this altitude (m)
 #define RELEASE_SAFETIME    120     // Duration of safe mode in seconds since start (power on/reset)
 
 #define SWITCH1_PIN         4
@@ -83,8 +83,10 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 // Auto-off timeouts for switches in seconds (put 0 or negative to disable the feature)
 #define SWITCH1_AUTO_OFF    -1
 #define SWITCH2_AUTO_OFF    10*60
-#define SWITCH3_AUTO_OFF    1
-#define SWITCH4_AUTO_OFF    1
+#define SWITCH3_AUTO_OFF    3
+#define SWITCH4_AUTO_OFF    3
+
+#define VPYRO_PIN_AN        2   // Analog pin A2
 #endif
 
 // Servo configuration

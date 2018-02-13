@@ -81,12 +81,15 @@ void pyro_update()
 #ifdef WITH_PYRO
     uint32_t now = millis();
 
+#ifdef RELEASE_ALTITUDE
+#warning "Enabling automatic balloon release"
     // Auto-burst above a threshold altitude
     if (status.fixValid && (status.alt >= RELEASE_ALTITUDE) && (now >= RELEASE_SAFETIME * 1000UL)) {
         digitalWrite(SWITCH4_PIN, HIGH);
         status.switch_state |= 8;
         switch_off[3] = now + SWITCH4_AUTO_OFF * 1000UL;
     }
+#endif
 
     // Check for auto off timeouts
     if (SWITCH1_AUTO_OFF > 0 && now > switch_off[0]) {
@@ -171,7 +174,9 @@ void loop() {
     // Transmit if it is our timeslot and time is valid
     //if ((timeStatus() != timeNotSet) && timeslot_go()) {
 	if (timeslot_go()) {
-        status.temperature_ext = read_temperature();
+        // Update voltage and temperature measurements
+        status.temperature_ext = 0.5 + clip(read_temperature(), -120.0f, 120.0f);
+        status.pyro_voltage = read_pyro_voltage();
 
         lora_transmit();
         status.msg_id++;
@@ -231,34 +236,31 @@ bool lora_parse(const char * rx_buf) {
     char cmd_id = rx_buf[1];
     switch (cmd_id) {
     case '1':
-        digitalWrite(SWITCH4_PIN, HIGH);
+        digitalWrite(SWITCH4_PIN, HIGH);        // TURN ON
         status.switch_state |= (1 << 3);
         switch_off[3] = millis() + SWITCH4_AUTO_OFF * 1000UL;
         break;
     case '2':
-        digitalWrite(SWITCH3_PIN, HIGH);
+        digitalWrite(SWITCH3_PIN, HIGH);        // TURN ON
         status.switch_state |= (1 << 2);
         switch_off[2] = millis() + SWITCH3_AUTO_OFF * 1000UL;
-        digitalWrite(SWITCH4_PIN, HIGH);
-        status.switch_state |= (1 << 3);
-        switch_off[3] = millis() + SWITCH4_AUTO_OFF * 1000UL;
         break;
     case '3':
-        digitalWrite(SWITCH2_PIN, HIGH);
+        digitalWrite(SWITCH2_PIN, HIGH);        // TURN ON
         status.switch_state |= (1 << 1);
         switch_off[1] = millis() + SWITCH2_AUTO_OFF * 1000UL;
         break;
     case '4':
-        digitalWrite(SWITCH2_PIN, LOW);
+        digitalWrite(SWITCH2_PIN, LOW);         // TURN OFF
         status.switch_state &= ~(1 << 1);
         break;
     case '5':
-        digitalWrite(SWITCH1_PIN, HIGH);
+        digitalWrite(SWITCH1_PIN, HIGH);        // TURN ON
         status.switch_state |= (1 << 0);
         switch_off[0] = millis() + SWITCH1_AUTO_OFF * 1000UL;
         break;
     case '6':
-        digitalWrite(SWITCH1_PIN, LOW);
+        digitalWrite(SWITCH1_PIN, LOW);         // TURN OFF
         status.switch_state &= ~(1 << 0);
         break;
     }
@@ -287,7 +289,7 @@ void update_time_from_gps() {
     TinyGPSDate &date = gps.date;
     if (date.isValid()) {
         setTime(hour(), minute(), second(), date.day(), date.month(), date.year());
-        
+
         // Report date update
         Serial.print("Setting date to ");
         Serial.print(date.year()); Serial.print('.');
@@ -298,7 +300,7 @@ void update_time_from_gps() {
     TinyGPSTime &time = gps.time;
     if (time.isValid() && time.age() < 500) {
         setTime(time.hour(), time.minute(), time.second(), day(), month(), year());
-        
+
         // Report time update
         Serial.print("Setting time to ");
         Serial.print(time.hour()); Serial.print(':');
@@ -333,22 +335,32 @@ void update_location_from_gps() {
     else status.fixValid = false;
 }
 
+template<class T>
+T clip(T value, T min, T max) {
+    if (value < min) return min;
+    if (value > max) return max;
+    return value;
+}
+
 /// Converts 10 bit ADC reading from a NTC to Celsius degrees.
 // The NTC is connected to +5V/AREF, and forms a divider 
 // with a resistor to the ground.
 float celsius_from_adc(uint16_t adc) {
-    float ratio = adc / 1024.0;          // Convert to 0..1
+    float ratio = adc / 1024.0f;         // Convert to 0..1
     float R = (NTC_R1 / ratio) - NTC_R1; // Calculate NTC resistance
     float k1 = log(R / NTC_R0) / NTC_B;  // Helper value
-    float T = 1 / (k1 + 1.0 / NTC_T0);     // Temperature in Kelvins
-
-    if (T < 150) T = 150;               // Impose a limit of approx -123 C
-    return (T - 273.15);                // Convert to Celsius
+    float T = 1 / (k1 + 1.0f / NTC_T0);  // Temperature in Kelvins
+    return (T - 273.15f);                // Convert to Celsius
 }
 
 /// Reads ADC value and converts to Celsius degrees
 float read_temperature() {
     return celsius_from_adc(analogRead(NTC_PIN_AN));
+}
+
+/// Reads ADC value and converts to voltage in volts
+float read_pyro_voltage() {
+    return (5.0f / 1024) * analogRead(VPYRO_PIN_AN);
 }
 
 /// Callback function used by the TimeLib library
