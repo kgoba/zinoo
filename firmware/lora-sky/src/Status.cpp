@@ -34,7 +34,6 @@ void Status::save() {
 bool Status::build_string(char *buf, uint8_t buf_len) {
     char lat_str[11];
     char lng_str[11];
-    char vpyro_str[11];
 
     if (fixValid) {
         dtostrf(lat, 0, 5, lat_str);
@@ -47,27 +46,41 @@ bool Status::build_string(char *buf, uint8_t buf_len) {
         lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
     }
 
-    dtostrf(pyro_voltage, 0, 2, vpyro_str);
+    uint8_t pyro_percent = 0.5f + 100 * pyro_voltage / 2.7;
+    if (pyro_percent > 100) pyro_percent = 100;
+    //char vpyro_str[11];
+    //dtostrf(100 * pyro_voltage / 2.7, 0, 0, vpyro_str);
 
-    char status_str[5];
+    int8_t rssi_slevel = (rssi_last + 127) / 6;
+    if (rssi_slevel < 0) rssi_slevel = 0;
+    char rssi_str[3];
+    rssi_str[0] = 'S';
+    rssi_str[1] = (rssi_slevel < 10) ? ('0' + rssi_slevel) : '+';
+    rssi_str[2] = '\0';
+
+    char status_str[16];
 
     uint8_t tmp = 0;
     if (switch_state & 8) status_str[tmp++] = 'B';  // Burst
     if (switch_state & 4) status_str[tmp++] = 'I';  // Ignite
     if (switch_state & 2) status_str[tmp++] = 'C';  // Camera
     if (switch_state & 1) status_str[tmp++] = 'A';  // Aux
-    if (tmp == 0) status_str[tmp++] = '-';
+    //if (tmp == 0) status_str[tmp++] = '-';
+    if (tmp != 0) status_str[tmp++] = ' ';
     status_str[tmp] = '\0';
+
+    snprintf(status_str + tmp, 16 - tmp, "%u %s %u",
+        msg_recv, rssi_str, pyro_percent
+    );
         
     // Build partial UKHAS sentence (without $$ and checksum)
     // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%u,%d,%s,%u,%d,%s",
+    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%u,%d,%s",
         CALLSIGN, msg_id,
         hour(), minute(), second(),
         lat_str, lng_str, alt, 
         n_sats, 
-        temperature_ext, status_str, 
-        msg_recv, rssi_last, vpyro_str
+        temperature_ext, status_str
     );
 
     return (buf_req < buf_len); // true if buf had sufficient space
