@@ -3586,83 +3586,6 @@ new: Attribute TP_SIGNAL_NAME&lt;br&gt;
 <rectangle x1="-3.27" y1="-4.9" x2="-1.81" y2="-3.4" layer="21"/>
 <rectangle x1="1.81" y1="-4.9" x2="3.27" y2="-3.4" layer="21"/>
 </package>
-<package name="SOD-323">
-<wire x1="-0.9" y1="0.65" x2="-0.5" y2="0.65" width="0.2032" layer="21"/>
-<wire x1="-0.5" y1="0.65" x2="0.9" y2="0.65" width="0.2032" layer="21"/>
-<wire x1="-0.9" y1="-0.65" x2="-0.5" y2="-0.65" width="0.2032" layer="21"/>
-<wire x1="-0.5" y1="-0.65" x2="0.9" y2="-0.65" width="0.2032" layer="21"/>
-<wire x1="-0.5" y1="0.65" x2="-0.5" y2="-0.65" width="0.2032" layer="21"/>
-<smd name="C" x="-1.15" y="0" dx="0.63" dy="0.83" layer="1"/>
-<smd name="A" x="1.15" y="0" dx="0.63" dy="0.83" layer="1"/>
-<text x="-0.889" y="1.016" size="0.4064" layer="25">&gt;NAME</text>
-<text x="-1.016" y="-1.397" size="0.4064" layer="27">&gt;VALUE</text>
-</package>
-<package name="SOD-523">
-<smd name="C" x="0.7" y="0" dx="0.4" dy="0.4" layer="1"/>
-<smd name="A" x="-0.7" y="0" dx="0.4" dy="0.4" layer="1"/>
-<wire x1="-0.6" y1="-0.4" x2="0.4" y2="-0.4" width="0.127" layer="21"/>
-<wire x1="0.4" y1="-0.4" x2="0.6" y2="-0.4" width="0.127" layer="21"/>
-<wire x1="0.6" y1="0.4" x2="0.4" y2="0.4" width="0.127" layer="21"/>
-<wire x1="0.4" y1="0.4" x2="-0.6" y2="0.4" width="0.127" layer="21"/>
-<wire x1="0.6" y1="0.4" x2="0.4" y2="0.6" width="0.127" layer="21"/>
-<wire x1="0.6" y1="-0.4" x2="0.4" y2="-0.6" width="0.127" layer="21"/>
-<wire x1="0.4" y1="-0.6" x2="0.4" y2="-0.4" width="0.127" layer="21"/>
-<wire x1="0.4" y1="0.6" x2="0.4" y2="0.4" width="0.127" layer="21"/>
-<wire x1="-0.6" y1="-0.4" x2="0.3" y2="-0.4" width="0.127" layer="51"/>
-<wire x1="0.3" y1="-0.4" x2="0.6" y2="-0.4" width="0.127" layer="51"/>
-<wire x1="0.6" y1="-0.4" x2="0.6" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="0.6" y1="-0.1" x2="0.6" y2="0.1" width="0.127" layer="51"/>
-<wire x1="0.6" y1="0.1" x2="0.6" y2="0.4" width="0.127" layer="51"/>
-<wire x1="0.6" y1="0.4" x2="0.3" y2="0.4" width="0.127" layer="51"/>
-<wire x1="0.3" y1="0.4" x2="-0.6" y2="0.4" width="0.127" layer="51"/>
-<wire x1="-0.6" y1="0.4" x2="-0.6" y2="0.1" width="0.127" layer="51"/>
-<wire x1="-0.6" y1="0.1" x2="-0.6" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="-0.6" y1="-0.1" x2="-0.6" y2="-0.4" width="0.127" layer="51"/>
-<wire x1="0.6" y1="0.1" x2="0.8" y2="0.1" width="0.127" layer="51"/>
-<wire x1="0.8" y1="0.1" x2="0.8" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="0.8" y1="-0.1" x2="0.6" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="-0.6" y1="-0.1" x2="-0.8" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="-0.6" y1="0.1" x2="-0.8" y2="0.1" width="0.127" layer="51"/>
-<wire x1="-0.8" y1="0.1" x2="-0.8" y2="-0.1" width="0.127" layer="51"/>
-<wire x1="0.3" y1="0.4" x2="0.3" y2="-0.4" width="0.127" layer="51"/>
-</package>
-<package name="SMA-DIODE">
-<description>&lt;B&gt;Diode&lt;/B&gt;&lt;p&gt;
-Basic SMA packaged diode. Good for reverse polarization protection. Common part #: MBRA140</description>
-<wire x1="-2.3" y1="1" x2="-2.3" y2="1.45" width="0.2032" layer="21"/>
-<wire x1="-2.3" y1="1.45" x2="2.3" y2="1.45" width="0.2032" layer="21"/>
-<wire x1="2.3" y1="1.45" x2="2.3" y2="1" width="0.2032" layer="21"/>
-<wire x1="2.3" y1="-1" x2="2.3" y2="-1.45" width="0.2032" layer="21"/>
-<wire x1="2.3" y1="-1.45" x2="-2.3" y2="-1.45" width="0.2032" layer="21"/>
-<wire x1="-2.3" y1="-1.45" x2="-2.3" y2="-1" width="0.2032" layer="21"/>
-<wire x1="1" y1="1" x2="1" y2="-1" width="0.2032" layer="21"/>
-<smd name="A" x="-2.15" y="0" dx="1.27" dy="1.47" layer="1" rot="R180"/>
-<smd name="C" x="2.15" y="0" dx="1.27" dy="1.47" layer="1"/>
-<text x="-2.286" y="1.651" size="0.4064" layer="25">&gt;NAME</text>
-<text x="0.254" y="1.651" size="0.4064" layer="27">&gt;VALUE</text>
-</package>
-<package name="SMB-DIODE">
-<description>&lt;b&gt;Diode&lt;/b&gt;&lt;p&gt;
-Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</description>
-<wire x1="-3.973" y1="1.983" x2="3.973" y2="1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="-1.983" x2="-3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="-3.973" y1="-1.983" x2="-3.973" y2="1.983" width="0.0508" layer="39"/>
-<wire x1="3.973" y1="1.983" x2="3.973" y2="-1.983" width="0.0508" layer="39"/>
-<wire x1="-2.2606" y1="1.905" x2="2.2606" y2="1.905" width="0.1016" layer="21"/>
-<wire x1="-2.2606" y1="-1.905" x2="2.2606" y2="-1.905" width="0.1016" layer="21"/>
-<wire x1="-2.261" y1="-1.905" x2="-2.261" y2="1.905" width="0.1016" layer="51"/>
-<wire x1="2.261" y1="-1.905" x2="2.261" y2="1.905" width="0.1016" layer="51"/>
-<wire x1="0.643" y1="1" x2="-0.73" y2="0" width="0.2032" layer="21"/>
-<wire x1="-0.73" y1="0" x2="0.643" y2="-1" width="0.2032" layer="21"/>
-<wire x1="0.643" y1="-1" x2="0.643" y2="1" width="0.2032" layer="21"/>
-<wire x1="-0.73" y1="1" x2="-0.73" y2="-1" width="0.2032" layer="21"/>
-<smd name="C" x="-2.2" y="0" dx="2.4" dy="2.4" layer="1"/>
-<smd name="A" x="2.2" y="0" dx="2.4" dy="2.4" layer="1"/>
-<text x="-2.159" y="2.159" size="1.27" layer="25">&gt;NAME</text>
-<text x="-1.905" y="-3.429" size="1.27" layer="27">&gt;VALUE</text>
-<rectangle x1="-2.794" y1="-1.0922" x2="-2.2606" y2="1.0922" layer="51"/>
-<rectangle x1="2.2606" y1="-1.0922" x2="2.794" y2="1.0922" layer="51"/>
-</package>
 <package name="SOT23-5">
 <description>&lt;b&gt;Small Outline Transistor&lt;/b&gt;, 5 lead</description>
 <wire x1="-1.544" y1="0.713" x2="1.544" y2="0.713" width="0.1524" layer="21"/>
@@ -3771,22 +3694,6 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <wire x1="-5.08" y1="-2.54" x2="-3.048" y2="-2.54" width="0.1524" layer="94"/>
 <wire x1="0" y1="-2.286" x2="0" y2="-2.54" width="0.1524" layer="94"/>
 <wire x1="0" y1="2.54" x2="0" y2="2.286" width="0.1524" layer="94"/>
-</symbol>
-<symbol name="DIODE-SCHOTTKY">
-<wire x1="-1.27" y1="-1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="-1.27" y2="1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="1.27" x2="1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="1.27" x2="-1.27" y2="0" width="0.254" layer="94"/>
-<wire x1="-1.27" y1="0" x2="-1.27" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="0" x2="1.27" y2="-1.27" width="0.254" layer="94"/>
-<wire x1="1.27" y1="1.27" x2="1.778" y2="1.524" width="0.254" layer="94"/>
-<wire x1="1.27" y1="-1.27" x2="0.762" y2="-1.524" width="0.254" layer="94"/>
-<text x="-2.54" y="4.2926" size="1.778" layer="95">&gt;NAME</text>
-<text x="-2.54" y="3.5306" size="1.778" layer="96" align="top-left">&gt;VALUE</text>
-<pin name="A" x="-2.54" y="0" visible="off" length="point" direction="pas"/>
-<pin name="C" x="2.54" y="0" visible="off" length="point" direction="pas" rot="R180"/>
-<wire x1="-2.54" y1="0" x2="-1.27" y2="0" width="0.1524" layer="94"/>
-<wire x1="2.54" y1="0" x2="1.27" y2="0" width="0.1524" layer="94"/>
 </symbol>
 <symbol name="VREG-5PIN">
 <wire x1="-7.62" y1="10.16" x2="7.62" y2="10.16" width="0.254" layer="94"/>
@@ -4141,50 +4048,6 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <connect gate="G$1" pin="D" pad="2"/>
 <connect gate="G$1" pin="G" pad="1"/>
 <connect gate="G$1" pin="S" pad="3"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="DIODE-SCHOTTKY" prefix="D" uservalue="yes">
-<description>Generic &lt;b&gt;Schottky diode&lt;/b&gt;</description>
-<gates>
-<gate name="G$1" symbol="DIODE-SCHOTTKY" x="0" y="0"/>
-</gates>
-<devices>
-<device name="-SOD323" package="SOD-323">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="-SOD523" package="SOD-523">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="-SMA" package="SMA-DIODE">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="-SMB" package="SMB-DIODE">
-<connects>
-<connect gate="G$1" pin="A" pad="A"/>
-<connect gate="G$1" pin="C" pad="C"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -4643,64 +4506,6 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <wire x1="-6.1" y1="8" x2="6.1" y2="8" width="0.127" layer="51"/>
 <wire x1="6.1" y1="-8" x2="-6.1" y2="-8" width="0.127" layer="51"/>
 </package>
-<package name="HOPE-RFM">
-<wire x1="-0.38" y1="1.015" x2="15.62" y2="1.015" width="0.127" layer="51"/>
-<wire x1="15.62" y1="1.015" x2="15.62" y2="-14.985" width="0.127" layer="51"/>
-<wire x1="15.62" y1="-14.985" x2="-0.38" y2="-14.985" width="0.127" layer="51"/>
-<wire x1="-0.38" y1="-14.985" x2="-0.38" y2="1.015" width="0.127" layer="51"/>
-<wire x1="-0.38" y1="1.215" x2="15.62" y2="1.215" width="0.127" layer="21"/>
-<wire x1="-0.38" y1="-14.985" x2="15.62" y2="-14.985" width="0.127" layer="21"/>
-<wire x1="-0.38" y1="-15.185" x2="15.62" y2="-15.185" width="0.127" layer="21"/>
-<text x="-0.38" y="2.015" size="1.27" layer="25">&gt;NAME</text>
-<text x="-0.38" y="-15.985" size="1.27" layer="27" align="top-left">&gt;VALUE</text>
-<circle x="2.62" y="0.015" radius="0.5552" width="0.127" layer="21"/>
-<smd name="1" x="-0.38" y="0.015" dx="1.8" dy="0.8" layer="1"/>
-<smd name="2" x="-0.38" y="-1.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="3" x="-0.38" y="-3.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="4" x="-0.38" y="-5.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="5" x="-0.38" y="-7.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="6" x="-0.38" y="-9.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="7" x="-0.38" y="-11.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="8" x="-0.38" y="-13.985" dx="1.8" dy="0.8" layer="1"/>
-<smd name="9" x="15.62" y="-13.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="10" x="15.62" y="-11.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="11" x="15.62" y="-9.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="12" x="15.62" y="-7.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="13" x="15.62" y="-5.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="14" x="15.62" y="-3.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="15" x="15.62" y="-1.985" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-<smd name="16" x="15.62" y="0.015" dx="1.8" dy="0.8" layer="1" rot="R180"/>
-</package>
-<package name="TFT-2.0-OPENSMART">
-<wire x1="54.769" y1="-13.97" x2="0.349" y2="-13.97" width="0.127" layer="21"/>
-<wire x1="0.349" y1="-13.97" x2="-1.651" y2="-11.97" width="0.127" layer="21" curve="-90"/>
-<wire x1="-1.651" y1="-11.97" x2="-1.651" y2="27.21" width="0.127" layer="21"/>
-<wire x1="-1.651" y1="27.21" x2="0.349" y2="29.21" width="0.127" layer="21" curve="-90"/>
-<wire x1="0.349" y1="29.21" x2="54.769" y2="29.21" width="0.127" layer="21"/>
-<wire x1="54.769" y1="29.21" x2="56.769" y2="27.21" width="0.127" layer="21" curve="-90"/>
-<wire x1="56.769" y1="27.21" x2="56.769" y2="-11.97" width="0.127" layer="21"/>
-<wire x1="56.769" y1="-11.97" x2="54.769" y2="-13.97" width="0.127" layer="21" curve="-90"/>
-<pad name="P$1" x="0" y="0" drill="0.9" shape="square"/>
-<pad name="P$2" x="0" y="2.54" drill="0.9" shape="octagon"/>
-<pad name="P$3" x="0" y="5.08" drill="0.9" shape="octagon"/>
-<pad name="P$4" x="0" y="7.62" drill="0.9" shape="octagon"/>
-<pad name="P$5" x="0" y="10.16" drill="0.9" shape="octagon"/>
-<pad name="P$6" x="0" y="12.7" drill="0.9" shape="octagon"/>
-<pad name="P$7" x="0" y="15.24" drill="0.9" shape="octagon"/>
-<pad name="P$8" x="0" y="17.78" drill="0.9" shape="octagon"/>
-<hole x="0.349" y="27.21" drill="2.1"/>
-<hole x="54.769" y="27.21" drill="2.1"/>
-<hole x="54.769" y="-11.97" drill="2.1"/>
-<hole x="0.349" y="-11.97" drill="2.1"/>
-<wire x1="2.54" y1="27.94" x2="52.705" y2="27.94" width="0.127" layer="51"/>
-<wire x1="52.705" y1="27.94" x2="52.705" y2="-12.7" width="0.127" layer="51"/>
-<wire x1="52.705" y1="-12.7" x2="2.54" y2="-12.7" width="0.127" layer="51"/>
-<wire x1="2.54" y1="-12.7" x2="2.54" y2="27.94" width="0.127" layer="51"/>
-<wire x1="5.08" y1="25.4" x2="50.8" y2="25.4" width="0.127" layer="51"/>
-<wire x1="50.8" y1="25.4" x2="50.8" y2="-10.16" width="0.127" layer="51"/>
-<wire x1="50.8" y1="-10.16" x2="5.08" y2="-10.16" width="0.127" layer="51"/>
-<wire x1="5.08" y1="-10.16" x2="5.08" y2="25.4" width="0.127" layer="51"/>
-</package>
 <package name="RFANT8010080A3T">
 <description>Ceramic Antenna
 &lt;br&gt;
@@ -4732,39 +4537,33 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <wire x1="6" y1="-5" x2="5" y2="-6" width="0.127" layer="21"/>
 <wire x1="5" y1="-6" x2="-5" y2="-6" width="0.127" layer="21"/>
 </package>
-<package name="TFT-2.0-OPENSMART-SMD">
-<wire x1="56.039" y1="-13.97" x2="1.619" y2="-13.97" width="0.127" layer="51"/>
-<wire x1="1.619" y1="-13.97" x2="-0.381" y2="-11.97" width="0.127" layer="51" curve="-90"/>
-<wire x1="-0.381" y1="-11.97" x2="-0.381" y2="27.21" width="0.127" layer="51"/>
-<wire x1="-0.381" y1="27.21" x2="1.619" y2="29.21" width="0.127" layer="51" curve="-90"/>
-<wire x1="1.619" y1="29.21" x2="56.039" y2="29.21" width="0.127" layer="51"/>
-<wire x1="56.039" y1="29.21" x2="58.039" y2="27.21" width="0.127" layer="51" curve="-90"/>
-<wire x1="58.039" y1="27.21" x2="58.039" y2="-11.97" width="0.127" layer="51"/>
-<wire x1="58.039" y1="-11.97" x2="56.039" y2="-13.97" width="0.127" layer="51" curve="-90"/>
-<wire x1="3.81" y1="27.94" x2="53.975" y2="27.94" width="0.127" layer="51"/>
-<wire x1="53.975" y1="27.94" x2="53.975" y2="-12.7" width="0.127" layer="51"/>
-<wire x1="53.975" y1="-12.7" x2="3.81" y2="-12.7" width="0.127" layer="51"/>
-<wire x1="3.81" y1="-12.7" x2="3.81" y2="27.94" width="0.127" layer="51"/>
-<wire x1="6.35" y1="25.4" x2="52.07" y2="25.4" width="0.127" layer="51"/>
-<wire x1="52.07" y1="25.4" x2="52.07" y2="-10.16" width="0.127" layer="51"/>
-<wire x1="52.07" y1="-10.16" x2="6.35" y2="-10.16" width="0.127" layer="51"/>
-<wire x1="6.35" y1="-10.16" x2="6.35" y2="25.4" width="0.127" layer="51"/>
-<smd name="P$1" x="0" y="0" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$2" x="0" y="2.54" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$3" x="0" y="5.08" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$4" x="0" y="7.62" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$5" x="0" y="10.16" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$6" x="0" y="12.7" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$7" x="0" y="15.24" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$8" x="0" y="17.78" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$9" x="58.42" y="0" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$10" x="58.42" y="2.54" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$11" x="58.42" y="5.08" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$12" x="58.42" y="7.62" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$13" x="58.42" y="10.16" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$14" x="58.42" y="12.7" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$15" x="58.42" y="15.24" dx="3.81" dy="1.524" layer="1"/>
-<smd name="P$16" x="58.42" y="17.78" dx="3.81" dy="1.524" layer="1"/>
+<package name="SIM800L">
+<pad name="1" x="0.635" y="16.51" drill="0.8" diameter="1.6764" shape="square"/>
+<pad name="2" x="0.635" y="13.97" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="3" x="0.635" y="11.43" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="4" x="0.635" y="8.89" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="5" x="0.635" y="6.35" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="6" x="0.635" y="3.81" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="7" x="22.225" y="1.27" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="8" x="22.225" y="3.81" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="9" x="22.225" y="6.35" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="10" x="22.225" y="8.89" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="11" x="22.225" y="11.43" drill="0.8" diameter="1.6764" shape="octagon"/>
+<pad name="12" x="22.225" y="13.97" drill="0.8" diameter="1.6764" shape="square"/>
+<wire x1="-1.27" y1="-1.27" x2="23.73" y2="-1.27" width="0.127" layer="21"/>
+<wire x1="23.73" y1="-1.27" x2="23.73" y2="21.73" width="0.127" layer="21"/>
+<wire x1="-1.27" y1="21.73" x2="-1.27" y2="-1.27" width="0.127" layer="21"/>
+<text x="2.54" y="44.45" size="1.4224" layer="25" font="vector">&gt;NAME</text>
+<text x="27.94" y="44.45" size="1.4224" layer="27" font="vector">&gt;VALUE</text>
+<wire x1="-1.27" y1="21.73" x2="23.73" y2="21.73" width="0.127" layer="21"/>
+<wire x1="4" y1="21.46" x2="19" y2="21.46" width="0.127" layer="51"/>
+<wire x1="19" y1="21.46" x2="19" y2="5.46" width="0.127" layer="51"/>
+<wire x1="19" y1="5.46" x2="4" y2="5.46" width="0.127" layer="51"/>
+<wire x1="4" y1="5.46" x2="4" y2="21.46" width="0.127" layer="51"/>
+<text x="10.16" y="19.05" size="1.27" layer="51">SIM</text>
+<wire x1="11.43" y1="17.78" x2="11.43" y2="13.97" width="0.127" layer="51"/>
+<wire x1="11.43" y1="13.97" x2="12.065" y2="15.24" width="0.127" layer="51"/>
+<wire x1="11.43" y1="13.97" x2="10.795" y2="15.24" width="0.127" layer="51"/>
 </package>
 </packages>
 <symbols>
@@ -4798,52 +4597,6 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <text x="-15.24" y="18.542" size="1.27" layer="95">&gt;NAME</text>
 <text x="15.24" y="18.542" size="1.27" layer="96" align="bottom-right">&gt;VALUE</text>
 </symbol>
-<symbol name="RFM9X">
-<description>RFM95/96/97/98(W) Device Variants</description>
-<wire x1="-12.7" y1="20.32" x2="12.7" y2="20.32" width="0.254" layer="94"/>
-<wire x1="12.7" y1="20.32" x2="12.7" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="12.7" y1="-20.32" x2="-12.7" y2="-20.32" width="0.254" layer="94"/>
-<wire x1="-12.7" y1="-20.32" x2="-12.7" y2="20.32" width="0.254" layer="94"/>
-<pin name="GND1" x="-17.78" y="17.78" length="middle" direction="pwr"/>
-<pin name="MISO" x="-17.78" y="12.7" length="middle" direction="out"/>
-<pin name="MOSI" x="-17.78" y="7.62" length="middle" direction="in"/>
-<pin name="SCK" x="-17.78" y="2.54" length="middle" direction="in"/>
-<pin name="!SS" x="-17.78" y="-2.54" length="middle" direction="in"/>
-<pin name="!RESET" x="-17.78" y="-7.62" length="middle" direction="in"/>
-<pin name="DIO5" x="-17.78" y="-12.7" length="middle"/>
-<pin name="GND2" x="-17.78" y="-17.78" length="middle" direction="pwr"/>
-<pin name="ANT" x="17.78" y="-17.78" length="middle" direction="pas" rot="R180"/>
-<pin name="GND3" x="17.78" y="-12.7" length="middle" direction="pwr" rot="R180"/>
-<pin name="DIO3" x="17.78" y="-7.62" length="middle" rot="R180"/>
-<pin name="DIO4" x="17.78" y="-2.54" length="middle" rot="R180"/>
-<pin name="3.3V" x="17.78" y="2.54" length="middle" direction="pwr" rot="R180"/>
-<pin name="DIO0" x="17.78" y="7.62" length="middle" rot="R180"/>
-<pin name="DIO1" x="17.78" y="12.7" length="middle" rot="R180"/>
-<pin name="DIO2" x="17.78" y="17.78" length="middle" rot="R180"/>
-<text x="-12.7" y="21.082" size="1.27" layer="96">&gt;NAME</text>
-<text x="12.7" y="21.082" size="1.27" layer="96" align="bottom-right">&gt;VALUE</text>
-</symbol>
-<symbol name="TFT-SPI-NO-MISO">
-<description>TFT LCD with SPI interface w/o MISO pin</description>
-<wire x1="-17.78" y1="15.24" x2="12.7" y2="15.24" width="0.254" layer="94"/>
-<wire x1="12.7" y1="15.24" x2="12.7" y2="-15.24" width="0.254" layer="94"/>
-<wire x1="12.7" y1="-15.24" x2="-17.78" y2="-15.24" width="0.254" layer="94"/>
-<wire x1="-17.78" y1="-15.24" x2="-17.78" y2="15.24" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="12.7" x2="10.16" y2="12.7" width="0.254" layer="94"/>
-<wire x1="10.16" y1="12.7" x2="10.16" y2="-12.7" width="0.254" layer="94"/>
-<wire x1="10.16" y1="-12.7" x2="-10.16" y2="-12.7" width="0.254" layer="94"/>
-<wire x1="-10.16" y1="-12.7" x2="-10.16" y2="12.7" width="0.254" layer="94"/>
-<pin name="LED" x="-20.32" y="-10.16" visible="pin" length="short"/>
-<pin name="!RST" x="-20.32" y="-5.08" visible="pin" length="short"/>
-<pin name="!CS" x="-20.32" y="0" visible="pin" length="short"/>
-<pin name="D/C" x="-20.32" y="-2.54" visible="pin" length="short"/>
-<pin name="SCK" x="-20.32" y="2.54" visible="pin" length="short"/>
-<pin name="SDI" x="-20.32" y="7.62" visible="pin" length="short"/>
-<pin name="VCC" x="-20.32" y="12.7" visible="pin" length="short"/>
-<pin name="GND" x="-20.32" y="-12.7" visible="pin" length="short"/>
-<text x="0" y="-6.604" size="2.1844" layer="94" ratio="15" rot="R90">TFT LCD</text>
-<text x="-16.256" y="4.318" size="1.4224" layer="95" ratio="10">(SDO)</text>
-</symbol>
 <symbol name="ANTENNA">
 <wire x1="0" y1="2.54" x2="0" y2="5.08" width="0.254" layer="94"/>
 <wire x1="0" y1="5.08" x2="0" y2="7.62" width="0.254" layer="94"/>
@@ -4851,6 +4604,26 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 <wire x1="0" y1="5.08" x2="-1.27" y2="7.112" width="0.254" layer="94"/>
 <wire x1="0" y1="2.54" x2="-5.08" y2="2.54" width="0.254" layer="94"/>
 <pin name="FEED" x="-5.08" y="2.54" visible="pad" length="point"/>
+</symbol>
+<symbol name="SIM800L">
+<wire x1="-10.16" y1="12.7" x2="10.16" y2="12.7" width="0.254" layer="94"/>
+<wire x1="10.16" y1="12.7" x2="10.16" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="10.16" y1="-7.62" x2="-10.16" y2="-7.62" width="0.254" layer="94"/>
+<wire x1="-10.16" y1="-7.62" x2="-10.16" y2="12.7" width="0.254" layer="94"/>
+<pin name="VCC" x="-12.7" y="7.62" length="short"/>
+<pin name="GND" x="-12.7" y="-2.54" length="short"/>
+<pin name="!RST" x="-12.7" y="5.08" length="short"/>
+<pin name="RXD" x="-12.7" y="2.54" length="short"/>
+<pin name="TXD" x="-12.7" y="0" length="short"/>
+<pin name="SPKR+" x="12.7" y="-2.54" length="short" rot="R180"/>
+<pin name="SPKR-" x="12.7" y="-5.08" length="short" rot="R180"/>
+<pin name="MIC+" x="12.7" y="2.54" length="short" rot="R180"/>
+<pin name="MIC-" x="12.7" y="0" length="short" rot="R180"/>
+<pin name="DTR" x="12.7" y="5.08" length="short" rot="R180"/>
+<pin name="RING" x="12.7" y="7.62" length="short" rot="R180"/>
+<pin name="ANT" x="-12.7" y="10.16" length="short"/>
+<text x="-10.16" y="13.716" size="1.4224" layer="104" font="vector">&gt;NAME</text>
+<text x="10.16" y="13.716" size="1.4224" layer="96" font="vector" rot="MR0">&gt;VALUE</text>
 </symbol>
 </symbols>
 <devicesets>
@@ -4890,85 +4663,6 @@ Basic small signal diode good up to 200mA. SMB footprint. Common part #: BAS16</
 </device>
 </devices>
 </deviceset>
-<deviceset name="HOPE-RFM9" prefix="M">
-<description>&lt;b&gt;RFM95/96/97/98(W)&lt;/b&gt; - Low Power Long Range Transceiver Module
-
-&lt;br&gt;
-RFM95/96/97/98(W) Device Variants
-&lt;ul&gt;
-&lt;li&gt;RFM95W, 868/915 MHz, SF 6-12, 18-37500 bps
-&lt;li&gt;RFM97W, 868/915 MHz, SF 6-9, 11-37500 bps
-&lt;li&gt;RFM96W/RFM98W, 433/470 MHz, SF 6-12, 18-37500 bps
-&lt;/ul&gt;</description>
-<gates>
-<gate name="G$1" symbol="RFM9X" x="0" y="0"/>
-</gates>
-<devices>
-<device name="" package="HOPE-RFM">
-<connects>
-<connect gate="G$1" pin="!RESET" pad="6"/>
-<connect gate="G$1" pin="!SS" pad="5"/>
-<connect gate="G$1" pin="3.3V" pad="13"/>
-<connect gate="G$1" pin="ANT" pad="9"/>
-<connect gate="G$1" pin="DIO0" pad="14"/>
-<connect gate="G$1" pin="DIO1" pad="15"/>
-<connect gate="G$1" pin="DIO2" pad="16"/>
-<connect gate="G$1" pin="DIO3" pad="11"/>
-<connect gate="G$1" pin="DIO4" pad="12"/>
-<connect gate="G$1" pin="DIO5" pad="7"/>
-<connect gate="G$1" pin="GND1" pad="1"/>
-<connect gate="G$1" pin="GND2" pad="8"/>
-<connect gate="G$1" pin="GND3" pad="10"/>
-<connect gate="G$1" pin="MISO" pad="2"/>
-<connect gate="G$1" pin="MOSI" pad="3"/>
-<connect gate="G$1" pin="SCK" pad="4"/>
-</connects>
-<technologies>
-<technology name="5W"/>
-<technology name="6W"/>
-<technology name="7W"/>
-<technology name="8W"/>
-</technologies>
-</device>
-</devices>
-</deviceset>
-<deviceset name="TFT-2.0-OPENSMART" prefix="M">
-<gates>
-<gate name="G$1" symbol="TFT-SPI-NO-MISO" x="0" y="0"/>
-</gates>
-<devices>
-<device name="-THT" package="TFT-2.0-OPENSMART">
-<connects>
-<connect gate="G$1" pin="!CS" pad="P$6"/>
-<connect gate="G$1" pin="!RST" pad="P$7"/>
-<connect gate="G$1" pin="D/C" pad="P$5"/>
-<connect gate="G$1" pin="GND" pad="P$1"/>
-<connect gate="G$1" pin="LED" pad="P$8"/>
-<connect gate="G$1" pin="SCK" pad="P$4"/>
-<connect gate="G$1" pin="SDI" pad="P$3"/>
-<connect gate="G$1" pin="VCC" pad="P$2"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-<device name="-SMD" package="TFT-2.0-OPENSMART-SMD">
-<connects>
-<connect gate="G$1" pin="!CS" pad="P$6"/>
-<connect gate="G$1" pin="!RST" pad="P$7"/>
-<connect gate="G$1" pin="D/C" pad="P$5"/>
-<connect gate="G$1" pin="GND" pad="P$1"/>
-<connect gate="G$1" pin="LED" pad="P$8"/>
-<connect gate="G$1" pin="SCK" pad="P$4"/>
-<connect gate="G$1" pin="SDI" pad="P$3"/>
-<connect gate="G$1" pin="VCC" pad="P$2"/>
-</connects>
-<technologies>
-<technology name=""/>
-</technologies>
-</device>
-</devices>
-</deviceset>
 <deviceset name="ANTENNA" prefix="X">
 <description>PCB trace or patch antenna</description>
 <gates>
@@ -4986,6 +4680,32 @@ RFM95/96/97/98(W) Device Variants
 <device name="-PATCH-12X12" package="ANT-PATCH-12X12">
 <connects>
 <connect gate="G$1" pin="FEED" pad="FEED"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+</devices>
+</deviceset>
+<deviceset name="SIM800L-MODULE" prefix="M">
+<gates>
+<gate name="G$1" symbol="SIM800L" x="0" y="0"/>
+</gates>
+<devices>
+<device name="" package="SIM800L">
+<connects>
+<connect gate="G$1" pin="!RST" pad="3"/>
+<connect gate="G$1" pin="ANT" pad="1"/>
+<connect gate="G$1" pin="DTR" pad="11"/>
+<connect gate="G$1" pin="GND" pad="6"/>
+<connect gate="G$1" pin="MIC+" pad="10"/>
+<connect gate="G$1" pin="MIC-" pad="9"/>
+<connect gate="G$1" pin="RING" pad="12"/>
+<connect gate="G$1" pin="RXD" pad="4"/>
+<connect gate="G$1" pin="SPKR+" pad="8"/>
+<connect gate="G$1" pin="SPKR-" pad="7"/>
+<connect gate="G$1" pin="TXD" pad="5"/>
+<connect gate="G$1" pin="VCC" pad="2"/>
 </connects>
 <technologies>
 <technology name=""/>
@@ -6355,11 +6075,7 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </class>
 </classes>
 <parts>
-<part name="ESD2" library="microbuilder_v3" deviceset="FERRITE" device="_0603MP" value="0.25p"/>
-<part name="U$31" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="U$1" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="U$15" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="X2" library="kg-conn-rf" deviceset="SMACONNECTOR" device="_EDGE"/>
 <part name="U$17" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="+3V6" library="supply1" deviceset="+3V3" device=""/>
 <part name="FRAME1" library="SparkFun-Aesthetics" deviceset="FRAME-A4L" device=""/>
@@ -6388,11 +6104,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <part name="TP3" library="testpad" deviceset="TPS" device="B1,27"/>
 <part name="ESD1" library="microbuilder_v3" deviceset="FERRITE" device="_0603MP" value="NF"/>
 <part name="U$5" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="M2" library="kg-modules" deviceset="HOPE-RFM9" device="" technology="8W"/>
-<part name="U$7" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="FB2" library="microbuilder_v3" deviceset="FERRITE" device="_0805"/>
 <part name="U8" library="kg-mcu" deviceset="STM32L063C" device=""/>
-<part name="FB4" library="microbuilder_v3" deviceset="FERRITE" device="_0805"/>
 <part name="U$42" library="adafruit" deviceset="USB" device="MINIB"/>
 <part name="R5" library="kg-generic" deviceset="RESISTOR" device="-0603" value="22"/>
 <part name="R6" library="kg-generic" deviceset="RESISTOR" device="-0603" value="22"/>
@@ -6418,21 +6131,15 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <part name="+3V3" library="supply1" deviceset="+3V3" device=""/>
 <part name="C9" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
 <part name="U$21" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="C10" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
-<part name="U$23" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="M3" library="kg-modules" deviceset="TFT-2.0-OPENSMART" device="-THT" value="TFT-2.0-OPENSMART-THT"/>
 <part name="U$45" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="+3V4" library="supply1" deviceset="+3V3" device=""/>
 <part name="S2" library="SparkFun-Switches" deviceset="MOMENTARY-SWITCH-SPST" device="-SMD-6.2MM-TALL"/>
-<part name="S3" library="SparkFun-Switches" deviceset="MOMENTARY-SWITCH-SPST" device="-SMD-6.2MM-TALL"/>
 <part name="C3" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
 <part name="+3V7" library="supply1" deviceset="+3V3" device=""/>
 <part name="U$19" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="C5" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="NF*"/>
-<part name="+3V2" library="supply1" deviceset="+3V3" device=""/>
 <part name="X4" library="kg-modules" deviceset="ANTENNA" device="-PATCH-12X12"/>
 <part name="U$11" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="S4" library="SparkFun-Switches" deviceset="MOMENTARY-SWITCH-SPST" device="-SMD-6.2MM-TALL"/>
 <part name="R2" library="kg-generic" deviceset="RESISTOR" device="-0603" value="4.7k"/>
 <part name="R3" library="kg-generic" deviceset="RESISTOR" device="-0603" value="4.7k"/>
 <part name="R4" library="kg-generic" deviceset="RESISTOR" device="-0603" value="10k"/>
@@ -6451,7 +6158,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <part name="R12" library="kg-generic" deviceset="RESISTOR" device="-0603" value="100k"/>
 <part name="Q2" library="kg-generic" deviceset="MOSFET-N" device="-SOT23-3" value="CPH3448"/>
 <part name="U$16" library="microbuilder_v3" deviceset="GND" device=""/>
-<part name="D1" library="kg-generic" deviceset="DIODE-SCHOTTKY" device="-SOD323"/>
 <part name="D2" library="diode" deviceset="DIODE-2AC|CA" device="SOT23"/>
 <part name="R14" library="kg-generic" deviceset="RESISTOR" device="-0603" value="100k"/>
 <part name="U$24" library="microbuilder_v3" deviceset="GND" device=""/>
@@ -6465,6 +6171,20 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <part name="U$25" library="microbuilder_v3" deviceset="GND" device=""/>
 <part name="C8" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="*100n"/>
 <part name="C11" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
+<part name="M2" library="kg-modules" deviceset="SIM800L-MODULE" device=""/>
+<part name="X1" library="kg-conn-rf" deviceset="SMACONNECTOR" device="_EDGE"/>
+<part name="U$1" library="microbuilder_v3" deviceset="GND" device=""/>
+<part name="ESD2" library="microbuilder_v3" deviceset="FERRITE" device="_0603MP" value="NF"/>
+<part name="U$7" library="microbuilder_v3" deviceset="GND" device=""/>
+<part name="C10" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="NF*"/>
+<part name="U$23" library="microbuilder_v3" deviceset="GND" device=""/>
+<part name="R16" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
+<part name="R17" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
+<part name="R18" library="kg-generic" deviceset="RESISTOR" device="-0603" value="5.6k"/>
+<part name="U$28" library="microbuilder_v3" deviceset="GND" device=""/>
+<part name="R19" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
+<part name="R20" library="kg-generic" deviceset="RESISTOR" device="-0603" value="5.6k"/>
+<part name="U$30" library="microbuilder_v3" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -6476,11 +6196,7 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 - SD card vs Flash</text>
 </plain>
 <instances>
-<instance part="ESD2" gate="G$1" x="269.24" y="208.28" rot="R90"/>
-<instance part="U$31" gate="G$1" x="269.24" y="200.66"/>
-<instance part="U$1" gate="G$1" x="259.08" y="200.66"/>
 <instance part="U$15" gate="G$1" x="594.36" y="76.2" rot="MR0"/>
-<instance part="X2" gate="G$1" x="256.54" y="213.36" rot="MR0"/>
 <instance part="U$17" gate="G$1" x="650.24" y="134.62" rot="MR0"/>
 <instance part="+3V6" gate="G$1" x="650.24" y="162.56"/>
 <instance part="FRAME1" gate="G$1" x="236.22" y="2.54"/>
@@ -6509,11 +6225,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <instance part="TP3" gate="G$1" x="779.78" y="38.1" rot="R270"/>
 <instance part="ESD1" gate="G$1" x="266.7" y="317.5" rot="R90"/>
 <instance part="U$5" gate="G$1" x="266.7" y="312.42" rot="MR0"/>
-<instance part="M2" gate="G$1" x="350.52" y="231.14" rot="MR0"/>
-<instance part="U$7" gate="G$1" x="325.12" y="200.66"/>
 <instance part="FB2" gate="G$1" x="414.02" y="322.58" rot="R180"/>
 <instance part="U8" gate="G$1" x="568.96" y="129.54"/>
-<instance part="FB4" gate="G$1" x="299.72" y="233.68" rot="MR0"/>
 <instance part="U$42" gate="G$1" x="779.78" y="157.48" rot="MR0"/>
 <instance part="R5" gate="G$1" x="739.14" y="154.94" rot="MR0"/>
 <instance part="R6" gate="G$1" x="739.14" y="160.02" rot="MR0"/>
@@ -6539,21 +6252,15 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <instance part="+3V3" gate="G$1" x="421.64" y="330.2" rot="MR0"/>
 <instance part="C9" gate="C" x="408.94" y="314.96" rot="R90"/>
 <instance part="U$21" gate="G$1" x="408.94" y="309.88" rot="MR0"/>
-<instance part="C10" gate="C" x="304.8" y="226.06" rot="R90"/>
-<instance part="U$23" gate="G$1" x="304.8" y="220.98"/>
-<instance part="M3" gate="G$1" x="726.44" y="248.92"/>
 <instance part="U$45" gate="G$1" x="703.58" y="231.14" rot="MR0"/>
 <instance part="+3V4" gate="G$1" x="703.58" y="269.24"/>
 <instance part="S2" gate="G$1" x="721.36" y="307.34"/>
-<instance part="S3" gate="G$1" x="721.36" y="297.18"/>
 <instance part="C3" gate="C" x="614.68" y="104.14" rot="R90"/>
 <instance part="+3V7" gate="G$1" x="670.56" y="53.34"/>
 <instance part="U$19" gate="G$1" x="670.56" y="20.32" rot="MR0"/>
 <instance part="C5" gate="C" x="279.4" y="322.58"/>
-<instance part="+3V2" gate="G$1" x="292.1" y="243.84" rot="MR0"/>
 <instance part="X4" gate="G$1" x="256.54" y="335.28" rot="MR0"/>
 <instance part="U$11" gate="G$1" x="751.84" y="279.4" rot="MR0"/>
-<instance part="S4" gate="G$1" x="721.36" y="287.02"/>
 <instance part="R2" gate="G$1" x="665.48" y="149.86" rot="MR90"/>
 <instance part="R3" gate="G$1" x="673.1" y="149.86" rot="MR90"/>
 <instance part="R4" gate="G$1" x="650.24" y="149.86" rot="MR90"/>
@@ -6572,7 +6279,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <instance part="R12" gate="G$1" x="325.12" y="99.06" rot="R90"/>
 <instance part="Q2" gate="G$1" x="332.74" y="88.9" rot="MR0"/>
 <instance part="U$16" gate="G$1" x="332.74" y="73.66" rot="MR0"/>
-<instance part="D1" gate="G$1" x="370.84" y="40.64" rot="R90"/>
 <instance part="D2" gate="-B1" x="690.88" y="320.04" rot="R270"/>
 <instance part="R14" gate="G$1" x="342.9" y="76.2" rot="R90"/>
 <instance part="U$24" gate="G$1" x="342.9" y="73.66" rot="MR0"/>
@@ -6586,32 +6292,25 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <instance part="U$25" gate="G$1" x="734.06" y="109.22" rot="MR0"/>
 <instance part="C8" gate="C" x="429.26" y="101.6"/>
 <instance part="C11" gate="C" x="604.52" y="104.14" rot="R90"/>
+<instance part="M2" gate="G$1" x="350.52" y="246.38"/>
+<instance part="X1" gate="G$1" x="254" y="256.54" rot="MR0"/>
+<instance part="U$1" gate="G$1" x="251.46" y="246.38" rot="MR0"/>
+<instance part="ESD2" gate="G$1" x="264.16" y="251.46" rot="R90"/>
+<instance part="U$7" gate="G$1" x="264.16" y="246.38" rot="MR0"/>
+<instance part="C10" gate="C" x="279.4" y="256.54"/>
+<instance part="U$23" gate="G$1" x="335.28" y="236.22" rot="MR0"/>
+<instance part="R16" gate="G$1" x="375.92" y="231.14"/>
+<instance part="R17" gate="G$1" x="375.92" y="226.06"/>
+<instance part="R18" gate="G$1" x="317.5" y="238.76" rot="R90"/>
+<instance part="U$28" gate="G$1" x="317.5" y="236.22" rot="MR0"/>
+<instance part="R19" gate="G$1" x="375.92" y="251.46"/>
+<instance part="R20" gate="G$1" x="370.84" y="238.76" rot="R90"/>
+<instance part="U$30" gate="G$1" x="370.84" y="236.22" rot="MR0"/>
 </instances>
 <busses>
 </busses>
 <nets>
 <net name="GND" class="0">
-<segment>
-<pinref part="U$31" gate="G$1" pin="GND"/>
-<pinref part="ESD2" gate="G$1" pin="P$1"/>
-<wire x1="269.24" y1="205.74" x2="269.24" y2="203.2" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="U$1" gate="G$1" pin="GND"/>
-<wire x1="259.08" y1="203.2" x2="259.08" y2="205.74" width="0.1524" layer="91"/>
-<wire x1="259.08" y1="220.98" x2="254" y2="220.98" width="0.1524" layer="91"/>
-<wire x1="254" y1="220.98" x2="246.38" y2="220.98" width="0.1524" layer="91"/>
-<wire x1="246.38" y1="220.98" x2="246.38" y2="205.74" width="0.1524" layer="91"/>
-<wire x1="246.38" y1="205.74" x2="254" y2="205.74" width="0.1524" layer="91"/>
-<pinref part="X2" gate="G$1" pin="GND1"/>
-<pinref part="X2" gate="G$1" pin="GND2"/>
-<junction x="254" y="220.98"/>
-<pinref part="X2" gate="G$1" pin="GND3"/>
-<junction x="259.08" y="205.74"/>
-<pinref part="X2" gate="G$1" pin="GND4"/>
-<wire x1="254" y1="205.74" x2="259.08" y2="205.74" width="0.1524" layer="91"/>
-<junction x="254" y="205.74"/>
-</segment>
 <segment>
 <pinref part="U$15" gate="G$1" pin="GND"/>
 <wire x1="594.36" y1="78.74" x2="594.36" y2="83.82" width="0.1524" layer="91"/>
@@ -6704,24 +6403,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <pinref part="U$5" gate="G$1" pin="GND"/>
 </segment>
 <segment>
-<pinref part="M2" gate="G$1" pin="GND3"/>
-<wire x1="332.74" y1="218.44" x2="325.12" y2="218.44" width="0.1524" layer="91"/>
-<wire x1="325.12" y1="218.44" x2="325.12" y2="208.28" width="0.1524" layer="91"/>
-<pinref part="U$7" gate="G$1" pin="GND"/>
-<wire x1="325.12" y1="208.28" x2="325.12" y2="203.2" width="0.1524" layer="91"/>
-<pinref part="M2" gate="G$1" pin="GND2"/>
-<wire x1="368.3" y1="213.36" x2="370.84" y2="213.36" width="0.1524" layer="91"/>
-<wire x1="325.12" y1="208.28" x2="370.84" y2="208.28" width="0.1524" layer="91"/>
-<wire x1="370.84" y1="208.28" x2="370.84" y2="213.36" width="0.1524" layer="91"/>
-<junction x="325.12" y="208.28"/>
-<wire x1="325.12" y1="218.44" x2="325.12" y2="256.54" width="0.1524" layer="91"/>
-<junction x="325.12" y="218.44"/>
-<pinref part="M2" gate="G$1" pin="GND1"/>
-<wire x1="368.3" y1="248.92" x2="370.84" y2="248.92" width="0.1524" layer="91"/>
-<wire x1="325.12" y1="256.54" x2="370.84" y2="256.54" width="0.1524" layer="91"/>
-<wire x1="370.84" y1="256.54" x2="370.84" y2="248.92" width="0.1524" layer="91"/>
-</segment>
-<segment>
 <pinref part="U$42" gate="G$1" pin="GND"/>
 <wire x1="769.62" y1="152.4" x2="759.46" y2="152.4" width="0.1524" layer="91"/>
 <wire x1="759.46" y1="152.4" x2="759.46" y2="149.86" width="0.1524" layer="91"/>
@@ -6769,11 +6450,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <pinref part="U$21" gate="G$1" pin="GND"/>
 </segment>
 <segment>
-<pinref part="C10" gate="C" pin="1"/>
-<pinref part="U$23" gate="G$1" pin="GND"/>
-</segment>
-<segment>
-<pinref part="M3" gate="G$1" pin="GND"/>
 <pinref part="U$45" gate="G$1" pin="GND"/>
 <wire x1="706.12" y1="236.22" x2="703.58" y2="236.22" width="0.1524" layer="91"/>
 <wire x1="703.58" y1="236.22" x2="703.58" y2="233.68" width="0.1524" layer="91"/>
@@ -6789,18 +6465,10 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="726.44" y1="317.5" x2="751.84" y2="317.5" width="0.1524" layer="91"/>
 <wire x1="751.84" y1="317.5" x2="751.84" y2="307.34" width="0.1524" layer="91"/>
 <pinref part="S2" gate="G$1" pin="2"/>
-<wire x1="751.84" y1="307.34" x2="751.84" y2="297.18" width="0.1524" layer="91"/>
-<wire x1="751.84" y1="297.18" x2="751.84" y2="287.02" width="0.1524" layer="91"/>
-<wire x1="751.84" y1="287.02" x2="751.84" y2="281.94" width="0.1524" layer="91"/>
+<wire x1="751.84" y1="307.34" x2="751.84" y2="281.94" width="0.1524" layer="91"/>
 <wire x1="726.44" y1="307.34" x2="751.84" y2="307.34" width="0.1524" layer="91"/>
 <junction x="751.84" y="307.34"/>
-<pinref part="S3" gate="G$1" pin="2"/>
-<wire x1="726.44" y1="297.18" x2="751.84" y2="297.18" width="0.1524" layer="91"/>
-<junction x="751.84" y="297.18"/>
 <pinref part="U$11" gate="G$1" pin="GND"/>
-<pinref part="S4" gate="G$1" pin="2"/>
-<wire x1="726.44" y1="287.02" x2="751.84" y2="287.02" width="0.1524" layer="91"/>
-<junction x="751.84" y="287.02"/>
 </segment>
 <segment>
 <pinref part="U$17" gate="G$1" pin="GND"/>
@@ -6846,12 +6514,44 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <pinref part="C7" gate="C" pin="1"/>
 <pinref part="U$25" gate="G$1" pin="GND"/>
 </segment>
+<segment>
+<pinref part="X1" gate="G$1" pin="GND1"/>
+<pinref part="X1" gate="G$1" pin="GND2"/>
+<wire x1="256.54" y1="264.16" x2="251.46" y2="264.16" width="0.1524" layer="91"/>
+<wire x1="251.46" y1="264.16" x2="243.84" y2="264.16" width="0.1524" layer="91"/>
+<wire x1="243.84" y1="264.16" x2="243.84" y2="248.92" width="0.1524" layer="91"/>
+<junction x="251.46" y="264.16"/>
+<pinref part="X1" gate="G$1" pin="GND4"/>
+<wire x1="243.84" y1="248.92" x2="251.46" y2="248.92" width="0.1524" layer="91"/>
+<pinref part="X1" gate="G$1" pin="GND3"/>
+<wire x1="251.46" y1="248.92" x2="256.54" y2="248.92" width="0.1524" layer="91"/>
+<junction x="251.46" y="248.92"/>
+<pinref part="U$1" gate="G$1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="ESD2" gate="G$1" pin="P$1"/>
+<pinref part="U$7" gate="G$1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="M2" gate="G$1" pin="GND"/>
+<wire x1="337.82" y1="243.84" x2="335.28" y2="243.84" width="0.1524" layer="91"/>
+<wire x1="335.28" y1="243.84" x2="335.28" y2="238.76" width="0.1524" layer="91"/>
+<pinref part="U$23" gate="G$1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="R18" gate="G$1" pin="1"/>
+<pinref part="U$28" gate="G$1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="R20" gate="G$1" pin="1"/>
+<pinref part="U$30" gate="G$1" pin="GND"/>
+</segment>
 </net>
 <net name="SCK" class="0">
 <segment>
-<label x="589.28" y="127" size="1.27" layer="95" rot="MR180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB13"/>
-<wire x1="589.28" y1="127" x2="584.2" y2="127" width="0.1524" layer="91"/>
+<label x="548.64" y="149.86" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<pinref part="U8" gate="G$1" pin="PA5"/>
+<wire x1="548.64" y1="149.86" x2="553.72" y2="149.86" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="718.82" y1="116.84" x2="721.36" y2="116.84" width="0.1524" layer="91"/>
@@ -6859,38 +6559,27 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <pinref part="U3" gate="G$1" pin="SCK"/>
 </segment>
 <segment>
-<pinref part="M2" gate="G$1" pin="SCK"/>
-<wire x1="368.3" y1="233.68" x2="381" y2="233.68" width="0.1524" layer="91"/>
-<label x="381" y="233.68" size="1.27" layer="95" xref="yes"/>
-</segment>
-<segment>
 <wire x1="706.12" y1="251.46" x2="693.42" y2="251.46" width="0.1524" layer="91"/>
 <label x="693.42" y="251.46" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="SCK"/>
 </segment>
 </net>
 <net name="MISO" class="0">
 <segment>
-<label x="589.28" y="124.46" size="1.27" layer="95" rot="MR180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB14"/>
-<wire x1="589.28" y1="124.46" x2="584.2" y2="124.46" width="0.1524" layer="91"/>
+<label x="548.64" y="147.32" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<pinref part="U8" gate="G$1" pin="PA6"/>
+<wire x1="548.64" y1="147.32" x2="553.72" y2="147.32" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="675.64" y1="119.38" x2="693.42" y2="119.38" width="0.1524" layer="91"/>
 <label x="675.64" y="119.38" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="U3" gate="G$1" pin="SO"/>
 </segment>
-<segment>
-<pinref part="M2" gate="G$1" pin="MISO"/>
-<wire x1="368.3" y1="243.84" x2="381" y2="243.84" width="0.1524" layer="91"/>
-<label x="381" y="243.84" size="1.27" layer="95" xref="yes"/>
-</segment>
 </net>
 <net name="MOSI" class="0">
 <segment>
-<label x="589.28" y="121.92" size="1.27" layer="95" rot="MR180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB15"/>
-<wire x1="589.28" y1="121.92" x2="584.2" y2="121.92" width="0.1524" layer="91"/>
+<label x="548.64" y="144.78" size="1.27" layer="95" rot="MR0" xref="yes"/>
+<pinref part="U8" gate="G$1" pin="PA7"/>
+<wire x1="548.64" y1="144.78" x2="553.72" y2="144.78" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <wire x1="718.82" y1="114.3" x2="721.36" y2="114.3" width="0.1524" layer="91"/>
@@ -6898,14 +6587,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <pinref part="U3" gate="G$1" pin="SI"/>
 </segment>
 <segment>
-<pinref part="M2" gate="G$1" pin="MOSI"/>
-<wire x1="368.3" y1="238.76" x2="381" y2="238.76" width="0.1524" layer="91"/>
-<label x="381" y="238.76" size="1.27" layer="95" xref="yes"/>
-</segment>
-<segment>
 <wire x1="706.12" y1="256.54" x2="693.42" y2="256.54" width="0.1524" layer="91"/>
 <label x="693.42" y="256.54" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="SDI"/>
 </segment>
 </net>
 <net name="+3V3" class="0">
@@ -6975,7 +6658,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="421.64" y1="322.58" x2="416.56" y2="322.58" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="M3" gate="G$1" pin="VCC"/>
 <pinref part="+3V4" gate="G$1" pin="+3V3"/>
 <wire x1="706.12" y1="261.62" x2="703.58" y2="261.62" width="0.1524" layer="91"/>
 <wire x1="703.58" y1="261.62" x2="703.58" y2="266.7" width="0.1524" layer="91"/>
@@ -6985,12 +6667,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="670.56" y1="50.8" x2="670.56" y2="45.72" width="0.1524" layer="91"/>
 <wire x1="670.56" y1="45.72" x2="701.04" y2="45.72" width="0.1524" layer="91"/>
 <pinref part="JP3" gate="A" pin="4"/>
-</segment>
-<segment>
-<pinref part="FB4" gate="G$1" pin="P$2"/>
-<pinref part="+3V2" gate="G$1" pin="+3V3"/>
-<wire x1="297.18" y1="233.68" x2="292.1" y2="233.68" width="0.1524" layer="91"/>
-<wire x1="292.1" y1="233.68" x2="292.1" y2="241.3" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="R4" gate="G$1" pin="2"/>
@@ -7027,17 +6703,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="553.72" y1="88.9" x2="548.64" y2="88.9" width="0.1524" layer="91"/>
 <label x="548.64" y="88.9" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="U8" gate="G$1" pin="NRST"/>
-</segment>
-</net>
-<net name="N$31" class="0">
-<segment>
-<pinref part="ESD2" gate="G$1" pin="P$2"/>
-<wire x1="269.24" y1="210.82" x2="269.24" y2="213.36" width="0.1524" layer="91"/>
-<junction x="269.24" y="213.36"/>
-<wire x1="264.16" y1="213.36" x2="269.24" y2="213.36" width="0.1524" layer="91"/>
-<pinref part="X2" gate="G$1" pin="ANT"/>
-<pinref part="M2" gate="G$1" pin="ANT"/>
-<wire x1="332.74" y1="213.36" x2="269.24" y2="213.36" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SDA" class="0">
@@ -7088,9 +6753,9 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <junction x="678.18" y="121.92"/>
 </segment>
 <segment>
-<label x="601.98" y="162.56" size="1.27" layer="95" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PA8"/>
-<wire x1="601.98" y1="162.56" x2="584.2" y2="162.56" width="0.1524" layer="91"/>
+<label x="535.94" y="139.7" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="U8" gate="G$1" pin="PB0"/>
+<wire x1="535.94" y1="139.7" x2="553.72" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GPS_RXD" class="0">
@@ -7100,14 +6765,14 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <label x="378.46" y="297.18" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<label x="589.28" y="157.48" size="1.27" layer="95" xref="yes"/>
-<wire x1="584.2" y1="157.48" x2="589.28" y2="157.48" width="0.1524" layer="91"/>
-<pinref part="U8" gate="G$1" pin="PA10"/>
-</segment>
-<segment>
 <wire x1="777.24" y1="38.1" x2="769.62" y2="38.1" width="0.1524" layer="91"/>
 <label x="769.62" y="38.1" size="1.27" layer="95" font="vector" rot="R180" xref="yes"/>
 <pinref part="TP3" gate="G$1" pin="PP"/>
+</segment>
+<segment>
+<pinref part="U8" gate="G$1" pin="PA3"/>
+<wire x1="553.72" y1="154.94" x2="548.64" y2="154.94" width="0.1524" layer="91"/>
+<label x="548.64" y="154.94" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="GPS_TXD" class="0">
@@ -7117,9 +6782,9 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <label x="378.46" y="294.64" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<label x="589.28" y="160.02" size="1.27" layer="95" xref="yes"/>
-<wire x1="584.2" y1="160.02" x2="589.28" y2="160.02" width="0.1524" layer="91"/>
-<pinref part="U8" gate="G$1" pin="PA9"/>
+<pinref part="U8" gate="G$1" pin="PA2"/>
+<wire x1="553.72" y1="157.48" x2="548.64" y2="157.48" width="0.1524" layer="91"/>
+<label x="548.64" y="157.48" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="GPS_PPS" class="0">
@@ -7135,9 +6800,9 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <label x="754.38" y="88.9" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<pinref part="U8" gate="G$1" pin="PB12"/>
-<wire x1="584.2" y1="129.54" x2="601.98" y2="129.54" width="0.1524" layer="91"/>
-<label x="601.98" y="129.54" size="1.27" layer="95" xref="yes"/>
+<label x="535.94" y="160.02" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="U8" gate="G$1" pin="PA1"/>
+<wire x1="535.94" y1="160.02" x2="553.72" y2="160.02" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="SWCLK" class="0">
@@ -7172,8 +6837,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <label x="774.7" y="88.9" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 <segment>
-<wire x1="584.2" y1="144.78" x2="601.98" y2="144.78" width="0.1524" layer="91"/>
-<label x="601.98" y="144.78" size="1.27" layer="95" xref="yes"/>
+<wire x1="584.2" y1="144.78" x2="607.06" y2="144.78" width="0.1524" layer="91"/>
+<label x="607.06" y="144.78" size="1.27" layer="95" xref="yes"/>
 <pinref part="U8" gate="G$1" pin="PA15"/>
 </segment>
 </net>
@@ -7201,99 +6866,28 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="299.72" y1="337.82" x2="299.72" y2="322.58" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="!LORA_IRQ" class="0">
-<segment>
-<pinref part="M2" gate="G$1" pin="DIO0"/>
-<wire x1="332.74" y1="238.76" x2="320.04" y2="238.76" width="0.1524" layer="91"/>
-<label x="320.04" y="238.76" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
-<wire x1="553.72" y1="134.62" x2="538.48" y2="134.62" width="0.1524" layer="91"/>
-<label x="538.48" y="134.62" size="1.27" layer="95" rot="MR0" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB2"/>
-</segment>
-</net>
-<net name="N$28" class="0">
-<segment>
-<pinref part="M2" gate="G$1" pin="3.3V"/>
-<pinref part="FB4" gate="G$1" pin="P$1"/>
-<wire x1="302.26" y1="233.68" x2="304.8" y2="233.68" width="0.1524" layer="91"/>
-<pinref part="C10" gate="C" pin="2"/>
-<wire x1="304.8" y1="233.68" x2="332.74" y2="233.68" width="0.1524" layer="91"/>
-<wire x1="304.8" y1="231.14" x2="304.8" y2="233.68" width="0.1524" layer="91"/>
-<junction x="304.8" y="233.68"/>
-</segment>
-</net>
-<net name="!LORA_CS" class="0">
-<segment>
-<pinref part="M2" gate="G$1" pin="!SS"/>
-<wire x1="368.3" y1="228.6" x2="381" y2="228.6" width="0.1524" layer="91"/>
-<label x="381" y="228.6" size="1.27" layer="95" xref="yes"/>
-</segment>
-<segment>
-<label x="601.98" y="134.62" size="1.27" layer="95" xref="yes"/>
-<wire x1="601.98" y1="134.62" x2="584.2" y2="134.62" width="0.1524" layer="91"/>
-<pinref part="U8" gate="G$1" pin="PB10"/>
-</segment>
-</net>
-<net name="!LORA_RST" class="0">
-<segment>
-<pinref part="M2" gate="G$1" pin="!RESET"/>
-<wire x1="368.3" y1="223.52" x2="381" y2="223.52" width="0.1524" layer="91"/>
-<label x="381" y="223.52" size="1.27" layer="95" xref="yes"/>
-</segment>
-<segment>
-<label x="601.98" y="132.08" size="1.27" layer="95" xref="yes"/>
-<wire x1="601.98" y1="132.08" x2="584.2" y2="132.08" width="0.1524" layer="91"/>
-<pinref part="U8" gate="G$1" pin="PB11"/>
-</segment>
-</net>
-<net name="TFT_RS" class="0">
-<segment>
-<label x="538.48" y="137.16" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB1"/>
-<wire x1="538.48" y1="137.16" x2="553.72" y2="137.16" width="0.1524" layer="91"/>
-</segment>
+<net name="TFT_RS/DB7" class="0">
 <segment>
 <wire x1="706.12" y1="246.38" x2="693.42" y2="246.38" width="0.1524" layer="91"/>
 <label x="693.42" y="246.38" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="D/C"/>
 </segment>
 </net>
-<net name="!TFT_CS" class="0">
-<segment>
-<label x="538.48" y="139.7" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PB0"/>
-<wire x1="538.48" y1="139.7" x2="553.72" y2="139.7" width="0.1524" layer="91"/>
-</segment>
+<net name="!TFT_CS/DB6" class="0">
 <segment>
 <wire x1="706.12" y1="248.92" x2="693.42" y2="248.92" width="0.1524" layer="91"/>
 <label x="693.42" y="248.92" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="!CS"/>
 </segment>
 </net>
-<net name="!TFT_RST" class="0">
-<segment>
-<label x="538.48" y="144.78" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PA7"/>
-<wire x1="538.48" y1="144.78" x2="553.72" y2="144.78" width="0.1524" layer="91"/>
-</segment>
+<net name="!TFT_RST/DB5" class="0">
 <segment>
 <wire x1="706.12" y1="243.84" x2="693.42" y2="243.84" width="0.1524" layer="91"/>
 <label x="693.42" y="243.84" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="!RST"/>
 </segment>
 </net>
-<net name="!TFT_LED" class="0">
-<segment>
-<label x="538.48" y="147.32" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="U8" gate="G$1" pin="PA6"/>
-<wire x1="538.48" y1="147.32" x2="553.72" y2="147.32" width="0.1524" layer="91"/>
-</segment>
+<net name="!TFT_LED/DB4" class="0">
 <segment>
 <wire x1="706.12" y1="238.76" x2="693.42" y2="238.76" width="0.1524" layer="91"/>
 <label x="693.42" y="238.76" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="M3" gate="G$1" pin="LED"/>
 </segment>
 </net>
 <net name="N$26" class="0">
@@ -7390,8 +6984,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </net>
 <net name="VBAT_ADC" class="0">
 <segment>
-<wire x1="553.72" y1="162.56" x2="538.48" y2="162.56" width="0.1524" layer="91"/>
-<label x="538.48" y="162.56" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="553.72" y1="162.56" x2="535.94" y2="162.56" width="0.1524" layer="91"/>
+<label x="535.94" y="162.56" size="1.27" layer="95" rot="R180" xref="yes"/>
 <pinref part="U8" gate="G$1" pin="PA0"/>
 </segment>
 <segment>
@@ -7424,8 +7018,8 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </segment>
 <segment>
 <pinref part="U8" gate="G$1" pin="PB4"/>
-<wire x1="553.72" y1="129.54" x2="538.48" y2="129.54" width="0.1524" layer="91"/>
-<label x="538.48" y="129.54" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="553.72" y1="129.54" x2="535.94" y2="129.54" width="0.1524" layer="91"/>
+<label x="535.94" y="129.54" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="BTN2" class="0">
@@ -7436,11 +7030,11 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </segment>
 <segment>
 <pinref part="U8" gate="G$1" pin="PB5"/>
-<wire x1="553.72" y1="127" x2="538.48" y2="127" width="0.1524" layer="91"/>
-<label x="538.48" y="127" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="553.72" y1="127" x2="535.94" y2="127" width="0.1524" layer="91"/>
+<label x="535.94" y="127" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="N$18" class="0">
+<net name="VBAT" class="0">
 <segment>
 <wire x1="401.32" y1="111.76" x2="398.78" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="398.78" y1="111.76" x2="386.08" y2="111.76" width="0.1524" layer="91"/>
@@ -7459,19 +7053,16 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="401.32" y1="106.68" x2="398.78" y2="106.68" width="0.1524" layer="91"/>
 <wire x1="398.78" y1="106.68" x2="398.78" y2="111.76" width="0.1524" layer="91"/>
 <junction x="398.78" y="111.76"/>
-</segment>
-</net>
-<net name="BAT_CHG" class="0">
-<segment>
-<wire x1="370.84" y1="35.56" x2="375.92" y2="35.56" width="0.1524" layer="91"/>
-<label x="375.92" y="35.56" size="1.27" layer="95" xref="yes"/>
-<pinref part="D1" gate="G$1" pin="A"/>
-<wire x1="370.84" y1="35.56" x2="370.84" y2="38.1" width="0.1524" layer="91"/>
+<wire x1="363.22" y1="111.76" x2="363.22" y2="121.92" width="0.1524" layer="91"/>
+<wire x1="363.22" y1="121.92" x2="368.3" y2="121.92" width="0.1524" layer="91"/>
+<label x="368.3" y="121.92" size="1.27" layer="95" xref="yes"/>
 </segment>
 <segment>
-<pinref part="U8" gate="G$1" pin="PB3"/>
-<wire x1="553.72" y1="132.08" x2="538.48" y2="132.08" width="0.1524" layer="91"/>
-<label x="538.48" y="132.08" size="1.27" layer="95" rot="R180" xref="yes"/>
+<pinref part="M2" gate="G$1" pin="VCC"/>
+<wire x1="337.82" y1="254" x2="325.12" y2="254" width="0.1524" layer="91"/>
+<wire x1="325.12" y1="254" x2="325.12" y2="266.7" width="0.1524" layer="91"/>
+<wire x1="325.12" y1="266.7" x2="378.46" y2="266.7" width="0.1524" layer="91"/>
+<label x="378.46" y="266.7" size="1.27" layer="95" xref="yes"/>
 </segment>
 </net>
 <net name="N$16" class="0">
@@ -7481,30 +7072,6 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="381" y1="45.72" x2="383.54" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="BTN3" class="0">
-<segment>
-<label x="685.8" y="297.18" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="S3" gate="G$1" pin="1"/>
-<wire x1="685.8" y1="297.18" x2="716.28" y2="297.18" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="U8" gate="G$1" pin="PB6"/>
-<wire x1="553.72" y1="124.46" x2="538.48" y2="124.46" width="0.1524" layer="91"/>
-<label x="538.48" y="124.46" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
-<net name="BTN4" class="0">
-<segment>
-<label x="685.8" y="287.02" size="1.27" layer="95" rot="R180" xref="yes"/>
-<pinref part="S4" gate="G$1" pin="1"/>
-<wire x1="716.28" y1="287.02" x2="685.8" y2="287.02" width="0.1524" layer="91"/>
-</segment>
-<segment>
-<pinref part="U8" gate="G$1" pin="PB7"/>
-<wire x1="553.72" y1="121.92" x2="538.48" y2="121.92" width="0.1524" layer="91"/>
-<label x="538.48" y="121.92" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-</net>
 <net name="DBG_RXD" class="0">
 <segment>
 <label x="685.8" y="43.18" size="1.27" layer="95" rot="R180" xref="yes"/>
@@ -7512,9 +7079,9 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="685.8" y1="43.18" x2="701.04" y2="43.18" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U8" gate="G$1" pin="PA3"/>
-<wire x1="553.72" y1="154.94" x2="548.64" y2="154.94" width="0.1524" layer="91"/>
-<label x="548.64" y="154.94" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="589.28" y="157.48" size="1.27" layer="95" xref="yes"/>
+<wire x1="584.2" y1="157.48" x2="589.28" y2="157.48" width="0.1524" layer="91"/>
+<pinref part="U8" gate="G$1" pin="PA10"/>
 </segment>
 </net>
 <net name="DBG_TXD" class="0">
@@ -7524,9 +7091,9 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="701.04" y1="40.64" x2="685.8" y2="40.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
-<pinref part="U8" gate="G$1" pin="PA2"/>
-<wire x1="553.72" y1="157.48" x2="548.64" y2="157.48" width="0.1524" layer="91"/>
-<label x="548.64" y="157.48" size="1.27" layer="95" rot="R180" xref="yes"/>
+<label x="589.28" y="160.02" size="1.27" layer="95" xref="yes"/>
+<wire x1="584.2" y1="160.02" x2="589.28" y2="160.02" width="0.1524" layer="91"/>
+<pinref part="U8" gate="G$1" pin="PA9"/>
 </segment>
 </net>
 <net name="N$5" class="0">
@@ -7595,19 +7162,15 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 </segment>
 <segment>
 <pinref part="U8" gate="G$1" pin="PC13"/>
-<wire x1="553.72" y1="116.84" x2="538.48" y2="116.84" width="0.1524" layer="91"/>
-<label x="538.48" y="116.84" size="1.27" layer="95" rot="R180" xref="yes"/>
+<wire x1="553.72" y1="116.84" x2="535.94" y2="116.84" width="0.1524" layer="91"/>
+<label x="535.94" y="116.84" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 <net name="N$21" class="0">
 <segment>
 <pinref part="R8" gate="G$1" pin="1"/>
 <pinref part="U2" gate="G$1" pin="STAT"/>
-<wire x1="373.38" y1="45.72" x2="370.84" y2="45.72" width="0.1524" layer="91"/>
-<pinref part="D1" gate="G$1" pin="C"/>
-<wire x1="370.84" y1="45.72" x2="365.76" y2="45.72" width="0.1524" layer="91"/>
-<wire x1="370.84" y1="43.18" x2="370.84" y2="45.72" width="0.1524" layer="91"/>
-<junction x="370.84" y="45.72"/>
+<wire x1="373.38" y1="45.72" x2="365.76" y2="45.72" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="BTN_ON" class="0">
@@ -7651,6 +7214,107 @@ Thru-hole RA Female Mini-B USB Connector 4UConnector: 18732&lt;/p&gt;
 <wire x1="604.52" y1="109.22" x2="604.52" y2="116.84" width="0.1524" layer="91"/>
 <pinref part="U8" gate="G$1" pin="VLCD/VBAT"/>
 <wire x1="604.52" y1="116.84" x2="584.2" y2="116.84" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$23" class="0">
+<segment>
+<pinref part="X1" gate="G$1" pin="ANT"/>
+<wire x1="264.16" y1="256.54" x2="261.62" y2="256.54" width="0.1524" layer="91"/>
+<junction x="264.16" y="256.54"/>
+<pinref part="ESD2" gate="G$1" pin="P$2"/>
+<wire x1="276.86" y1="256.54" x2="264.16" y2="256.54" width="0.1524" layer="91"/>
+<wire x1="264.16" y1="254" x2="264.16" y2="256.54" width="0.1524" layer="91"/>
+<pinref part="C10" gate="C" pin="1"/>
+</segment>
+</net>
+<net name="N$24" class="0">
+<segment>
+<pinref part="C10" gate="C" pin="2"/>
+<pinref part="M2" gate="G$1" pin="ANT"/>
+<wire x1="284.48" y1="256.54" x2="337.82" y2="256.54" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="GSM_TXD" class="0">
+<segment>
+<wire x1="383.54" y1="226.06" x2="386.08" y2="226.06" width="0.1524" layer="91"/>
+<label x="386.08" y="226.06" size="1.27" layer="95" xref="yes"/>
+<pinref part="R17" gate="G$1" pin="2"/>
+</segment>
+<segment>
+<pinref part="U8" gate="G$1" pin="PB10"/>
+<wire x1="584.2" y1="134.62" x2="589.28" y2="134.62" width="0.1524" layer="91"/>
+<label x="589.28" y="134.62" size="1.27" layer="95" xref="yes"/>
+</segment>
+</net>
+<net name="GSM_RXD" class="0">
+<segment>
+<wire x1="383.54" y1="231.14" x2="386.08" y2="231.14" width="0.1524" layer="91"/>
+<label x="386.08" y="231.14" size="1.27" layer="95" xref="yes"/>
+<pinref part="R16" gate="G$1" pin="2"/>
+</segment>
+<segment>
+<pinref part="U8" gate="G$1" pin="PB11"/>
+<wire x1="584.2" y1="132.08" x2="589.28" y2="132.08" width="0.1524" layer="91"/>
+<label x="589.28" y="132.08" size="1.27" layer="95" xref="yes"/>
+</segment>
+</net>
+<net name="!GSM_RST" class="0">
+<segment>
+<pinref part="M2" gate="G$1" pin="!RST"/>
+<wire x1="337.82" y1="251.46" x2="325.12" y2="251.46" width="0.1524" layer="91"/>
+<wire x1="325.12" y1="251.46" x2="325.12" y2="220.98" width="0.1524" layer="91"/>
+<wire x1="325.12" y1="220.98" x2="386.08" y2="220.98" width="0.1524" layer="91"/>
+<label x="386.08" y="220.98" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U8" gate="G$1" pin="PB1"/>
+<wire x1="553.72" y1="137.16" x2="535.94" y2="137.16" width="0.1524" layer="91"/>
+<label x="535.94" y="137.16" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+</net>
+<net name="N$18" class="0">
+<segment>
+<pinref part="M2" gate="G$1" pin="TXD"/>
+<wire x1="337.82" y1="246.38" x2="330.2" y2="246.38" width="0.1524" layer="91"/>
+<wire x1="330.2" y1="246.38" x2="330.2" y2="231.14" width="0.1524" layer="91"/>
+<pinref part="R16" gate="G$1" pin="1"/>
+<wire x1="330.2" y1="231.14" x2="375.92" y2="231.14" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="N$25" class="0">
+<segment>
+<pinref part="R17" gate="G$1" pin="1"/>
+<wire x1="375.92" y1="226.06" x2="327.66" y2="226.06" width="0.1524" layer="91"/>
+<wire x1="327.66" y1="226.06" x2="327.66" y2="248.92" width="0.1524" layer="91"/>
+<pinref part="M2" gate="G$1" pin="RXD"/>
+<wire x1="327.66" y1="248.92" x2="337.82" y2="248.92" width="0.1524" layer="91"/>
+<pinref part="R18" gate="G$1" pin="2"/>
+<wire x1="327.66" y1="248.92" x2="317.5" y2="248.92" width="0.1524" layer="91"/>
+<wire x1="317.5" y1="248.92" x2="317.5" y2="246.38" width="0.1524" layer="91"/>
+<junction x="327.66" y="248.92"/>
+</segment>
+</net>
+<net name="N$27" class="0">
+<segment>
+<pinref part="M2" gate="G$1" pin="DTR"/>
+<wire x1="363.22" y1="251.46" x2="370.84" y2="251.46" width="0.1524" layer="91"/>
+<pinref part="R19" gate="G$1" pin="1"/>
+<pinref part="R20" gate="G$1" pin="2"/>
+<wire x1="370.84" y1="251.46" x2="375.92" y2="251.46" width="0.1524" layer="91"/>
+<wire x1="370.84" y1="246.38" x2="370.84" y2="251.46" width="0.1524" layer="91"/>
+<junction x="370.84" y="251.46"/>
+</segment>
+</net>
+<net name="GSM_DTR" class="0">
+<segment>
+<pinref part="R19" gate="G$1" pin="2"/>
+<wire x1="383.54" y1="251.46" x2="386.08" y2="251.46" width="0.1524" layer="91"/>
+<label x="386.08" y="251.46" size="1.27" layer="95" xref="yes"/>
+</segment>
+<segment>
+<pinref part="U8" gate="G$1" pin="PB2"/>
+<wire x1="553.72" y1="134.62" x2="535.94" y2="134.62" width="0.1524" layer="91"/>
+<label x="535.94" y="134.62" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 </nets>
