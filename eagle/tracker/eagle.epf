@@ -7,21 +7,6 @@ Desktop="Desktop"
 
 [Globals]
 AutoSaveProject=1
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-amp-ct.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-conn-rf.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-generic.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-ic.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-mcu.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-modules.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/kg-supply.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/lbr-useful/connectors/pinhead.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/SparkFun/SparkFun-Aesthetics.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/lbr-useful/electromechanical/wirepad.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/lbr-useful/electromechanical/buzzer.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/SparkFun/SparkFun-IC-Microcontroller.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/SparkFun/SparkFun-Connectors.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/lbr-useful/electromechanical/testpad.lbr"
-UsedLibrary="/Users/mac/Devel/eagle/libraries/lbr-useful/connectors/con-ml.lbr"
 
 [Win_1]
 Type="Library Editor"
@@ -68,7 +53,6 @@ ArcDirection=0
 AddLevel=2
 PadsSameType=0
 Layer=94
-Device="M6"
 
 [Win_2]
 Type="Board Editor"
@@ -171,7 +155,7 @@ State=1
 Number=0
 
 [Desktop]
-Screen="1440 900"
+Screen="1920 1080"
 Window="Win_1"
 Window="Win_2"
 Window="Win_3"
