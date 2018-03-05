@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.7.0">
+<eagle version="7.3.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="no"/>
@@ -1273,6 +1273,25 @@ for trimmer refence see : &lt;u&gt;www.electrospec-inc.com/cross_references/trim
 <rectangle x1="-0.8382" y1="-0.4318" x2="-0.4318" y2="0.4318" layer="51"/>
 <rectangle x1="-0.1999" y1="-0.4001" x2="0.1999" y2="0.4001" layer="35"/>
 </package>
+<package name="E3,5-8">
+<description>&lt;b&gt;ELECTROLYTIC CAPACITOR&lt;/b&gt;&lt;p&gt;
+grid 3.5 mm, diameter 8 mm</description>
+<wire x1="-3.429" y1="1.143" x2="-2.667" y2="1.143" width="0.1524" layer="21"/>
+<wire x1="-3.048" y1="0.762" x2="-3.048" y2="1.524" width="0.1524" layer="21"/>
+<wire x1="-1.651" y1="0" x2="-0.762" y2="0" width="0.1524" layer="51"/>
+<wire x1="-0.762" y1="0" x2="-0.762" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="-0.762" y1="-1.27" x2="-0.254" y2="-1.27" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="-1.27" x2="-0.254" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="-0.254" y1="1.27" x2="-0.762" y2="1.27" width="0.1524" layer="51"/>
+<wire x1="-0.762" y1="1.27" x2="-0.762" y2="0" width="0.1524" layer="51"/>
+<wire x1="0.635" y1="0" x2="1.651" y2="0" width="0.1524" layer="51"/>
+<circle x="0" y="0" radius="4.064" width="0.1524" layer="21"/>
+<pad name="-" x="1.778" y="0" drill="0.8128" diameter="1.6002" shape="octagon"/>
+<pad name="+" x="-1.778" y="0" drill="0.8128" diameter="1.6002"/>
+<text x="3.302" y="2.794" size="1.27" layer="25" ratio="10">&gt;NAME</text>
+<text x="-2.286" y="-3.048" size="1.27" layer="27" ratio="10">&gt;VALUE</text>
+<rectangle x1="0.254" y1="-1.27" x2="0.762" y2="1.27" layer="51"/>
+</package>
 </packages>
 </library>
 <library name="kg-generic">
@@ -2169,7 +2188,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <attribute name="PACKAGE" value="DFN-10" x="45" y="9.5" size="1.778" layer="28" rot="MR90" display="off"/>
 </element>
 <element name="U5" library="kg-ic" package="TFLGA16L" value="LSM6DS33" x="44" y="14" rot="R270"/>
-<element name="U6" library="kg-generic" package="SOT23-5" value="" x="23.5" y="24.5" rot="R90"/>
+<element name="U6" library="kg-generic" package="SOT23-5" value="LP3985IM5-2.7" x="23.5" y="24.5" rot="R90"/>
 <element name="C11" library="kg-generic" package="C603" value="1u" x="22" y="25.25" rot="MR180"/>
 <element name="R12" library="kg-generic" package="R0603" value="100" x="22" y="23.5" rot="MR0"/>
 <element name="R16" library="kg-generic" package="R0603" value="100k" x="23.5" y="20" rot="R270"/>
@@ -2180,7 +2199,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <element name="R24" library="kg-generic" package="R0603" value="100k" x="12.5" y="18.5" rot="R270"/>
 <element name="R25" library="kg-generic" package="R0603" value="100k" x="7.5" y="18.5" rot="MR270"/>
 <element name="JP1" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="BYPASS2" x="27" y="22.5" rot="MR0"/>
-<element name="J3" library="kg-amp-ct" package="JST-2-PTH-VERT" value="BATT_PYRO" x="17" y="24.95" rot="R180"/>
 <element name="J4" library="kg-amp-ct" package="JST-4-PTH-VERT" value="" x="34" y="3"/>
 <element name="C13" library="kg-generic" package="C603" value="100n" x="47.5" y="9.5" rot="MR270"/>
 <element name="C14" library="kg-generic" package="C603" value="100n" x="42.5" y="9.5" rot="MR90"/>
@@ -2210,25 +2228,20 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <element name="TP3" library="testpad" package="B1,27" value="TPB1,27" x="57.5" y="4.5">
 <attribute name="TP_SIGNAL_NAME" value="" x="57.5" y="4.5" size="1.778" layer="27" display="off"/>
 </element>
-<element name="TP4" library="testpad" package="B1,27" value="TPB1,27" x="31" y="22">
-<attribute name="TP_SIGNAL_NAME" value="" x="31" y="22" size="1.778" layer="27" display="off"/>
-</element>
-<element name="TP5" library="testpad" package="B1,27" value="TPB1,27" x="44.5" y="25.5">
-<attribute name="TP_SIGNAL_NAME" value="" x="44.5" y="25.5" size="1.778" layer="27" display="off"/>
-</element>
 <element name="U10" library="kg-ic" package="LGA8" value="MPL3115A2" x="53.5" y="17.5">
 <attribute name="PROD_ID" value="IC-10869" x="53.5" y="17.5" size="1.778" layer="27" display="off"/>
 </element>
 <element name="C6" library="kg-generic" package="C603" value="" x="56.5" y="14"/>
-<element name="JP2" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="BYPASS2" x="55" y="12"/>
-<element name="JP3" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="BYPASS2" x="52" y="13"/>
+<element name="JP2" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="CFG1" x="55" y="12"/>
+<element name="JP3" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="CFG2" x="52" y="13"/>
 <element name="U1" library="kg-ic" package="VFLGA-12" value="LIS3MDL" x="52" y="7.5" rot="R90"/>
 <element name="C9" library="kg-generic" package="C603" value="" x="52" y="5"/>
-<element name="J2" library="SparkFun-Connectors" package="USB-MINIB" value="USB_MINI-B_SMT" x="5" y="8" rot="MR180">
-<attribute name="SF_ID" value="PRT-00587" x="5" y="8" size="1.778" layer="28" rot="MR180" display="off"/>
-<attribute name="PROD_ID" value="CONN-08193" x="5" y="8" size="1.778" layer="28" rot="MR180" display="off"/>
+<element name="J2" library="SparkFun-Connectors" package="USB-MINIB" value="USB_MINI-B_SMT" x="69" y="36.5" rot="MR180">
+<attribute name="SF_ID" value="PRT-00587" x="69" y="36.5" size="1.778" layer="28" rot="MR180" display="off"/>
+<attribute name="PROD_ID" value="CONN-08193" x="69" y="36.5" size="1.778" layer="28" rot="MR180" display="off"/>
 </element>
 <element name="U8" library="kg-ic" package="QFN16_6X6" value="MMA6825" x="60.5" y="9.5"/>
+<element name="C12" library="rcl" package="E3,5-8" value="3.0F" x="17" y="25.5"/>
 </elements>
 <signals>
 <signal name="GND">
@@ -2290,7 +2303,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <contactref element="R23" pad="1"/>
 <contactref element="R24" pad="1"/>
 <contactref element="R25" pad="1"/>
-<contactref element="J3" pad="1"/>
 <contactref element="J4" pad="1"/>
 <contactref element="C13" pad="1"/>
 <contactref element="C14" pad="1"/>
@@ -2369,8 +2381,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="44.2126" y1="7.7874" x2="44.25" y2="7.75" width="0.2" layer="16"/>
 <wire x1="44.2126" y1="7.7874" x2="43.7874" y2="7.7874" width="0.2" layer="16"/>
 <contactref element="TP3" pad="TP"/>
-<contactref element="TP4" pad="TP"/>
-<contactref element="TP5" pad="TP"/>
 <via x="72.5" y="15.5" extent="1-16" drill="0.4" shape="octagon"/>
 <via x="71" y="15.5" extent="1-16" drill="0.4" shape="octagon"/>
 <via x="69" y="15.5" extent="1-16" drill="0.4" shape="octagon"/>
@@ -2395,8 +2405,10 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <contactref element="U1" pad="12"/>
 <contactref element="C9" pad="1"/>
 <contactref element="J2" pad="GND"/>
-<wire x1="51.75" y1="6.6" x2="51.1" y2="7.25" width="0" layer="19" extent="1-1"/>
-<wire x1="51.2" y1="5" x2="51.75" y2="6.6" width="0" layer="19" extent="1-1"/>
+<contactref element="C12" pad="-"/>
+<wire x1="70.5" y1="26.5" x2="71.5" y2="38.1" width="0" layer="19" extent="16-16"/>
+<wire x1="51.75" y1="6.6" x2="51.2" y2="5" width="0" layer="19" extent="1-1"/>
+<wire x1="51.1" y1="7.25" x2="51.75" y2="6.6" width="0" layer="19" extent="1-1"/>
 </signal>
 <signal name="KEY">
 </signal>
@@ -2614,9 +2626,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <signal name="GPS_RXD">
 <contactref element="U$29" pad="43"/>
 </signal>
-<signal name="GPS_PPS">
-<contactref element="U$29" pad="31"/>
-</signal>
 <signal name="LED">
 <contactref element="R6" pad="2"/>
 <contactref element="U$29" pad="25"/>
@@ -2625,22 +2634,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="22" y1="4.5" x2="23" y2="4.5" width="0.254" layer="1"/>
 <wire x1="23" y1="4.5" x2="25.75" y2="7.25" width="0.254" layer="1"/>
 <wire x1="25.75" y1="7.25" x2="25.75" y2="7.75" width="0.254" layer="1"/>
-</signal>
-<signal name="!RFM_SS">
-<contactref element="U$29" pad="33"/>
-</signal>
-<signal name="RFM_DIO0">
-<wire x1="20.5" y1="16" x2="19.75" y2="15.25" width="0.254" layer="16"/>
-<wire x1="19.75" y1="15.25" x2="19.75" y2="12" width="0.254" layer="16"/>
-<via x="19.75" y="12" extent="1-16" drill="0.4" shape="octagon"/>
-<wire x1="20.5" y1="11.25" x2="19.75" y2="12" width="0.254" layer="1"/>
-<contactref element="U$29" pad="21"/>
-<wire x1="20.5" y1="11.25" x2="22.75" y2="11.25" width="0.254" layer="1"/>
-<wire x1="22.75" y1="11.25" x2="23.25" y2="10.75" width="0.254" layer="1"/>
-<wire x1="23.25" y1="10.75" x2="24.25" y2="10.75" width="0.254" layer="1"/>
-</signal>
-<signal name="!RFM_RST">
-<contactref element="U$29" pad="32"/>
 </signal>
 <signal name="N$9">
 <contactref element="Q1" pad="1"/>
@@ -3006,7 +2999,6 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <contactref element="JP1" pad="2"/>
 <contactref element="R12" pad="2"/>
 <contactref element="R16" pad="1"/>
-<contactref element="J3" pad="2"/>
 <contactref element="X4" pad="1"/>
 <contactref element="X4" pad="3"/>
 <wire x1="2.23" y1="21.405" x2="4" y2="21.405" width="0.6096" layer="16"/>
@@ -3025,7 +3017,8 @@ You are welcome to use this library for commercial purposes. For attribution, we
 <wire x1="21.15" y1="23.15" x2="20" y2="22" width="0.6096" layer="16"/>
 <wire x1="23.5" y1="20.85" x2="23.5" y2="21.5" width="0.254" layer="1"/>
 <wire x1="23.5" y1="21.5" x2="24" y2="22" width="0.254" layer="1"/>
-<wire x1="16" y1="25.5" x2="15.5" y2="25.5" width="0.6096" layer="16"/>
+<contactref element="C12" pad="+"/>
+<wire x1="15.5" y1="25.5" x2="15.222" y2="25.5" width="0" layer="19" extent="16-16"/>
 </signal>
 <signal name="SAFE">
 <contactref element="X4" pad="6"/>
