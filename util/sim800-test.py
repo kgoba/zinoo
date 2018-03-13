@@ -68,9 +68,12 @@ OK
 class ATCommandError(Exception):
     pass
 
+class ATCommandTimeout(Exception):
+    pass
+
 class SIM800:
     def __init__(self, port, baud = 9600):
-        self.tty = serial.Serial(port, baud)
+        self.tty = serial.Serial(port, baud, inter_byte_timeout = 0.5, timeout = 10.0)
 
     def _sendline(self, line, newline = True, echo = True):
         print "-->", line
@@ -89,6 +92,8 @@ class SIM800:
 
     def _readline(self):
         line = self.tty.readline()
+        if len(line) == 0:
+            raise ATCommandTimeout()
         #print "<<<", codecs.encode(line, 'hex'), line.rstrip()
         print "<--", line.rstrip()
         return line.rstrip()
@@ -96,6 +101,8 @@ class SIM800:
     def _read(self, size):
         data = self.tty.read(size)
         #print "<<<", line.rstrip()
+        if len(data) < size:
+            raise ATCommandTimeout()
         return data
 
     def _send_command(self, cmd, args = None, read_lines = 1, expected_status = 'OK'):
