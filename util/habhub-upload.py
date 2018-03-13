@@ -21,6 +21,7 @@ import serial
 from serial.tools.list_ports import comports
 import sys, time, math, struct, json, random
 import datetime
+import codecs
 
 import copy
 import base64
@@ -220,9 +221,10 @@ class Uploader(object):
             raise UnmergeableError
 
     def _payload_telemetry_update(self, string, receiver_info):
-        doc_id = hashlib.sha256(base64.b64encode(string)).hexdigest()
+        string_enc = base64.b64encode(string) # with appended newline (0x0A)
+        doc_id = hashlib.sha256(string_enc).hexdigest()
         doc_ish = {
-            "data": {"_raw": base64.b64encode(string)},  # added newline
+            "data": {"_raw": string_enc},
             "receivers": {self._callsign: receiver_info}
         }
         url = "_design/payload_telemetry/_update/add_listener/" + doc_id
@@ -419,8 +421,13 @@ def main():
     parser.add_argument("--port", help = "Serial port name")
     parser.add_argument("--baud", help = "Serial port baudrate (9600)", default=9600, type=int)
     parser.add_argument("--file", help = "Read input from file (for testing)")
+    parser.add_argument("--test", help = "Do a test run")
     args = parser.parse_args()    
    
+    if args.test:
+        test()
+        sys.exit(0)
+
     logfile = open("log-" + datetime.datetime.utcnow().isoformat("T") + ".txt", "w")
 
     while True:
