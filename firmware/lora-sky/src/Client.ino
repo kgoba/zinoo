@@ -84,7 +84,10 @@ void pyro_update()
 #ifdef RELEASE_ALTITUDE
 #warning "Enabling automatic balloon release"
     // Auto-burst above a threshold altitude
-    if (status.fixValid && (status.alt >= RELEASE_ALTITUDE) && (now >= RELEASE_SAFETIME * 1000UL)) {
+    bool release_disarmed = (status.switch_state & 1);
+    if (status.fixValid && (status.alt >= RELEASE_ALTITUDE) 
+        && (now >= RELEASE_SAFETIME * 1000UL) && !release_disarmed) 
+    {
         digitalWrite(SWITCH4_PIN, HIGH);
         status.switch_state |= 8;
         switch_off[3] = now + SWITCH4_AUTO_OFF * 1000UL;

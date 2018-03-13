@@ -82,7 +82,7 @@ RFOP = + 7 dBm, on RFO_LF/HF pin     20mA
 
 // Auto-off timeouts for switches in seconds (put 0 or negative to disable the feature)
 #define SWITCH1_AUTO_OFF    -1
-#define SWITCH2_AUTO_OFF    10*60
+#define SWITCH2_AUTO_OFF    6000
 #define SWITCH3_AUTO_OFF    3
 #define SWITCH4_AUTO_OFF    3
 
