@@ -8147,8 +8147,7 @@ MS5607-02 CFG1=short CFG2=short</text>
 <segment>
 <pinref part="U7" gate="G$1" pin="GND4"/>
 <wire x1="678.18" y1="-109.22" x2="678.18" y2="-104.14" width="0.1524" layer="91"/>
-<wire x1="678.18" y1="-104.14" x2="685.8" y2="-104.14" width="0.1524" layer="91"/>
-<wire x1="685.8" y1="-104.14" x2="718.82" y2="-104.14" width="0.1524" layer="91"/>
+<wire x1="678.18" y1="-104.14" x2="718.82" y2="-104.14" width="0.1524" layer="91"/>
 <wire x1="718.82" y1="-104.14" x2="718.82" y2="-119.38" width="0.1524" layer="91"/>
 <pinref part="U7" gate="G$1" pin="RES1"/>
 <wire x1="718.82" y1="-119.38" x2="718.82" y2="-124.46" width="0.1524" layer="91"/>
@@ -8162,9 +8161,6 @@ MS5607-02 CFG1=short CFG2=short</text>
 <pinref part="U7" gate="G$1" pin="GND3"/>
 <wire x1="711.2" y1="-119.38" x2="718.82" y2="-119.38" width="0.1524" layer="91"/>
 <junction x="718.82" y="-119.38"/>
-<pinref part="U7" gate="G$1" pin="RES2"/>
-<wire x1="685.8" y1="-109.22" x2="685.8" y2="-104.14" width="0.1524" layer="91"/>
-<junction x="685.8" y="-104.14"/>
 <pinref part="U$24" gate="G$1" pin="GND"/>
 </segment>
 <segment>
@@ -8901,7 +8897,8 @@ MS5607-02 CFG1=short CFG2=short</text>
 <segment>
 <pinref part="U7" gate="G$1" pin="VDD"/>
 <wire x1="693.42" y1="-109.22" x2="693.42" y2="-99.06" width="0.1524" layer="91"/>
-<wire x1="693.42" y1="-99.06" x2="655.32" y2="-99.06" width="0.1524" layer="91"/>
+<wire x1="693.42" y1="-99.06" x2="685.8" y2="-99.06" width="0.1524" layer="91"/>
+<wire x1="685.8" y1="-99.06" x2="655.32" y2="-99.06" width="0.1524" layer="91"/>
 <wire x1="655.32" y1="-99.06" x2="655.32" y2="-119.38" width="0.1524" layer="91"/>
 <pinref part="U7" gate="G$1" pin="VDD_IO"/>
 <wire x1="655.32" y1="-119.38" x2="660.4" y2="-119.38" width="0.1524" layer="91"/>
@@ -8917,6 +8914,9 @@ MS5607-02 CFG1=short CFG2=short</text>
 <pinref part="U7" gate="G$1" pin="SDO/SA0"/>
 <wire x1="685.8" y1="-149.86" x2="685.8" y2="-152.4" width="0.1524" layer="91"/>
 <junction x="685.8" y="-152.4"/>
+<pinref part="U7" gate="G$1" pin="RES2"/>
+<wire x1="685.8" y1="-109.22" x2="685.8" y2="-99.06" width="0.1524" layer="91"/>
+<junction x="685.8" y="-99.06"/>
 </segment>
 <segment>
 <pinref part="U10" gate="G$1" pin="VDD"/>
