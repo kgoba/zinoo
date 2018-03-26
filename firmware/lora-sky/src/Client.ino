@@ -10,6 +10,8 @@
 //#include <Servo.h>
 #include <avr/wdt.h>
 
+#include <EEPROM.h>
+
 // All hardware and software configuration is in config.h
 #include "config.h"
 
@@ -84,9 +86,8 @@ void pyro_update()
 #ifdef RELEASE_ALTITUDE
 #warning "Enabling automatic balloon release"
     // Auto-burst above a threshold altitude
-    bool release_disarmed = (status.switch_state & 1);
     if (status.fixValid && (status.alt >= RELEASE_ALTITUDE) 
-        && (now >= RELEASE_SAFETIME * 1000UL) && !release_disarmed) 
+        && (now >= RELEASE_SAFETIME * 1000UL)) 
     {
         digitalWrite(SWITCH4_PIN, HIGH);
         status.switch_state |= 8;

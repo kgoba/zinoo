@@ -8,17 +8,19 @@ void Status::restore() {
     uint16_t test;
     EEPROM.get(0x00, test);
 
-    if (test == 0xFFFF) {
+    char saved_callsign[16];
+    EEPROM.get(0x00, saved_callsign);
+
+    if (strcmp(CALLSIGN, saved_callsign) != 0) {
         // Fresh EEPROM - reset the contents of status in RAM
+        strcpy(saved_callsign, CALLSIGN);
+        EEPROM.put(0x00, saved_callsign);
         msg_id = 1;
-        //fixValid = false;
-        //lat = lng = 0;
-        //alt = n_sats = 0;
-        //save();
+        save();
     } 
     else {
         //EEPROM.get(0x00, *this);    
-        EEPROM.get(0x00, msg_id);
+        EEPROM.get(0x10, msg_id);
         msg_id += 16;
     }
 }
@@ -26,7 +28,7 @@ void Status::restore() {
 void Status::save() {
     //EEPROM.put(0x00, *this);
     if (msg_id % 16 == 0) {
-        EEPROM.put(0x00, msg_id);
+        EEPROM.put(0x10, msg_id);
     }
 }
 
