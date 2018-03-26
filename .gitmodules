@@ -14,3 +14,6 @@
 [submodule "zinoo-lora/lib/Time"]
 	path = firmware/lib/Time
 	url = https://github.com/PaulStoffregen/Time.git
+[submodule "firmware/lib/libopencm3"]
+	path = firmware/lib/libopencm3
+	url = https://github.com/libopencm3/libopencm3.git
