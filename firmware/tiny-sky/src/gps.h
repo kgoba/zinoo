@@ -74,6 +74,23 @@ struct GPSFix {
         bool    _valid;
     };
 
+    class YMDDate : public Field {
+    public:
+        YMDDate() : Field() {}
+        YMDDate(const char *str) { parse(str); }
+
+        uint8_t year()   const { return _year; }
+        uint8_t month() const { return _month; }
+        uint8_t day() const { return _day; }
+
+        void    parse(const char *str);
+
+    private:
+        uint8_t     _year;
+        uint8_t     _month;
+        uint8_t     _day;
+    };
+
     class HMSTime : public Field {
     public:
         HMSTime() : Field() {}
@@ -183,6 +200,7 @@ struct GPSFix {
     };
 
     HMSTime   time;
+    //YMDDate   date;
     Latitude  latitude;
     Longitude longitude;
     Distance  altitude;     // Comes from GGA

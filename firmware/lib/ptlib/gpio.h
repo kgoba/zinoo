@@ -273,14 +273,17 @@ public:
 // DigitalAF
 
 template<typename Pin, uint32_t periph>
+struct AFMapper {};
+
+template<typename Pin, uint32_t periph>
 class DigitalAF : public Pin {
 public:
     static void begin(IODirection::e direction) {
-        Pin::setupAlternate(direction, af);
+        Pin::setupAlternate(direction, AFMapper<Pin, periph>::af);
     }
     
 protected:
-    const static uint8_t af; // Remap information
+    //const static uint8_t af; // Remap information
 };
 
 #if defined(STM32F1)
@@ -330,35 +333,36 @@ template<> const uint8_t DigitalAF<PB_14, SPI2>::af   = 0;  // MISO
 template<> const uint8_t DigitalAF<PB_15, SPI2>::af   = 0;  // MOSI
 
 #else
-template<> const uint8_t DigitalAF<PA_0,  USART2>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_1,  USART2>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_2,  USART2>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_3,  USART2>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_4,  USART2>::af = GPIO_AF1;
+template<> struct AFMapper<PA_0,  USART2> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_1,  USART2> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_2,  USART2> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_3,  USART2> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_4,  USART2> { const static uint8_t af = GPIO_AF1; };
 
-template<> const uint8_t DigitalAF<PA_8,  USART1>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_9,  USART1>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_10, USART1>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_11, USART1>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PA_12, USART1>::af = GPIO_AF1;
-template<> const uint8_t DigitalAF<PB_6,  USART1>::af = GPIO_AF0;
-template<> const uint8_t DigitalAF<PB_7,  USART1>::af = GPIO_AF0;
+template<> struct AFMapper<PA_8,  USART1> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_9,  USART1> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_10, USART1> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_11, USART1> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PA_12, USART1> { const static uint8_t af = GPIO_AF1; };
 
-template<> const uint8_t DigitalAF<PA_4,  SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PA_5,  SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PA_6,  SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PA_7,  SPI1>::af   = GPIO_AF0;
+template<> struct AFMapper<PB_6,  USART1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PB_7,  USART1> { const static uint8_t af = GPIO_AF0; };
 
-template<> const uint8_t DigitalAF<PA_15, SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PB_3,  SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PB_4,  SPI1>::af   = GPIO_AF0;
-template<> const uint8_t DigitalAF<PB_5,  SPI1>::af   = GPIO_AF0;
+template<> struct AFMapper<PA_4,  SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PA_5,  SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PA_6,  SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PA_7,  SPI1> { const static uint8_t af = GPIO_AF0; };
 
-template<> const uint8_t DigitalAF<PB_6,  I2C1>::af   = GPIO_AF1;
-template<> const uint8_t DigitalAF<PB_7,  I2C1>::af   = GPIO_AF1;
+template<> struct AFMapper<PA_15, SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PB_3,  SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PB_4,  SPI1> { const static uint8_t af = GPIO_AF0; };
+template<> struct AFMapper<PB_5,  SPI1> { const static uint8_t af = GPIO_AF0; };
 
-template<> const uint8_t DigitalAF<PB_8,  I2C1>::af   = GPIO_AF4;
-template<> const uint8_t DigitalAF<PB_9,  I2C1>::af   = GPIO_AF4;
+template<> struct AFMapper<PB_6,  I2C1> { const static uint8_t af = GPIO_AF1; };
+template<> struct AFMapper<PB_7,  I2C1> { const static uint8_t af = GPIO_AF1; };
+
+template<> struct AFMapper<PB_8,  I2C1> { const static uint8_t af = GPIO_AF4; };
+template<> struct AFMapper<PB_9,  I2C1> { const static uint8_t af = GPIO_AF4; };
 
 #endif
 

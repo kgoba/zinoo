@@ -1,3 +1,5 @@
+#pragma once
+
 #include <stdint.h>
 
 template<typename T, uint32_t capacity>

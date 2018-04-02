@@ -197,6 +197,26 @@ void GPSParserBase::onFieldData (SentenceType sentence, int index, const char *v
 }
 */
 
+void GPSFix::YMDDate::parse(const char *str) {
+    if (strlen(str) < 6) {
+        _valid = false;
+        return;
+    }
+    
+    uint32_t value;
+    _valid = strparse(value, str, 2);
+    if (!_valid) return;
+    _year = value;
+
+    _valid = strparse(value, str + 2, 2);
+    if (!_valid) return;
+    _month = value;
+
+    _valid = strparse(value, str + 4, 2);
+    if (!_valid) return;
+    _day = value;
+}
+
 void GPSFix::HMSTime::parse(const char *str) {
     if (strlen(str) < 6) {
         _valid = false;

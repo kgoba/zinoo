@@ -28,270 +28,31 @@
 //#include "lmic.h"
 #include "radio.h"
 
-#define ASSERT(x)   
-#define CFG_sx1276_radio
+#define ASSERT(x)  
+ 
+#define CFG_RADIO SX1276
 
-// ---------------------------------------- 
-// Registers Mapping
-#define RegFifo                                    0x00 // common
-#define RegOpMode                                  0x01 // common
-#define FSKRegBitrateMsb                           0x02
-#define FSKRegBitrateLsb                           0x03
-#define FSKRegFdevMsb                              0x04
-#define FSKRegFdevLsb                              0x05
-#define RegFrfMsb                                  0x06 // common
-#define RegFrfMid                                  0x07 // common
-#define RegFrfLsb                                  0x08 // common
-#define RegPaConfig                                0x09 // common
-#define RegPaRamp                                  0x0A // common
-#define RegOcp                                     0x0B // common
-#define RegLna                                     0x0C // common
-#define FSKRegRxConfig                             0x0D
-#define LORARegFifoAddrPtr                         0x0D
-#define FSKRegRssiConfig                           0x0E
-#define LORARegFifoTxBaseAddr                      0x0E
-#define FSKRegRssiCollision                        0x0F
-#define LORARegFifoRxBaseAddr                      0x0F 
-#define FSKRegRssiThresh                           0x10
-#define LORARegFifoRxCurrentAddr                   0x10
-#define FSKRegRssiValue                            0x11
-#define LORARegIrqFlagsMask                        0x11 
-#define FSKRegRxBw                                 0x12
-#define LORARegIrqFlags                            0x12 
-#define FSKRegAfcBw                                0x13
-#define LORARegRxNbBytes                           0x13 
-#define FSKRegOokPeak                              0x14
-#define LORARegRxHeaderCntValueMsb                 0x14 
-#define FSKRegOokFix                               0x15
-#define LORARegRxHeaderCntValueLsb                 0x15 
-#define FSKRegOokAvg                               0x16
-#define LORARegRxPacketCntValueMsb                 0x16 
-#define LORARegRxpacketCntValueLsb                 0x17 
-#define LORARegModemStat                           0x18 
-#define LORARegPktSnrValue                         0x19 
-#define FSKRegAfcFei                               0x1A
-#define LORARegPktRssiValue                        0x1A 
-#define FSKRegAfcMsb                               0x1B
-#define LORARegRssiValue                           0x1B 
-#define FSKRegAfcLsb                               0x1C
-#define LORARegHopChannel                          0x1C 
-#define FSKRegFeiMsb                               0x1D
-#define LORARegModemConfig1                        0x1D 
-#define FSKRegFeiLsb                               0x1E
-#define LORARegModemConfig2                        0x1E 
-#define FSKRegPreambleDetect                       0x1F
-#define LORARegSymbTimeoutLsb                      0x1F 
-#define FSKRegRxTimeout1                           0x20
-#define LORARegPreambleMsb                         0x20 
-#define FSKRegRxTimeout2                           0x21
-#define LORARegPreambleLsb                         0x21 
-#define FSKRegRxTimeout3                           0x22
-#define LORARegPayloadLength                       0x22 
-#define FSKRegRxDelay                              0x23
-#define LORARegPayloadMaxLength                    0x23 
-#define FSKRegOsc                                  0x24
-#define LORARegHopPeriod                           0x24 
-#define FSKRegPreambleMsb                          0x25
-#define LORARegFifoRxByteAddr                      0x25
-#define LORARegModemConfig3                        0x26
-#define FSKRegPreambleLsb                          0x26
-#define FSKRegSyncConfig                           0x27
-#define LORARegFeiMsb                              0x28
-#define FSKRegSyncValue1                           0x28
-#define LORAFeiMib                                 0x29
-#define FSKRegSyncValue2                           0x29
-#define LORARegFeiLsb                              0x2A
-#define FSKRegSyncValue3                           0x2A
-#define FSKRegSyncValue4                           0x2B
-#define LORARegRssiWideband                        0x2C
-#define FSKRegSyncValue5                           0x2C
-#define FSKRegSyncValue6                           0x2D
-#define FSKRegSyncValue7                           0x2E
-#define FSKRegSyncValue8                           0x2F
-#define FSKRegPacketConfig1                        0x30
-#define FSKRegPacketConfig2                        0x31
-#define LORARegDetectOptimize                      0x31
-#define FSKRegPayloadLength                        0x32
-#define FSKRegNodeAdrs                             0x33
-#define LORARegInvertIQ                            0x33
-#define FSKRegBroadcastAdrs                        0x34
-#define FSKRegFifoThresh                           0x35
-#define FSKRegSeqConfig1                           0x36
-#define FSKRegSeqConfig2                           0x37
-#define LORARegDetectionThreshold                  0x37
-#define FSKRegTimerResol                           0x38
-#define FSKRegTimer1Coef                           0x39
-#define LORARegSyncWord                            0x39
-#define FSKRegTimer2Coef                           0x3A
-#define FSKRegImageCal                             0x3B
-#define FSKRegTemp                                 0x3C
-#define FSKRegLowBat                               0x3D
-#define FSKRegIrqFlags1                            0x3E
-#define FSKRegIrqFlags2                            0x3F
-#define RegDioMapping1                             0x40 // common
-#define RegDioMapping2                             0x41 // common
-#define RegVersion                                 0x42 // common
-// #define RegAgcRef                                  0x43 // common
-// #define RegAgcThresh1                              0x44 // common
-// #define RegAgcThresh2                              0x45 // common
-// #define RegAgcThresh3                              0x46 // common
-// #define RegPllHop                                  0x4B // common
-// #define RegTcxo                                    0x58 // common
-#ifdef CFG_sx1276_radio
-    #define RegPaDac                                   0x4D // common
-#else
-    #define RegPaDac                                   0x5A // common
-#endif
-// #define RegPll                                     0x5C // common
-// #define RegPllLowPn                                0x5E // common
-// #define RegFormerTemp                              0x6C // common
-// #define RegBitRateFrac                             0x70 // common
-
-// ----------------------------------------
-// spread factors and mode for RegModemConfig2
-#define SX1272_MC2_FSK  0x00
-#define SX1272_MC2_SF7  0x70
-#define SX1272_MC2_SF8  0x80
-#define SX1272_MC2_SF9  0x90
-#define SX1272_MC2_SF10 0xA0
-#define SX1272_MC2_SF11 0xB0
-#define SX1272_MC2_SF12 0xC0
-// bandwidth for RegModemConfig1
-#define SX1272_MC1_BW_125  0x00
-#define SX1272_MC1_BW_250  0x40
-#define SX1272_MC1_BW_500  0x80
-// coding rate for RegModemConfig1
-#define SX1272_MC1_CR_4_5 0x08
-#define SX1272_MC1_CR_4_6 0x10
-#define SX1272_MC1_CR_4_7 0x18
-#define SX1272_MC1_CR_4_8 0x20
-#define SX1272_MC1_IMPLICIT_HEADER_MODE_ON 0x04 // required for receive
-#define SX1272_MC1_RX_PAYLOAD_CRCON        0x02
-#define SX1272_MC1_LOW_DATA_RATE_OPTIMIZE  0x01 // mandated for SF11 and SF12
-// transmit power configuration for RegPaConfig
-#define SX1272_PAC_PA_SELECT_PA_BOOST 0x80
-#define SX1272_PAC_PA_SELECT_RFIO_PIN 0x00
-
-
-// sx1276 RegModemConfig1
-#define SX1276_MC1_BW_125                0x70
-#define SX1276_MC1_BW_250                0x80
-#define SX1276_MC1_BW_500                0x90
-#define SX1276_MC1_CR_4_5            0x02
-#define SX1276_MC1_CR_4_6            0x04
-#define SX1276_MC1_CR_4_7            0x06
-#define SX1276_MC1_CR_4_8            0x08
-
-#define SX1276_MC1_IMPLICIT_HEADER_MODE_ON    0x01 
-                                                    
-// sx1276 RegModemConfig2          
-#define SX1276_MC2_RX_PAYLOAD_CRCON        0x04
-
-// sx1276 RegModemConfig3          
-#define SX1276_MC3_LOW_DATA_RATE_OPTIMIZE  0x08
-#define SX1276_MC3_AGCAUTO                 0x04
-
-// preamble for lora networks (nibbles swapped)
-#define LORA_MAC_PREAMBLE                  0x34
-
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG1 0x0A
-#ifdef CFG_sx1276_radio
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG2 0x70
-#elif CFG_sx1272_radio
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG2 0x74
-#endif
-
-
-
-// ---------------------------------------- 
-// Constants for radio registers
-#define OPMODE_LORA      0x80
-#define OPMODE_MASK      0x07
-#define OPMODE_SLEEP     0x00
-#define OPMODE_STANDBY   0x01
-#define OPMODE_FSTX      0x02
-#define OPMODE_TX        0x03
-#define OPMODE_FSRX      0x04
-#define OPMODE_RX        0x05
-#define OPMODE_RX_SINGLE 0x06 
-#define OPMODE_CAD       0x07 
-
-// ----------------------------------------
-// Bits masking the corresponding IRQs from the radio
-#define IRQ_LORA_RXTOUT_MASK 0x80
-#define IRQ_LORA_RXDONE_MASK 0x40
-#define IRQ_LORA_CRCERR_MASK 0x20
-#define IRQ_LORA_HEADER_MASK 0x10
-#define IRQ_LORA_TXDONE_MASK 0x08
-#define IRQ_LORA_CDDONE_MASK 0x04
-#define IRQ_LORA_FHSSCH_MASK 0x02
-#define IRQ_LORA_CDDETD_MASK 0x01
-
-#define IRQ_FSK1_MODEREADY_MASK         0x80
-#define IRQ_FSK1_RXREADY_MASK           0x40
-#define IRQ_FSK1_TXREADY_MASK           0x20
-#define IRQ_FSK1_PLLLOCK_MASK           0x10
-#define IRQ_FSK1_RSSI_MASK              0x08
-#define IRQ_FSK1_TIMEOUT_MASK           0x04
-#define IRQ_FSK1_PREAMBLEDETECT_MASK    0x02
-#define IRQ_FSK1_SYNCADDRESSMATCH_MASK  0x01
-#define IRQ_FSK2_FIFOFULL_MASK          0x80
-#define IRQ_FSK2_FIFOEMPTY_MASK         0x40
-#define IRQ_FSK2_FIFOLEVEL_MASK         0x20
-#define IRQ_FSK2_FIFOOVERRUN_MASK       0x10
-#define IRQ_FSK2_PACKETSENT_MASK        0x08
-#define IRQ_FSK2_PAYLOADREADY_MASK      0x04
-#define IRQ_FSK2_CRCOK_MASK             0x02
-#define IRQ_FSK2_LOWBAT_MASK            0x01
-
-// ----------------------------------------
-// DIO function mappings                D0D1D2D3
-#define MAP_DIO0_LORA_RXDONE   0x00  // 00------
-#define MAP_DIO0_LORA_TXDONE   0x40  // 01------
-#define MAP_DIO1_LORA_RXTOUT   0x00  // --00----
-#define MAP_DIO1_LORA_NOP      0x30  // --11----
-#define MAP_DIO2_LORA_NOP      0xC0  // ----11--
-
-#define MAP_DIO0_FSK_READY     0x00  // 00------ (packet sent / payload ready)
-#define MAP_DIO1_FSK_NOP       0x30  // --11----
-#define MAP_DIO2_FSK_TXNOP     0x04  // ----01--
-#define MAP_DIO2_FSK_TIMEOUT   0x08  // ----10--
-
-
-// FSK IMAGECAL defines
-#define RF_IMAGECAL_AUTOIMAGECAL_MASK               0x7F
-#define RF_IMAGECAL_AUTOIMAGECAL_ON                 0x80
-#define RF_IMAGECAL_AUTOIMAGECAL_OFF                0x00  // Default
-
-#define RF_IMAGECAL_IMAGECAL_MASK                   0xBF
-#define RF_IMAGECAL_IMAGECAL_START                  0x40
-
-#define RF_IMAGECAL_IMAGECAL_RUNNING                0x20
-#define RF_IMAGECAL_IMAGECAL_DONE                   0x00  // Default
-
+#include "radio_regs.h"
 
 // RADIO STATE
 // (initialized by radio_init(), used by radio_rand1())
 static uint8_t randbuf[16];
 
 
-#ifdef CFG_sx1276_radio
+#if CFG_RADIO == SX1276
 #define LNA_RX_GAIN (0x20|0x1)
-#elif CFG_sx1272_radio
-#define LNA_RX_GAIN (0x20|0x03)
 #else
-#error Missing CFG_sx1272_radio/CFG_sx1276_radio
+#define LNA_RX_GAIN (0x20|0x03)
 #endif
 
-
-void Semtech_SX1276_Base::writeReg (uint8_t addr, uint8_t data ) {
+void SPIDeviceBase::writeReg (uint8_t addr, uint8_t data ) {
     hal_pin_nss(0);
     hal_spi(addr | 0x80);
     hal_spi(data);
     hal_pin_nss(1);
 }
 
-uint8_t Semtech_SX1276_Base::readReg (uint8_t addr) {
+uint8_t SPIDeviceBase::readReg (uint8_t addr) {
     hal_pin_nss(0);
     hal_spi(addr & 0x7F);
     uint8_t val = hal_spi(0x00);
@@ -299,7 +60,7 @@ uint8_t Semtech_SX1276_Base::readReg (uint8_t addr) {
     return val;
 }
 
-void Semtech_SX1276_Base::writeBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
+void SPIDeviceBase::writeBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
     hal_pin_nss(0);
     hal_spi(addr | 0x80);
     for (uint8_t i=0; i<len; i++) {
@@ -308,7 +69,7 @@ void Semtech_SX1276_Base::writeBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
     hal_pin_nss(1);
 }
 
-void Semtech_SX1276_Base::readBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
+void SPIDeviceBase::readBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
     hal_pin_nss(0);
     hal_spi(addr & 0x7F);
     for (uint8_t i=0; i<len; i++) {
@@ -317,39 +78,41 @@ void Semtech_SX1276_Base::readBuf (uint8_t addr, uint8_t * buf, uint8_t len) {
     hal_pin_nss(1);
 }
 
-void Semtech_SX1276_Base::opmode (uint8_t mode) {
+
+
+void SX1276_Base::opmode (uint8_t mode) {
     writeReg(RegOpMode, (readReg(RegOpMode) & ~OPMODE_MASK) | mode);
 }
 
-void Semtech_SX1276_Base::opmodeLora() {
+void SX1276_Base::opmodeLora() {
     uint8_t u = OPMODE_LORA;
-#ifdef CFG_sx1276_radio
+#if CFG_RADIO==SX1276
     u |= 0x8;   // TBD: sx1276 high freq
 #endif
     writeReg(RegOpMode, u);
 }
 
-void Semtech_SX1276_Base::opmodeFSK() {
+void SX1276_Base::opmodeFSK() {
     uint8_t u = 0;
-#ifdef CFG_sx1276_radio
+#if CFG_RADIO==SX1276
     u |= 0x8;   // TBD: sx1276 high freq
 #endif
     writeReg(RegOpMode, u);
 }
 
 // configure LoRa modem (cfg1, cfg2)
-void Semtech_SX1276_Base::configLoraModem () {
-#ifdef CFG_sx1276_radio
+void SX1276_Base::configLoraModem () {
+#if CFG_RADIO==SX1276
         uint8_t mc1 = 0, mc2 = 0, mc3 = 0;
 
-        switch (bw_) {
+        switch (s.bw_) {
         case BW125: mc1 |= SX1276_MC1_BW_125; break;
         case BW250: mc1 |= SX1276_MC1_BW_250; break;
         case BW500: mc1 |= SX1276_MC1_BW_500; break;
         default:
             ASSERT(0);
         }
-        switch(cr_) {
+        switch(s.cr_) {
         case CR_4_5: mc1 |= SX1276_MC1_CR_4_5; break;
         case CR_4_6: mc1 |= SX1276_MC1_CR_4_6; break;
         case CR_4_7: mc1 |= SX1276_MC1_CR_4_7; break;
@@ -358,25 +121,25 @@ void Semtech_SX1276_Base::configLoraModem () {
             ASSERT(0);
         }
 
-        if (ih_) {
+        if (s.ih_) {
             mc1 |= SX1276_MC1_IMPLICIT_HEADER_MODE_ON;
-            writeReg(LORARegPayloadLength, ih_); // required length
+            writeReg(LORARegPayloadLength, s.ih_); // required length
         }
         // set ModemConfig1
         writeReg(LORARegModemConfig1, mc1);
 
-        mc2 = (SX1272_MC2_SF7 + ((sf_-1)<<4));
-        if (!noCRC_) {
+        mc2 = (SX1272_MC2_SF7 + ((s.sf_-1)<<4));
+        if (!s.noCRC_) {
             mc2 |= SX1276_MC2_RX_PAYLOAD_CRCON;
         }
         writeReg(LORARegModemConfig2, mc2);
         
         mc3 = SX1276_MC3_AGCAUTO;
-        if ((sf_ == SF11 || sf_ == SF12) && bw_ == BW125) {
+        if ((s.sf_ == SF11 || s.sf_ == SF12) && s.bw_ == BW125) {
             mc3 |= SX1276_MC3_LOW_DATA_RATE_OPTIMIZE;
         }
         writeReg(LORARegModemConfig3, mc3);
-#elif CFG_sx1272_radio
+#else
         uint8_t mc1 = (bw_<<6);
 
         switch( getCr(LMIC.rps) ) {
@@ -409,13 +172,10 @@ void Semtech_SX1276_Base::configLoraModem () {
         // set ModemConfig2 (sf, TxContinuousMode=1, AgcAutoOn=1 SymbTimeoutHi=00)
         writeReg(LORARegModemConfig2, (SX1272_MC2_SF7 + ((sf-1)<<4)) | 0x06);
 #endif
-
-#else
-#error Missing CFG_sx1272_radio/CFG_sx1276_radio
 #endif /* CFG_sx1272_radio */
 }
 
-void Semtech_SX1276_Base::configChannel () {
+void SX1276_Base::configChannel () {
     // set frequency: FQ = (FRF * 32 Mhz) / (2 ^ 19)
     uint32_t frf = ((uint64_t)freq_ << 19) / 32000000;
     writeReg(RegFrfMsb, (uint8_t)(frf>>16));
@@ -424,8 +184,8 @@ void Semtech_SX1276_Base::configChannel () {
 }
 
 
-void Semtech_SX1276_Base::configPower () {
-#ifdef CFG_sx1276_radio
+void SX1276_Base::configPower () {
+#if CFG_RADIO==SX1276
     // no boost used for now
     int8_t pw = txpow_;
     if(pw >= 15) {
@@ -437,7 +197,7 @@ void Semtech_SX1276_Base::configPower () {
     writeReg(RegPaConfig, (uint8_t)(pw&0xf));
     writeReg(RegPaDac, readReg(RegPaDac)|0x4);
 
-#elif CFG_sx1272_radio
+#else
     // set PA config (2-17 dBm using PA_BOOST)
     int8_t pw = (int8_t)LMIC.txpow;
     if(pw > 17) {
@@ -446,12 +206,10 @@ void Semtech_SX1276_Base::configPower () {
         pw = 2;
     }
     writeReg(RegPaConfig, (uint8_t)(0x80|(pw-2)));
-#else
-#error Missing CFG_sx1272_radio/CFG_sx1276_radio
 #endif /* CFG_sx1272_radio */
 }
 
-void Semtech_SX1276_Base::txfsk () {
+void SX1276_Base::txfsk () {
     // select FSK modem (from sleep mode)
     writeReg(RegOpMode, 0x10); // FSK, BT=0.5
     ASSERT(readReg(RegOpMode) == 0x10);
@@ -494,7 +252,7 @@ void Semtech_SX1276_Base::txfsk () {
     opmode(OPMODE_TX);
 }
 
-void Semtech_SX1276_Base::txlora () {
+void SX1276_Base::txlora () {
     // select LoRa modem (from sleep mode)
     //writeReg(RegOpMode, OPMODE_LORA);
     opmodeLora();
@@ -535,9 +293,9 @@ void Semtech_SX1276_Base::txlora () {
 }
 
 // start transmitter (buf=frame, len=dataLen)
-void Semtech_SX1276_Base::starttx () {
+void SX1276_Base::starttx () {
     ASSERT( (readReg(RegOpMode) & OPMODE_MASK) == OPMODE_SLEEP );
-    if(sf_ == FSK) { // FSK modem
+    if(s.sf_ == FSK) { // FSK modem
         txfsk();
     } else { // LoRa modem
         txlora();
@@ -546,14 +304,14 @@ void Semtech_SX1276_Base::starttx () {
     // the corresponding IRQ will inform us about completion.
 }
 
-const uint8_t Semtech_SX1276_Base::rxlorairqmask[] = {
+const uint8_t SX1276_Base::rxlorairqmask[] = {
     [RXMODE_SINGLE] = IRQ_LORA_RXDONE_MASK|IRQ_LORA_RXTOUT_MASK,
     [RXMODE_SCAN]   = IRQ_LORA_RXDONE_MASK,
     [RXMODE_RSSI]   = 0x00,
 };
 
 // start LoRa receiver (time=LMIC.rxtime, timeout=LMIC.rxsyms, result=LMIC.frame[LMIC.dataLen])
-void Semtech_SX1276_Base::rxlora (uint8_t rxmode) {
+void SX1276_Base::rxlora (uint8_t rxmode) {
     // select LoRa modem (from sleep mode)
     opmodeLora();
     ASSERT((readReg(RegOpMode) & OPMODE_LORA) != 0);
@@ -606,7 +364,7 @@ void Semtech_SX1276_Base::rxlora (uint8_t rxmode) {
     }
 }
 
-void Semtech_SX1276_Base::rxfsk (uint8_t rxmode) {
+void SX1276_Base::rxfsk (uint8_t rxmode) {
     // only single rx (no continuous scanning, no noise sampling)
     ASSERT( rxmode == RXMODE_SINGLE );
     // select FSK modem (from sleep mode)
@@ -657,9 +415,9 @@ void Semtech_SX1276_Base::rxfsk (uint8_t rxmode) {
     opmode(OPMODE_RX); // no single rx mode available in FSK
 }
 
-void Semtech_SX1276_Base::startrx (uint8_t rxmode) {
+void SX1276_Base::startrx (uint8_t rxmode) {
     ASSERT( (readReg(RegOpMode) & OPMODE_MASK) == OPMODE_SLEEP );
-    if(sf_ == FSK) { // FSK modem
+    if(s.sf_ == FSK) { // FSK modem
         rxfsk(rxmode);
     } else { // LoRa modem
         rxlora(rxmode);
@@ -668,31 +426,17 @@ void Semtech_SX1276_Base::startrx (uint8_t rxmode) {
     // or timed out, and the corresponding IRQ will inform us about completion.
 }
 
-// get random seed from wideband noise rssi
-void Semtech_SX1276_Base::init () {
-    hal_disableIRQs();
-
-    // manually reset radio
-#ifdef CFG_sx1276_radio
-    hal_pin_rst(0); // drive RST pin low
-#else
-    hal_pin_rst(1); // drive RST pin high
-#endif
-    hal_waitUntil(hal_ticks()+hal_ms2ticks(1)); // wait >100us
-    hal_pin_rst(2); // configure RST pin floating!
-    hal_waitUntil(hal_ticks()+hal_ms2ticks(5)); // wait 5ms
-
-    opmode(OPMODE_SLEEP);
-
+bool SX1276_Base::checkVersion() {
     // some sanity checks, e.g., read version number
     uint8_t v = readReg(RegVersion);
-#ifdef CFG_sx1276_radio
-    ASSERT(v == 0x12 ); 
-#elif CFG_sx1272_radio
-    ASSERT(v == 0x22);
+#if CFG_RADIO==SX1276
+    return (v == 0x12); 
 #else
-#error Missing CFG_sx1272_radio/CFG_sx1276_radio
+    return (v == 0x22);
 #endif
+}
+
+void SX1276_Base::seedRandom() {
     // seed 15-byte randomness via noise rssi
     rxlora(RXMODE_RSSI);
     while( (readReg(RegOpMode) & OPMODE_MASK) != OPMODE_RX ); // continuous rx
@@ -703,15 +447,43 @@ void Semtech_SX1276_Base::init () {
             randbuf[i] = (randbuf[i] << 1) | b;
         }
     }
-    randbuf[0] = 16; // set initial index
+    randbuf[0] = 16; // set initial index    
+}
+
+// get random seed from wideband noise rssi
+void SX1276_Base::init () {
+    hal_disableIRQs();
+
+    // manually reset radio
+#if CFG_RADIO == SX1276
+    hal_pin_rst(0); // drive RST pin low
+#else
+    hal_pin_rst(1); // drive RST pin high
+#endif
+    hal_waitUntil(hal_ticks()+hal_ms2ticks(1)); // wait >100us
+    hal_pin_rst(2); // configure RST pin floating!
+    hal_waitUntil(hal_ticks()+hal_ms2ticks(5)); // wait 5ms
+
+    opmode(OPMODE_SLEEP);
+
+    seedRandom();
   
-#ifdef CFG_sx1276mb1_board
+#if CFG_RADIO==SX1276
+    rxChainCalibration();
+#endif /* CFG_RADIO */
+
+    opmode(OPMODE_SLEEP);
+
+    hal_enableIRQs();
+}
+
+void SX1276_Base::rxChainCalibration() {
     // chain calibration
     writeReg(RegPaConfig, 0);
     
     // Launch Rx chain calibration for LF band
     writeReg(FSKRegImageCal, (readReg(FSKRegImageCal) & RF_IMAGECAL_IMAGECAL_MASK)|RF_IMAGECAL_IMAGECAL_START);
-    while((readReg(FSKRegImageCal)&RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING){ ; }
+    while((readReg(FSKRegImageCal) & RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING){ ; }
 
     // Sets a Frequency in HF band
     uint32_t frf = 868000000;
@@ -721,12 +493,7 @@ void Semtech_SX1276_Base::init () {
 
     // Launch Rx chain calibration for HF band 
     writeReg(FSKRegImageCal, (readReg(FSKRegImageCal) & RF_IMAGECAL_IMAGECAL_MASK)|RF_IMAGECAL_IMAGECAL_START);
-    while((readReg(FSKRegImageCal) & RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING) { ; }
-#endif /* CFG_sx1276mb1_board */
-
-    opmode(OPMODE_SLEEP);
-
-    hal_enableIRQs();
+    while((readReg(FSKRegImageCal) & RF_IMAGECAL_IMAGECAL_RUNNING) == RF_IMAGECAL_IMAGECAL_RUNNING) { ; }    
 }
 
 // return next random byte derived from seed buffer
@@ -743,14 +510,14 @@ void Semtech_SX1276_Base::init () {
 //     return v;
 // }
 
-uint8_t Semtech_SX1276_Base::rssi () {
+uint8_t SX1276_Base::rssi () {
     hal_disableIRQs();
     uint8_t r = readReg(LORARegRssiValue);
     hal_enableIRQs();
     return r;
 }
 
-// const uint16_t Semtech_SX1276_Base::LORA_RXDONE_FIXUP[] = {
+// const uint16_t SX1276_Base::LORA_RXDONE_FIXUP[] = {
 //     [FSK]  =     us2osticks(0), // (   0 ticks)
 //     [SF7]  =     us2osticks(0), // (   0 ticks)
 //     [SF8]  =  us2osticks(1648), // (  54 ticks)
@@ -762,7 +529,7 @@ uint8_t Semtech_SX1276_Base::rssi () {
 
 // called by hal ext IRQ handler
 // (radio goes to stanby mode after tx/rx operations)
-void Semtech_SX1276_Base::irq_handler (uint8_t dio) {
+void SX1276_Base::irq_handler (uint8_t dio) {
 #if CFG_TxContinuousMode
     // clear radio IRQ flags
     writeReg(LORARegIrqFlags, 0xFF);
@@ -839,15 +606,15 @@ void Semtech_SX1276_Base::irq_handler (uint8_t dio) {
 #endif /* ! CFG_TxContinuousMode */
 }
 
-void Semtech_SX1276_Base::onTXDone() {
+void SX1276_Base::onTXDone() {
 
 }
 
-void Semtech_SX1276_Base::onRXDone() {
+void SX1276_Base::onRXDone() {
 
 }
 
-void Semtech_SX1276_Base::onRXTimeout() {
+void SX1276_Base::onRXTimeout() {
 
 }
 

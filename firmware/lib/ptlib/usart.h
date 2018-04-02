@@ -4,29 +4,16 @@
 
 #include "rcc.h"
 
-template<class BasicIO> 
-class TextOutStream : public BasicIO {
-public:
-    static void print(const char *str) {
-        while (*str) {
-            BasicIO::write(*str);
-            str++;
-        }
-    }
-};
-
-/*
-template<typename Pin_tx, typename Pin_rx>
-class USARTPinPackage {
-public:
-    const static uint32_t usart;
-};
-
-template<> const uint32_t USARTPinPackage<PA9, PA10>::clock = USART1;
-template<> const uint32_t USARTPinPackage<PB6, PB7>::clock = USART1;
-template<> const uint32_t USARTPinPackage<PA2, PA3>::clock = USART2;
-template<> const uint32_t USARTPinPackage<PA14, PA15>::clock = USART2;
-*/
+// template<class BasicIO> 
+// class TextOutStream : public BasicIO {
+// public:
+//     static void print(const char *str) {
+//         while (*str) {
+//             while (0 > BasicIO::write(*str)) ;
+//             str++;
+//         }
+//     }
+// };
 
 template<uint32_t usart, typename Pin_tx, typename Pin_rx>
 class USART : public RCC<usart>, public NVIC<usart> {
@@ -57,14 +44,15 @@ public:
         usart_set_baudrate(usart, baud);
     }
 
-    static int read() {
-        if (!usart_get_flag(usart, USART_ISR_RXNE)) return -1;    // or USART_SR_RXNE
+    static int recv() {
+        if (!usart_get_flag(usart, USART_ISR_RXNE)) return -1;
         return usart_recv(usart);
     }
     
-    static int write(int c) {
-        usart_wait_send_ready(usart);
+    static int send(int c) {
+        if (!usart_get_flag(usart, USART_ISR_TXE)) return -1;
         usart_send(usart, c);
+        return c;
     }
 
     static void enableRXInterrupt() {

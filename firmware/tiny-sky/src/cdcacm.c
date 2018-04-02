@@ -269,12 +269,17 @@ static void cdcacm_data_rx_cb(usbd_device *usbd_dev, uint8_t ep)
 	int len = usbd_ep_read_packet(usbd_dev, 0x01, buf, 64);
 
 	if (len) {
-		while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
+		char *ptr = buf;
+		while (len > 0) {
+			if (!q_push(&rx_queue, *ptr)) break;
+			ptr++;
+			len--;
+		}
+		//while (usbd_ep_write_packet(usbd_dev, 0x82, buf, len) == 0);
 	}
 }
 
 static volatile uint8_t tx_done;
-static volatile uint8_t tx_busy;
 
 static void cdcacm_data_tx_cb(usbd_device *usbd_dev, uint8_t ep)
 {
@@ -282,11 +287,11 @@ static void cdcacm_data_tx_cb(usbd_device *usbd_dev, uint8_t ep)
 	//if (!cdc_configured) return;
 
 	unsigned len = 0;
-	uint8_t buf[16] __attribute__ ((aligned(4)));
+	uint8_t buf[32] __attribute__ ((aligned(4)));
 
 	CRITICAL_START {
 		uint8_t *buf_ptr = buf;
-		while (len < 16 && q_pop(&tx_queue, buf_ptr)) {
+		while (len < 32 && q_pop(&tx_queue, buf_ptr)) {
 			buf_ptr++;
 			len++;
 		}
@@ -389,8 +394,16 @@ int usb_cdc_write(const uint8_t *buf, int len) {
 }
 
 int usb_cdc_read(uint8_t *buf, int len) {
-	if (len > 64) len = 64;
-	return usbd_ep_read_packet(usbd_dev, 0x01, buf, len);
+	//if (len > 64) len = 64;
+	//return usbd_ep_read_packet(usbd_dev, 0x01, buf, len);
+	int n_read = 0;
+	while (len > 0) {
+		if (!q_pop(&rx_queue, buf)) break;
+		n_read++;
+		len--;
+		buf++;
+	}
+	return n_read;
 }
 
 void usb_poll() {
