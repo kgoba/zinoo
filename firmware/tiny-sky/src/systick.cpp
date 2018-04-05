@@ -8,17 +8,14 @@
 
 static volatile uint32_t system_millis;
 
-/*
-struct timer_t {
-    bool        periodic;
-    uint32_t    next_timeout;
-    timer_t     *left;
-    timer_t     *right;
-    timer_t     *parent;
-};
+// struct timer_t {
+//     bool        periodic;
+//     uint32_t    next_timeout;
+//     timer_t     *left;
+//     timer_t     *right;
+// };
 
-timer_t *timer_heap;
-*/
+// static timer_t *timer_list;
 
 void systick_setup(void)
 {
@@ -49,7 +46,7 @@ void delay_us(uint32_t delay) {
     }
 }
 
-uint32_t millis(void)
+systime_t millis(void)
 {
     return system_millis;
 }

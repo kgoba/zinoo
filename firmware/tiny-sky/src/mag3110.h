@@ -27,6 +27,12 @@ public:
         eOSR_128   = 3
     };
 
+    enum axis_t {
+        eX_AXIS = 1,
+        eY_AXIS = 3,
+        eZ_AXIS = 5
+    };
+
     bool initialize();
     void reset(rate_t rate = eRATE_1280, osr_t osr = eOSR_16);
 
@@ -37,17 +43,17 @@ public:
     void trigger();
     bool dataReady();
 
-    void readMag(int &x, int &y, int &z);
-    void readMicroTeslas(float &x, float &y, float &z);
+    bool readMag(int &x, int &y, int &z);
+    bool readMicroTeslas(float &x, float &y, float &z);
     float readHeading();
 
-    int8_t readTemperature();
+    bool readTemperature(int &t_celsius);
 
     void setRate(rate_t rate, osr_t osr);
     void rawData(bool raw);
 
-    void setOffset(uint8_t axis, int16_t offset);
-    int16_t  readOffset(uint8_t axis);
+    void setOffset(axis_t axis, int16_t offset);
+    int16_t  readOffset(axis_t axis);
 
 private:
     int16_t readAxis(uint8_t axis);

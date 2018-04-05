@@ -32,7 +32,7 @@ void ublox_enable_trkd5() {
     const uint8_t payload[] = { 
         0x03, 0x0a, 0x01
     };
-    // message: 0x06 0x01 (unknown?)
+    // CFG-MSG: 0x06 0x01
     // See https://wiki.openstreetmap.org/wiki/UbloxRAW
     ublox_command(0x06, 0x01, payload, sizeof(payload));
 }
@@ -41,7 +41,7 @@ void ublox_enable_sfrbx() {
     const uint8_t payload[] = { 
         0x03, 0x0f, 0x01
     };
-    // message: 0x06 0x01 (unknown?)
+    // CFG-MSG: 0x06 0x01
     // See https://wiki.openstreetmap.org/wiki/UbloxRAW
     ublox_command(0x06, 0x01, payload, sizeof(payload));
 }

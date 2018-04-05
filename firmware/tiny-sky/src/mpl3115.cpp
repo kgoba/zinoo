@@ -137,7 +137,7 @@ bool MPL3115::dataReady() {
     //return (status & (VALUE_PDR));
 }
 
-void MPL3115::readPressure_28q4(uint32_t &pressure) {
+void MPL3115::readPressure_u28q4(uint32_t &pressure) {
     uint8_t p_bytes[3];
     readRegister(REG_OUT_P_MSB, p_bytes, 3);
     pressure = ((p_bytes[0] << 16) | (p_bytes[1] << 8) | (p_bytes[2] & 0xF0)) >> 2;

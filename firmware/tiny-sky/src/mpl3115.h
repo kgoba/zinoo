@@ -30,7 +30,7 @@ public:
     bool dataReady();
 
     //void readMeasurement(uint32_t &pressure, uint16_t &temperature);
-    void readPressure_28q4(uint32_t &pressure);
+    void readPressure_u28q4(uint32_t &pressure);
     void readTemperature_12q4(int16_t &temperature);
 
     void setOSR(osr_t osr);

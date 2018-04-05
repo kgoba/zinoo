@@ -87,10 +87,6 @@
 #define MAG3110_SYSMOD_ACTIVE_RAW	0x01
 #define	MAG3110_SYSMOD_ACTIVE		0x02
 
-#define MAG3110_X_AXIS 1
-#define MAG3110_Y_AXIS 3
-#define MAG3110_Z_AXIS 5
-
 
 bool MAG3110::initialize() {
     uint8_t who_am_i;
@@ -105,9 +101,9 @@ void MAG3110::reset(rate_t rate, osr_t osr) {
 	writeRegister(MAG3110_CTRL_REG1, DROS); //Write DROS, everything else 0
 	writeRegister(MAG3110_CTRL_REG2, 0x80); //Enable Auto Mag Reset, non-raw mode
 
-	setOffset(MAG3110_X_AXIS, 0);
-	setOffset(MAG3110_Y_AXIS, 0);
-	setOffset(MAG3110_Z_AXIS, 0);
+	setOffset(eX_AXIS, 0);
+	setOffset(eY_AXIS, 0);
+	setOffset(eZ_AXIS, 0);
 }
 
 void MAG3110::enterStandby(){
@@ -175,18 +171,20 @@ int16_t MAG3110::readAxis(uint8_t axis){
 	return out;
 }
 
-void MAG3110::readMag(int &x, int &y, int &z) {
+bool MAG3110::readMag(int &x, int &y, int &z) {
 	//Read each axis
-	x = readAxis(MAG3110_OUT_X_MSB);
-	y = readAxis(MAG3110_OUT_Y_MSB);
-	z = readAxis(MAG3110_OUT_Z_MSB);
+	x = readAxis(eX_AXIS);
+	y = readAxis(eY_AXIS);
+	z = readAxis(eZ_AXIS);
+	return true; // FIXME
 }
 
-void MAG3110::readMicroTeslas(float &x, float &y, float &z) {
+bool MAG3110::readMicroTeslas(float &x, float &y, float &z) {
 	//Read each axis and scale to Teslas
-	x = readAxis(MAG3110_OUT_X_MSB) * 0.1f;
-	y = readAxis(MAG3110_OUT_Y_MSB) * 0.1f;
-	z = readAxis(MAG3110_OUT_Z_MSB) * 0.1f;
+	x = readAxis(eX_AXIS) * 0.1f;
+	y = readAxis(eY_AXIS) * 0.1f;
+	z = readAxis(eZ_AXIS) * 0.1f;
+	return true; // FIXME
 }
 
 void MAG3110::setRate(rate_t rate, osr_t osr) {
@@ -203,11 +201,11 @@ void MAG3110::setRate(rate_t rate, osr_t osr) {
 //Bit 0 of the LSB register is always 0 for some reason...
 //So we have to left shift the values by 1
 //Ask me how confused I was...
-void MAG3110::setOffset(uint8_t axis, int16_t offset){
+void MAG3110::setOffset(axis_t axis, int16_t offset){
 	
 	offset = offset << 1;
 	
-	uint8_t msbAddress = axis + 8;
+	uint8_t msbAddress = (uint8_t)axis + 8;
 	uint8_t lsbAddress = msbAddress + 1;
 
 	writeRegister(msbAddress, (uint8_t)((offset >> 8) & 0xFF));
@@ -218,12 +216,15 @@ void MAG3110::setOffset(uint8_t axis, int16_t offset){
 }
 
 //See above
-int16_t MAG3110::readOffset(uint8_t axis){
-	return (readAxis(axis+8)) >> 1;
+int16_t MAG3110::readOffset(axis_t axis){
+	return (readAxis((uint8_t)axis+8)) >> 1;
 }
 
-int8_t MAG3110::readTemperature() {
-    uint8_t temp;
-    readRegister(MAG3110_DIE_TEMP, temp);
-	return temp;
+bool MAG3110::readTemperature(int &temp) {
+	int8_t tmp;
+    if (readRegister(MAG3110_DIE_TEMP, (uint8_t &)tmp)) {
+		temp = tmp;
+		return true;
+	}
+	return false;
 }

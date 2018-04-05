@@ -116,74 +116,45 @@
 // #define RegFormerTemp                              0x6C // common
 // #define RegBitRateFrac                             0x70 // common
 
-// ----------------------------------------
-// spread factors and mode for RegModemConfig2
-#define SX1272_MC2_FSK  0x00
-#define SX1272_MC2_SF7  0x70
-#define SX1272_MC2_SF8  0x80
-#define SX1272_MC2_SF9  0x90
-#define SX1272_MC2_SF10 0xA0
-#define SX1272_MC2_SF11 0xB0
-#define SX1272_MC2_SF12 0xC0
-// bandwidth for RegModemConfig1
-#define SX1272_MC1_BW_125  0x00
-#define SX1272_MC1_BW_250  0x40
-#define SX1272_MC1_BW_500  0x80
-// coding rate for RegModemConfig1
-#define SX1272_MC1_CR_4_5 0x08
-#define SX1272_MC1_CR_4_6 0x10
-#define SX1272_MC1_CR_4_7 0x18
-#define SX1272_MC1_CR_4_8 0x20
-#define SX1272_MC1_IMPLICIT_HEADER_MODE_ON 0x04 // required for receive
-#define SX1272_MC1_RX_PAYLOAD_CRCON        0x02
-#define SX1272_MC1_LOW_DATA_RATE_OPTIMIZE  0x01 // mandated for SF11 and SF12
-// transmit power configuration for RegPaConfig
-#define SX1272_PAC_PA_SELECT_PA_BOOST 0x80
-#define SX1272_PAC_PA_SELECT_RFIO_PIN 0x00
 
-
-// sx1276 RegModemConfig1
-#define SX1276_MC1_BW_125                0x70
-#define SX1276_MC1_BW_250                0x80
-#define SX1276_MC1_BW_500                0x90
-#define SX1276_MC1_CR_4_5            0x02
-#define SX1276_MC1_CR_4_6            0x04
-#define SX1276_MC1_CR_4_7            0x06
-#define SX1276_MC1_CR_4_8            0x08
-
-#define SX1276_MC1_IMPLICIT_HEADER_MODE_ON    0x01 
-                                                    
-// sx1276 RegModemConfig2          
-#define SX1276_MC2_RX_PAYLOAD_CRCON        0x04
-
-// sx1276 RegModemConfig3          
-#define SX1276_MC3_LOW_DATA_RATE_OPTIMIZE  0x08
-#define SX1276_MC3_AGCAUTO                 0x04
-
-// preamble for lora networks (nibbles swapped)
-#define LORA_MAC_PREAMBLE                  0x34
-
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG1 0x0A
-#if CFG_RADIO == SX1276
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG2 0x70
-#else 
-#define RXLORA_RXMODE_RSSI_REG_MODEM_CONFIG2 0x74
-#endif
-
+// sync word for lora networks (nibbles swapped)
+#define LORA_MAC_SYNC           0x34
 
 
 // ---------------------------------------- 
 // Constants for radio registers
 #define OPMODE_LORA      0x80
-#define OPMODE_MASK      0x07
-#define OPMODE_SLEEP     0x00
-#define OPMODE_STANDBY   0x01
-#define OPMODE_FSTX      0x02
-#define OPMODE_TX        0x03
-#define OPMODE_FSRX      0x04
-#define OPMODE_RX        0x05
-#define OPMODE_RX_SINGLE 0x06 
-#define OPMODE_CAD       0x07 
+#define OPMODE_LOWFREQ   0x08
+#define OPMODE_MODE_MASK      0x07
+
+#define LORA_CONFIG1_BW_MASK    0xF0
+#define LORA_CONFIG1_BW_SHIFT   4
+#define LORA_CONFIG1_CR_MASK    0x0E
+#define LORA_CONFIG1_CR_SHIFT   1
+#define LORA_CONFIG1_IMPLICIT_HEADER   0x01
+
+#define LORA_CONFIG2_SF_MASK    0xF0
+#define LORA_CONFIG2_SF_SHIFT   4
+#define LORA_CONFIG2_CRC_ON     0x04
+
+#define LORA_CONFIG3_LOW_DATA_RATE   0x08
+#define LORA_CONFIG3_AGC_ON          0x04
+
+#define LORA_DETECTIONTHRESH_SF7_TO_SF12            0x0A // Default
+#define LORA_DETECTIONTHRESH_SF6                    0x0C
+
+#define LORA_DETECTIONOPTIMIZE_MASK                 0x07
+#define LORA_DETECTIONOPTIMIZE_SF7_TO_SF12          0x03 // Default
+#define LORA_DETECTIONOPTIMIZE_SF6                  0x05
+
+// transmit power configuration for RegPaConfig
+#define PACONFIG_PA_BOOST       0x80
+#define PACONFIG_MAXPOWER_MASK  0x70
+#define PACONFIG_MAXPOWER_SHIFT 4
+#define PACONFIG_OUTPOWER_MASK  0x0F
+#define PACONFIG_OUTPOWER_SHIFT 0
+                                                    
+
 
 // ----------------------------------------
 // Bits masking the corresponding IRQs from the radio
@@ -232,7 +203,6 @@
 #define RF_IMAGECAL_AUTOIMAGECAL_ON                 0x80
 #define RF_IMAGECAL_AUTOIMAGECAL_OFF                0x00  // Default
 
-#define RF_IMAGECAL_IMAGECAL_MASK                   0xBF
 #define RF_IMAGECAL_IMAGECAL_START                  0x40
 
 #define RF_IMAGECAL_IMAGECAL_RUNNING                0x20

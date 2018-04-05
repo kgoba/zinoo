@@ -10,6 +10,9 @@
 
 #include "mag3110.h"
 #include "mpl3115.h"
+#include "rfm96.h"
+
+#include "settings.h"
 
 #include <ptlib/ptlib.h>
 #include <ptlib/queue.h>
@@ -29,11 +32,16 @@ MPL3115     baro(bus_i2c);
 DigitalOut<PB_12> statusLED;
 DigitalOut<PB_15> buzzerOn;
 
-SPI<SPI1, PB_5, PB_4, PB_3> bus_spi;
+SPI_T<SPI1, PB_5, PB_4, PB_3> bus_spi;
 DigitalOut<PA_9>  loraRST;
 DigitalOut<PA_10> loraSS;
 
 GPSParserSimple gps;
+
+RFM96 radio;
+
+AppSettings gSettings;
+AppState    gState;
 
 void print(char c) {
     usb_cdc_write((const uint8_t *) &c, 1);
@@ -98,7 +106,7 @@ void rcc_setup_hsi16_out_16mhz() {
     rcc_apb2_frequency = 16 * 1000000UL;
 }
 
-void setup() {
+void setup() {    
     // default clock after reset = MSI 2097 kHz
     rcc_setup_hsi16_out_16mhz();
 
@@ -106,7 +114,8 @@ void setup() {
     rcc_periph_clock_enable(RCC_PWR);
 
     systick_setup();    // enable millisecond counting
-    //delay(1);           // seems to be necessary for the following delays to work properly
+
+    gSettings.reset();
 
     usb_setup();
     usb_enable_interrupts();
@@ -119,22 +128,28 @@ void setup() {
     //bus_i2c.enableNACKInterrupt();
 
     bus_spi.begin();
-    bus_spi.format(8, 3);
+    bus_spi.format(8, 0);
     bus_spi.frequency(4000000);
 
     statusLED.begin();
     buzzerOn.begin();
+    loraRST.begin(1);
+    loraSS.begin(1);
 
-    loraRST.begin();
-    loraSS.begin();
-    loraSS = 1;
-    delay(1);
-    loraRST = 1;
-    delay(100);
+    delay(100);         // seems to be necessary for the following delays to work properly
+
+    radio.init();
+    radio.setupLoRa(RFM96::ModemSettings().setSF(RFM96::eSF_10));
+    radio.setFrequencyHz(gSettings.radio_frequency);
+    radio.setTXPower(gSettings.radio_tx_power);
 
     statusLED = buzzerOn = 1;
     delay(250);
     statusLED = buzzerOn = 0;
+
+    // Set GNSS platform type (e.g. airborne 1g)
+    ublox_set_dyn_mode((ublox_dyn_t)gSettings.ublox_platform_type);
+    delay(100); // FIXME: should wait for ACK from u-blox
 
     // Configure PPS to flash at 5Hz w/o lock, 1Hz w/ lock
     ublox_cfg_tp5(5, 1, 1 << 31, 1 << 29, true, false);
@@ -156,91 +171,53 @@ void query_i2c_devices() {
 }
 
 void query_mag() {
-    static bool initialized;
+    if (!gState.mag_initialized) 
+        return;
 
-    if (!initialized) {
-        if (mag.initialize()) {
-            print("MAG3110 initialized\n");
-            // Approx 25 ms sampling time
-            mag.reset(MAG3110::eRATE_1280, MAG3110::eOSR_32);       
-            initialized = true;
-        }
-        else {
-            print("MAG3110 not initialized\n");
-        }
-    }
-    else {
-        uint32_t start = millis();
-        mag.trigger();
-        while (millis() - start < 100) {
-            if (mag.dataReady()) {
-                uint32_t time = millis() - start;
-                char buf[40];
-                int x, y, z;
-                mag.readMag(x, y, z);
-                int t = mag.readTemperature();
-                sprintf(buf, "Read [%d %d %d], %dC (%ld ms)\n", x, y, z, t, time);
-                print(buf);
-                break;
-            }
-        }
-    }
+    uint32_t age = millis() - gState.last_mag_time;
+    print("Magn: [%d %d %d], %dC (%ld ms)\n", 
+        gState.last_mx, gState.last_my, gState.last_mz, 
+        gState.last_temp_mag, 
+        age
+    );
 }
 
 void query_baro() {
-    static bool initialized;
+    if (!gState.baro_initialized)
+        return;
 
-    if (!initialized) {
-        if (baro.initialize()) {
-            print("MPL3115 initialized\n");
-            // Approx 50 ms sampling time
-            baro.reset(MPL3115::eOSR_16);
-            initialized = true;
-        } else {
-            print("MPL3115 not initialized\n");
-        }
-    }
-    else {
-        uint32_t start = millis();
-        baro.trigger();
-        while (true) {
-            if (millis() - start >= 100) {
-                print("Timeout\n");
-                break;
-            }
-            if (baro.dataReady()) {
-                uint32_t time = millis() - start;
-                char buf[40];
-                uint32_t p;
-                int16_t  t;
-                baro.readPressure_28q4(p);
-                baro.readTemperature_12q4(t);
-                sprintf(buf, "Read %dPa %d.%1dC (%ld ms)\n", (p + 8) / 16, t / 16, ((t % 16) * 10 + 8) / 16, time);
-                print(buf);
-                break;
-            }
-        }
-    }
+    uint32_t age = millis() - gState.last_baro_time;
+    print("Baro: %dPa, %d.%1dC (%ld ms)\n", 
+        (gState.last_pressure + 8) / 16, 
+        gState.last_temp_baro / 16, 
+        ((gState.last_temp_baro % 16) * 10 + 8) / 16, 
+        age
+    );
 }
 
 void query_lora() {
     print("Checking LoRa...\n");
-    uint8_t reg;
-    uint8_t value;
-    char buf[16];
 
-    for (reg = 0; reg < 0x40; reg++) {
-        loraSS = 0;
-        bus_spi.write(reg);
-        value = bus_spi.write(0);
-        while (bus_spi.is_busy()) ; 
-        loraSS = 1;
-        print("  Reg[%02Xh] = %02Xh\n", reg, value);
+    uint8_t regs[] = { 0x01, 0x12, 0x0D, 0x11, 0x22 };
+    const char *names[] = {"OpMode", "IRQFlags", "FifoAddr", "IrqMask", "PayloadLength" };
+
+    for (uint8_t idx = 0; idx < 2; idx++) {
+        uint8_t value = radio.readReg(regs[idx]);
+        print("  [%d] (%s) = %02Xh\n", regs[idx], names[idx], value);
     }
+
+    // for (reg = 0; reg < 0x40; reg++) {
+    //     loraSS = 0;
+    //     bus_spi.write(reg);
+    //     value = bus_spi.write(0);
+    //     while (bus_spi.is_busy()) ; 
+    //     loraSS = 1;
+    //     print("  Reg[%02Xh] = %02Xh\n", reg, value);
+    // }
 }
 
 void print_report() {
-    //query_lora();
+    query_lora();
     query_mag();
     query_baro();
     query_i2c_devices();
@@ -286,8 +263,6 @@ void print_report() {
     }    
 }
 
-uint8_t gps_mode;
-
 void console_parse(const char *line) {
     bool cmd_ok = false;
     if (0 == strcmp(line, "gps_off")) {
@@ -297,12 +272,12 @@ void console_parse(const char *line) {
     else if (0 == strcmp(line, "gps_on")) {
         ublox_powermode(ePM_POWERON);
         delay(100);
-        gps_mode = 0;
+        gState.gps_raw_mode = false;
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "gps_rst")) {
         ublox_reset();
-        gps_mode = 0;
+        gState.gps_raw_mode = false;
         cmd_ok = true;
     }
     // else if (0 == strcmp(line, "nmea")) {
@@ -311,7 +286,7 @@ void console_parse(const char *line) {
     // }
     else if (0 == strcmp(line, "gps_raw")) {
         gps_send_nmea("PUBX,41,1,0001,0001,9600,0");
-        gps_mode = 1;
+        gState.gps_raw_mode = true;
         delay(100);
         ublox_enable_trkd5();
         delay(10);
@@ -338,14 +313,42 @@ void console_parse(const char *line) {
         ublox_set_dyn_mode(eDYN_PORTABLE);
         cmd_ok = true;
     }
+    else if (0 == strcmp(line, "lora_test")) {
+        uint8_t test_data[64];
+        radio.setTXPower(5);
+        radio.writeFIFO(test_data, sizeof(test_data));
+        radio.startTX();
+        cmd_ok = true;
+    }
+    else if (0 == strcmp(line, "lora_test2")) {
+        uint8_t test_data[64];
+        radio.setTXPower(23);
+        radio.writeFIFO(test_data, sizeof(test_data));
+        radio.startTX();
+        cmd_ok = true;
+    }
+    else if (0 == strcmp(line, "mag_cal")) {
+        gState.mag_cal_enabled = true;
+        gState.mag_cal_start = millis();
+        cmd_ok = true;
+    }
     if (cmd_ok) print(line);
     else print("?");
+}
+
+void buzz_times(int times) {
+    for (int i = 0; i < times; i++) {
+        buzzerOn = 1;
+        delay(100);
+        buzzerOn = 0;
+        delay(100);
+    }
 }
 
 void task_gps_decode() {
     uint8_t ch;
     if (usart_gps.getc(ch)) {
-        if (gps_mode == 1) {
+        if (gState.gps_raw_mode == 1) {
             print("%02X ", ch);
         }
         else if (gps.decode(ch)) {
@@ -353,15 +356,34 @@ void task_gps_decode() {
         }
     }
 
-    static bool first_fix;
-    if (!first_fix && gps.fixType().is3D()) {
-        first_fix = true;
-        print("Time to first 3D fix: %ld seconds\n", millis() / 1000);
-        for (int i = 0; i < 3; i++) {
-            buzzerOn = 1;
-            delay(100);
-            buzzerOn = 0;
-            delay(100);
+    static bool fix_3d;
+    static bool fix_2d;
+    static uint32_t time_lost;
+
+    if (gps.fixType().atLeast2D()) {
+        if (gps.fixType().is3D()) {
+            if (!fix_3d) {
+                print("Time to 3D fix: %ld seconds\n", (millis() - time_lost) / 1000);
+                fix_3d = true;
+                fix_2d = false;
+                buzz_times(3);
+            }
+        } 
+        else {
+            if (!fix_2d) {
+                print("Time to 2D fix: %ld seconds\n", (millis() - time_lost) / 1000);
+                fix_2d = true;
+                fix_3d = false;
+                buzz_times(2);
+            }
+        }
+    }
+    else {
+        if (fix_2d || fix_3d) {
+            time_lost = millis();
+            fix_2d = false;
+            fix_3d = false;
+            buzz_times(1);
         }
     }
 }
@@ -382,8 +404,7 @@ void task_console() {
             if (rx_len > 0) {
                 console_parse(rx_line);
                 print("\r\n");
-            }
-            else {
+            } else {
                 print_report();
             }
             print("> ");
@@ -419,11 +440,80 @@ void task_led_blink() {
     }    
 }
 
+void task_sensors() {
+    //static uint32_t next_baro;
+    //static uint32_t next_mag;
+
+    static int      cal_mx_max, cal_mx_min, cal_my_min, cal_my_max, cal_mz_min, cal_mz_max;
+    static int      cal_count;
+
+    if (!gState.baro_initialized) {
+        if (baro.initialize()) {
+            // Approx 50 ms sampling time
+            baro.reset(MPL3115::eOSR_16);
+            gState.baro_initialized = true;
+            baro.trigger();
+        }
+    }
+    else if (baro.dataReady()) {
+        gState.last_baro_time = millis();
+        baro.readPressure_u28q4(gState.last_pressure);
+        baro.readTemperature_12q4(gState.last_temp_baro);
+
+        // trigger a new conversion
+        baro.trigger();
+    }
+
+    if (!gState.mag_initialized) {
+        if (mag.initialize()) {
+            // Approx 25 ms sampling time
+            mag.reset(MAG3110::eRATE_1280, MAG3110::eOSR_32);       
+            gState.mag_initialized = true;
+            mag.trigger();
+        }
+    }
+    else if (mag.dataReady()) {
+        gState.last_mag_time = millis();
+        mag.readMag(gState.last_mx, gState.last_my, gState.last_mz);
+        mag.readTemperature(gState.last_temp_mag);
+
+        if (gState.mag_cal_enabled) {
+            if (cal_count == 0 || gState.last_mx > cal_mx_max) cal_mx_max = gState.last_mx;
+            if (cal_count == 0 || gState.last_my > cal_my_max) cal_my_max = gState.last_my;
+            if (cal_count == 0 || gState.last_mz > cal_mz_max) cal_mz_max = gState.last_mz;
+            if (cal_count == 0 || gState.last_mx < cal_mx_min) cal_mx_min = gState.last_mx;
+            if (cal_count == 0 || gState.last_my < cal_my_min) cal_my_min = gState.last_my;
+            if (cal_count == 0 || gState.last_mz < cal_mz_min) cal_mz_min = gState.last_mz;
+            cal_count++;
+            if (cal_count >= 1000) {
+                gState.mag_cal_enabled = false;
+                mag.setOffset(MAG3110::eX_AXIS, (cal_mx_min + cal_mx_max) / 2);
+                mag.setOffset(MAG3110::eY_AXIS, (cal_my_min + cal_my_max) / 2);
+                mag.setOffset(MAG3110::eZ_AXIS, (cal_mz_min + cal_mz_max) / 2);
+                buzz_times(4);
+            }
+        }
+
+        // trigger a new conversion
+        mag.trigger();
+    }
+}
+
 void loop() {
     task_gps_decode();
     task_console();
     task_report();
+    task_sensors();
     task_led_blink();
+
+    // TODO: 
+    // - better buzzer/LED indication
+    // - mag calibration, EEPROM save
+    // - UKHAS packet forming, regular TX
+    // - check arm/safe status, pyro activation
+    // - simple SPI flash logging
+    // - battery/pyro voltage sensing
+    // - timer-based mag/baro polling
 }
 
 int main() {
@@ -433,6 +523,16 @@ int main() {
         loop();
     }
 }
+
+typedef struct {
+    uint16_t    address;    // 7/10 bit address
+    uint8_t     type;       // read/write, stop/continue
+    uint8_t     status;     // busy/complete/error
+    uint8_t     *rx_buf;
+    uint8_t     *tx_buf;
+    uint16_t    rx_len;
+    uint16_t    tx_len;
+} i2c_request_t;
 
 extern "C" {
     // void i2c1_isr(void) {
