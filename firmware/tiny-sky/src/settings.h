@@ -2,6 +2,7 @@
 
 #include "systick.h"
 #include "ublox.h"
+#include "telemetry.h"
 
 // To be stored in NVM
 struct AppSettings {
@@ -26,11 +27,14 @@ struct AppSettings {
     uint8_t     ublox_platform_type;  // portable/airborne 1g/etc
 
     // Non-user-editable settings (calibration data)
-    int16_t     mag_y_offset;
+    int16_t     mag_y_min;
+    int16_t     mag_y_max;
 
     void reset();
     void save();
     void restore();
+
+    //static AppSettings object;
 };
 
 // Runtime application state that is shared between tasks
@@ -39,16 +43,26 @@ struct AppState {
 
     bool    baro_initialized;
     bool    mag_initialized; 
+    bool    gyro_initialized;
 
     bool    mag_cal_enabled;
     systime_t mag_cal_start;
 
     uint32_t last_baro_time;
     uint32_t last_mag_time;
+    uint32_t last_gyro_time;
+
     uint32_t last_pressure;
     int16_t  last_temp_baro;
     int      last_temp_mag;
+    int      last_temp_gyro;
     int      last_mx, last_my, last_mz;
+    int      last_wx, last_wy, last_wz;
+    int      last_ax, last_ay, last_az;
 
     bool     is_armed;
+
+    TeleMessage telemetry;
 };
+
+int eeprom_write(uint32_t address, uint32_t *data, int length_in_words);

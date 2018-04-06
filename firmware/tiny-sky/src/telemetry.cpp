@@ -1,7 +1,9 @@
 #include "telemetry.h"
 
-#include "cstdio"
+#include <cstdio>
+#include <cstdlib>
 
+#include "strconv.h"
 
 // void TeleMessage::restore() {
 //     uint16_t test;
@@ -32,23 +34,28 @@
 // }
 
 // /// Constructs payload message and transmits it via radio
-// bool TeleMessage::build_string(char *buf, uint8_t buf_len) {
-//     char lat_str[11];
-//     char lng_str[11];
+bool TeleMessage::build_string(char *buf, int &buf_len) {
+    char lat_str[12];
+    char lng_str[12];
+    char alt_str[8];
 
-//     if (fixValid) {
-//         dtostrf(lat, 0, 5, lat_str);
-//     } else {
-//         lat_str[0] = '\0';  // Empty latitude field in case fix is invalid
-//     }
-//     if (fixValid) {
-//         dtostrf(lng, 0, 5, lng_str);        
-//     } else {
-//         lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
-//     }
+    if (fixValid) {
+        int lat_degrees = lat;
+        int lat_fraction = abs((int)(0.5f + (lat - lat_degrees) * 100000));
 
-//     uint8_t pyro_percent = 0.5f + 100 * pyro_voltage / 2.7;
-//     if (pyro_percent > 100) pyro_percent = 100;
+        int lng_degrees = lng;
+        int lng_fraction = abs((int)(0.5f + (lng - lng_degrees) * 100000));
+        sprintf(lat_str, "%d.%05d", lat_degrees, lat_fraction);
+        sprintf(lng_str, "%d.%05d", lng_degrees, lng_fraction);
+        sprintf(alt_str, "%d", (int)(0.5f + alt));
+    } else {
+        lat_str[0] = '\0';  // Empty latitude field in case fix is invalid
+        lng_str[0] = '\0';  // Empty longitude field in case fix is invalid
+        alt_str[0] = '\0';  // Empty altitude field
+    }
+
+    //uint8_t pyro_percent = 0.5f + 100 * pyro_voltage / 2.7;
+    //if (pyro_percent > 100) pyro_percent = 100;
 //     //char vpyro_str[11];
 //     //dtostrf(100 * pyro_voltage / 2.7, 0, 0, vpyro_str);
 
@@ -58,31 +65,36 @@
 //     rssi_str[0] = 'S';
 //     rssi_str[1] = (rssi_slevel < 10) ? ('0' + rssi_slevel) : '+';
 //     rssi_str[2] = '\0';
+    char pyro_voltage_str[5];
+    char battery_voltage_str[5];
 
-//     char status_str[16];
+    //dtostrf(pyro_voltage, 0, 2, pyro_voltage_str);
+    //dtostrf(battery_voltage, 0, 2, battery_voltage_str);
 
-//     uint8_t tmp = 0;
-//     if (switch_state & 8) status_str[tmp++] = 'B';  // Burst
-//     if (switch_state & 4) status_str[tmp++] = 'I';  // Ignite
-//     if (switch_state & 2) status_str[tmp++] = 'C';  // Camera
-//     if (switch_state & 1) status_str[tmp++] = 'A';  // Aux
-//     //if (tmp == 0) status_str[tmp++] = '-';
-//     if (tmp != 0) status_str[tmp++] = ' ';
-//     status_str[tmp] = '\0';
+    char status_str[4];
 
-//     snprintf(status_str + tmp, 16 - tmp, "%u %s %u",
-//         msg_recv, rssi_str, pyro_percent
-//     );
-        
-//     // Build partial UKHAS sentence (without $$ and checksum)
-//     // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-//     int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%u,%u,%d,%s",
-//         CALLSIGN, msg_id,
-//         hour(), minute(), second(),
-//         lat_str, lng_str, alt, 
-//         n_sats, 
-//         temperature_ext, status_str
-//     );
+    uint8_t tmp = 0;
+    if (pyro_state & 1) status_str[tmp++] = '1';  // Pyro 1
+    if (pyro_state & 2) status_str[tmp++] = '2';  // Pyro 2
+    if (tmp == 0) status_str[tmp++] = '-';
+    //if (tmp != 0) status_str[tmp++] = ' ';
+    status_str[tmp] = '\0';
+    
+    // Build partial UKHAS sentence (without $$ and checksum)
+    // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
+    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%s,%d,%d,%s", 
+        callsign, msg_id,
+        hour, minute, second,
+        lat_str, lng_str, alt_str, n_sats,
+        temperature_int, 
+        //pyro_voltage_str, battery_voltage_str,
+        status_str
+    );
 
-//     return (buf_req < buf_len); // true if buf had sufficient space
-// }
+    if (buf_req < buf_len) {
+        buf_len = buf_req;
+        return true;
+    }
+    return false;
+    //return (buf_req < buf_len); // true if buf had sufficient space
+}

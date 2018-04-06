@@ -6,7 +6,7 @@
 
 class LSM6DS33 : protected I2CDeviceBase {
 public:
-    LSM6DS33(I2CBase &bus) : I2CDeviceBase(bus, 0x60) {}
+    LSM6DS33(I2CBase &bus) : I2CDeviceBase(bus, 0x6B) {}
 
     enum odr_xl_t {
         eODR_XL_POWERDOWN = 0,

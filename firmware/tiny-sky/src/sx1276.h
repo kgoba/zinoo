@@ -8,6 +8,8 @@ public:
     uint8_t readReg (uint8_t addr);
     void writeBuf (uint8_t addr, const uint8_t * buf, uint8_t len);
     void readBuf (uint8_t addr, uint8_t * buf, uint8_t len);
+    void writeCommand (uint8_t cmd);
+    void writeCommand (uint8_t cmd, const uint8_t *data_out, int size_out, uint8_t *data_in, int size_in);
 
 protected:
     // Abstract virtual methods to be implemented in a subclass
@@ -82,6 +84,8 @@ public:
 
         static ModemSettings defaults() { return ModemSettings(); }
         ModemSettings & setSF(sf_t new_sf) { spreading_factor = new_sf; return *this; }
+        ModemSettings & setBW(bw_t new_bw) { bandwidth = new_bw; return *this; }
+        ModemSettings & setCR(cr_t new_cr) { coding_rate = new_cr; return *this; }
     };
 
     void init(void);

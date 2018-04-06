@@ -26,6 +26,25 @@ uint8_t SPIDeviceBase::readReg (uint8_t addr) {
     return val;
 }
 
+void SPIDeviceBase::writeCommand (uint8_t command) {
+    hal_pin_nss(0);
+    hal_spi_transfer(command);
+    hal_pin_nss(1);
+}
+
+void SPIDeviceBase::writeCommand (uint8_t cmd, const uint8_t *data_out, int size_out, uint8_t *data_in, int size_in)
+{
+    hal_pin_nss(0);
+    hal_spi_transfer(cmd);
+    for (uint8_t i = 0; i < size_out; i++) {
+        hal_spi_transfer(data_out[i]);
+    }
+    for (uint8_t i = 0; i < size_in; i++) {
+        data_in[i] = hal_spi_transfer(0x00);
+    }
+    hal_pin_nss(1);    
+}
+
 void SPIDeviceBase::writeBuf (uint8_t addr, const uint8_t * buf, uint8_t len) {
     hal_pin_nss(0);
     hal_spi_transfer(addr | 0x80);

@@ -91,7 +91,7 @@ const char * u32tostr(uint32_t value, int width, char *str, bool leading_zeros) 
                 leading_zeros = true;
             }
         }
-        if (leading_zeros) {
+        if (leading_zeros || divisor == 1) {
             c = ('0' + digit);
         }
         if (c) {
@@ -144,4 +144,8 @@ const char * ftostr(float value, int width, int precision, char *str, bool leadi
         i32tostr((int32_t)(value + 0.5f), width, ptr, leading_zeros);
     }
     return str;
+}
+
+const char * dtostrf(float value, int width, int precision, char *str) {
+    return ftostr(value, width, precision, str);
 }

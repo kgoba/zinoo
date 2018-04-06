@@ -96,9 +96,9 @@ struct GPSFix {
         HMSTime() : Field() {}
         HMSTime(const char *str) { parse(str); }
 
-        uint8_t hours()   const { return _hrs; }
-        uint8_t minutes() const { return _min; }
-        uint8_t seconds() const { return _sec; }
+        uint8_t hour()   const { return _hrs; }
+        uint8_t minute() const { return _min; }
+        uint8_t second() const { return _sec; }
         uint32_t totalSeconds() const { return ((_hrs * 60ul) + _min) * 60ul + _sec; }
         float    dayFraction()  const { return totalSeconds() / (24 * 3600.0f); }
 
