@@ -45,6 +45,68 @@ RFM96 radio;
 AppSettings gSettings;
 AppState    gState;
 
+extern "C" {
+    #include "lfs.h"
+
+    int spi_flash_lfs_read(const struct lfs_config *c, lfs_block_t block, 
+        lfs_off_t off, void *buffer, lfs_size_t size);
+
+    int spi_flash_lfs_prog(const struct lfs_config *c, lfs_block_t block, 
+        lfs_off_t off, const void *buffer, lfs_size_t size);
+
+    int spi_flash_lfs_erase(const struct lfs_config *c, lfs_block_t block);
+
+    int spi_flash_lfs_sync(const struct lfs_config *c);
+}
+
+uint8_t lfs_read_buffer[16];
+uint8_t lfs_prog_buffer[16];
+uint8_t lfs_lookahead_buffer[16];
+uint8_t lfs_file_buffer[16];
+
+// configuration of the filesystem is provided by this struct
+const lfs_config cfg = {
+    .context = 0,
+
+    // block device operations
+    .read  = spi_flash_lfs_read,
+    .prog  = spi_flash_lfs_prog,
+    .erase = spi_flash_lfs_erase,
+    .sync  = spi_flash_lfs_sync,
+
+    // block device configuration
+    .read_size = 16,
+    .prog_size = 16,
+    .block_size = 4096,
+    .block_count = 128,
+    .lookahead = 128,
+
+    .read_buffer = lfs_read_buffer,
+    .prog_buffer = lfs_prog_buffer,
+    .lookahead_buffer = lfs_lookahead_buffer,
+    .file_buffer = lfs_file_buffer
+};
+
+lfs_t lfs;
+
+int spi_flash_lfs_read(const struct lfs_config *c, lfs_block_t block, 
+    lfs_off_t off, void *buffer, lfs_size_t size) {
+    return -1;
+}
+
+int spi_flash_lfs_prog(const struct lfs_config *c, lfs_block_t block, 
+    lfs_off_t off, const void *buffer, lfs_size_t size) {
+    return -1;
+}
+
+int spi_flash_lfs_erase(const struct lfs_config *c, lfs_block_t block) {
+    return -1;
+}
+
+int spi_flash_lfs_sync(const struct lfs_config *c) {
+    return -1;
+}
+
 void print(char c) {
     usb_cdc_write((const uint8_t *) &c, 1);
 }
@@ -160,6 +222,30 @@ void setup() {
     // );
     radio.setFrequencyHz(gSettings.radio_frequency);
     radio.setTXPower(gSettings.radio_tx_power);
+
+    // mount the filesystem
+    int err = lfs_mount(&lfs, &cfg);
+
+    // reformat if we can't mount the filesystem
+    // this should only happen on the first boot
+    if (err) {
+        lfs_format(&lfs, &cfg);
+        lfs_mount(&lfs, &cfg);
+    }
+
+    // lfs_file_t file;
+    // // read current count
+    // uint32_t boot_count = 0;
+    // lfs_file_open(&lfs, &file, "boot_count", LFS_O_RDWR | LFS_O_CREAT);
+    // lfs_file_read(&lfs, &file, &boot_count, sizeof(boot_count));
+
+    // // update boot count
+    // boot_count += 1;
+    // lfs_file_rewind(&lfs, &file);
+    // lfs_file_write(&lfs, &file, &boot_count, sizeof(boot_count));
+
+    // // remember the storage is not updated until the file is closed successfully
+    // lfs_file_close(&lfs, &file);
 
     statusLED = buzzerOn = 1;
     delay(250);
@@ -365,9 +451,10 @@ void buzz_times(int times) {
     }
 }
 
-void task_gps_decode() {
+systime_t task_gps(systime_t due_time) {
     uint8_t ch;
-    if (usart_gps.getc(ch)) {
+    while (usart_gps.getc(ch)) {
+        if (millis() - due_time > 10) break;
         if (gState.gps_raw_mode == 1) {
             print("%02X ", ch);
         }
@@ -376,52 +463,55 @@ void task_gps_decode() {
         }
     }
 
-    static bool platform_updated;
-    if (!platform_updated && millis() > 5000) {
-        // Set GNSS platform type (e.g. airborne 1g)
-        ublox_set_dyn_mode((ublox_dyn_t)gSettings.ublox_platform_type);
+    // static bool platform_updated;
+    // if (!platform_updated && millis() > 5000) {
+    //     // Set GNSS platform type (e.g. airborne 1g)
+    //     ublox_set_dyn_mode((ublox_dyn_t)gSettings.ublox_platform_type);
 
-        platform_updated = true;
-    }
+    //     platform_updated = true;
+    // }
 
-    static bool fix_3d;
-    static bool fix_2d;
-    static uint32_t time_lost;
+    // static bool fix_3d;
+    // static bool fix_2d;
+    // static uint32_t time_lost;
 
-    if (gps.fixType().atLeast2D()) {
-        if (gps.fixType().is3D()) {
-            if (!fix_3d) {
-                print("Time to 3D fix: %ld seconds\n", (millis() - time_lost) / 1000);
-                fix_3d = true;
-                fix_2d = false;
-                buzz_times(3);
-            }
-        } 
-        else {
-            if (!fix_2d) {
-                print("Time to 2D fix: %ld seconds\n", (millis() - time_lost) / 1000);
-                fix_2d = true;
-                fix_3d = false;
-                buzz_times(2);
-            }
-        }
-    }
-    else {
-        if (fix_2d || fix_3d) {
-            time_lost = millis();
-            fix_2d = false;
-            fix_3d = false;
-            buzz_times(1);
-        }
-    }
+    // if (gps.fixType().atLeast2D()) {
+    //     if (gps.fixType().is3D()) {
+    //         if (!fix_3d) {
+    //             print("Time to 3D fix: %ld seconds\n", (millis() - time_lost) / 1000);
+    //             fix_3d = true;
+    //             fix_2d = false;
+    //             buzz_times(3);
+    //         }
+    //     } 
+    //     else {
+    //         if (!fix_2d) {
+    //             print("Time to 2D fix: %ld seconds\n", (millis() - time_lost) / 1000);
+    //             fix_2d = true;
+    //             fix_3d = false;
+    //             buzz_times(2);
+    //         }
+    //     }
+    // }
+    // else {
+    //     if (fix_2d || fix_3d) {
+    //         time_lost = millis();
+    //         fix_2d = false;
+    //         fix_3d = false;
+    //         buzz_times(1);
+    //     }
+    // }
+
+    return due_time + 100;
 }
 
-void task_console() {
+systime_t task_console(systime_t due_time) {
     static char rx_line[80];
     static int  rx_len;
     uint8_t ch;
 
-    if (usb_cdc_read((uint8_t *)&ch, 1)) {
+    while (usb_cdc_read((uint8_t *)&ch, 1)) {
+        if (millis() - due_time > 5) break;
         print(ch);
         if (rx_len < 79 && ch != 0x0A && ch != 0x0D) {
             rx_line[rx_len] = ch;
@@ -439,24 +529,22 @@ void task_console() {
             rx_len = 0;
         }
     }
+
+    return due_time + 50;
 }
 
-void task_report() {
-    static uint32_t nextReport;
-
-    if (millis() >= nextReport) {
-        nextReport += 5 * 1000ul;
-        //print_report();
-
+systime_t task_report(systime_t due_time) {
+    if (gps.fixTime().valid()) {
         uint8_t packet_data[64];
         int     packet_length = 64;
         
         memcpy(gState.telemetry.callsign, gSettings.radio_callsign, 16);
         gState.telemetry.msg_id++;
-        gState.telemetry.fixValid = gps.fixType().is3D();
-        gState.telemetry.lat = gps.latitude().degreesSignedFloat();
-        gState.telemetry.lng = gps.longitude().degreesSignedFloat();
-        gState.telemetry.alt = gps.altitude().meters();
+        if (gState.telemetry.fixValid = gps.fixType().is3D()) {
+            gState.telemetry.lat = gps.latitude().degreesSignedFloat();
+            gState.telemetry.lng = gps.longitude().degreesSignedFloat();
+            gState.telemetry.alt = gps.altitude().meters();
+        }
         gState.telemetry.n_sats = gps.tracked().value();
         gState.telemetry.hour = gps.fixTime().hour();
         gState.telemetry.minute = gps.fixTime().minute();
@@ -466,29 +554,45 @@ void task_report() {
             print("Telemetry: [%s]\n", (const char *)packet_data);
             radio.writeFIFO(packet_data, packet_length);
             radio.startTX();
-        }
+        }            
     }
+    return due_time + 5000;
 }
 
-void task_led_blink() {
-    static uint32_t nextOn;
-    static uint32_t nextOff;
+systime_t task_led_blink(systime_t due_time) {
+    static bool led_on;
 
-    if (millis() >= nextOn) {
+    if (!led_on) {
+        led_on = true;
         statusLED = 1;
-        nextOff = nextOn + 100;
-        if (gps.fixType().atLeast2D()) {
-            nextOn += (gps.fixType().is3D()) ? 1000 : 500;
-        } else {
-            nextOn += 200;
-        }
+        return due_time + 200;
     }
-    if (millis() >= nextOff) {
+    else {
+        led_on = false;
         statusLED = 0;
-    }    
+        if (gps.fixType().atLeast2D()) {
+            return due_time + (gps.fixType().is3D() ? 800 : 300);
+        }
+        return due_time + 200;
+    }
 }
 
-void task_sensors() {
+systime_t task_buzz(systime_t due_time) {
+    static bool buzzer_on;
+
+    if (!buzzer_on) {
+        buzzer_on = true;
+        buzzerOn = 1;
+        return due_time + 200;
+    }
+    else {
+        buzzer_on = false;
+        buzzerOn = 0;
+        return due_time + 800;
+    }
+}
+
+systime_t task_sensors(systime_t due_time) {
     static int      cal_my_min, cal_my_max;
     static int      cal_count;
 
@@ -557,33 +661,37 @@ void task_sensors() {
             //baro.trigger();
         }
     }
+
+    return due_time + 100;
 }
 
-void loop() {
-    task_gps_decode();
-    task_console();
-    task_report();
-    task_sensors();
-    task_led_blink();
-
-    // TODO: 
-    // - better buzzer/LED indication
-    // - mag calibration, EEPROM save
-    // - UKHAS packet forming, regular TX
-    // - check arm/safe status, pyro activation
-    // - simple SPI flash logging
-    // - battery/pyro voltage sensing
-    // - timer-based mag/baro polling
-    // - console parameter get/set
-}
+timer_task_t timer_tasks[6];
 
 int main() {
     setup();
 
+    add_task(&timer_tasks[0], task_led_blink);
+    add_task(&timer_tasks[1], task_console);
+    add_task(&timer_tasks[2], task_gps);
+    add_task(&timer_tasks[3], task_sensors);
+    add_task(&timer_tasks[4], task_report);
+    //add_task(&timer_tasks[5], task_buzz);
+
     while (1) {
-        loop();
+        schedule_tasks();
+        __asm("WFI");
     }
 }
+
+// TODO: 
+// - better buzzer/LED indication
+// - mag calibration, EEPROM save
+// - UKHAS packet forming, regular TX
+// - check arm/safe status, pyro activation
+// - simple SPI flash logging
+// - battery/pyro voltage sensing
+// - timer-based mag/baro polling
+// - console parameter get/set
 
 typedef struct {
     uint16_t    address;    // 7/10 bit address

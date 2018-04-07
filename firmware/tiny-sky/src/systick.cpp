@@ -58,3 +58,61 @@ extern "C" {
         system_millis++;
     }
 }
+
+static timer_task_t *first_task;
+
+static void insert_task(timer_task_t *task, systime_t due_time) {
+    task->due_time = due_time;
+    if (!first_task) {
+        first_task = task;
+        task->next = 0;
+        return;
+    }
+    timer_task_t *task_iter = first_task;
+    timer_task_t *task_iter_prev = 0;
+    while (task_iter) {
+        if (task_iter->due_time > task->due_time || 
+            (task_iter->due_time == task->due_time && task_iter->priority <= task->priority)) 
+        {
+            task->next = task_iter;
+            if (task_iter_prev) {
+                task_iter_prev->next = task;
+            }
+            else {
+                first_task = task;
+            }
+            return;
+        }
+        task_iter_prev = task_iter;
+        task_iter = task_iter->next;
+    }
+    // We should add the new item at the end
+    task_iter_prev->next = task;
+    task->next = 0;
+}
+
+void add_task(timer_task_t *task, timer_routine_t routine, systime_t due_time, int priority) {
+    task->routine = routine;
+    task->priority = priority;
+    insert_task(task, due_time);
+}
+
+void schedule_tasks() {
+    if (!first_task) return;
+    if (millis() >= first_task->due_time) {
+        systime_t due_time = first_task->routine(first_task->due_time);
+        timer_task_t *task = first_task;
+
+        // Remove task from the queue
+        first_task = first_task->next;
+        task->next = 0;
+        //if (first_task) {
+            //first_task->prev = 0;
+        //}
+
+        if (1) {
+            // Reschedule the task in the queue
+            insert_task(task, due_time);
+        }
+    }
+}

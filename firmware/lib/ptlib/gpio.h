@@ -218,6 +218,10 @@ public:
     static void begin() {
         Pin::setupOutput();
     }
+    static void begin(uint16_t value) {
+        Pin::setupOutput();
+        write(value);
+    }
     static void set() {
         Pin::set();
     }

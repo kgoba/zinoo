@@ -47,7 +47,7 @@ Queue<uint8_t,  rx_queue_size> BufferedSerial<Base, rx_queue_size, tx_queue_size
 template<typename Base, int rx_queue_size, int tx_queue_size>
 Queue<uint8_t,  tx_queue_size> BufferedSerial<Base, rx_queue_size, tx_queue_size>::txQueue;
 
-typedef BufferedSerial<USART<USART1, PB_6, PB_7>, 200, 64> SerialGPS;
+typedef BufferedSerial<USART<USART1, PB_6, PB_7>, 128, 64> SerialGPS;
 // USART<USART1, PB_6, PB_7> usart_gps;
 
 struct OutRawStreamBase {

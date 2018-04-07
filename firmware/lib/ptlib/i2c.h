@@ -177,7 +177,9 @@ public:
 		i2c_enable_autoend(i2c);
 
 		for (size_t i = 0; i < length; i++) {
-			while (i2c_received_data(i2c) == 0) {}
+			while (!i2c_received_data(i2c)) {
+                if (i2c_nack(i2c)) return -1;
+            }
 			data[i] = i2c_get_data(i2c);
 		}
         return 0;   // success

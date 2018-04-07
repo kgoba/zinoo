@@ -1,8 +1,10 @@
 OPENCM3_DIR     = ../lib/libopencm3
 
-SRC             = $(wildcard src/*.c)
+SRC         = $(wildcard src/*.c)
 SRC_PP		= $(wildcard src/*.cpp)
 OBJS		= $(patsubst %.c,%.o,$(SRC)) $(patsubst %.cpp,%.o,$(SRC_PP))
+
+DEFINES     = -DLFS_NO_MALLOC -DLFS_NO_ASSERT -DLFS_NO_DEBUG -DLFS_NO_WARN -DLFS_NO_ERROR
 
 INCLUDE         += -I../lib
 Q = @

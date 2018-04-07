@@ -5,7 +5,7 @@
 #include "rcc.h"
 
 template<uint32_t spi, typename Pin_mosi, typename Pin_miso, typename Pin_sclk>
-class SPI : public RCC<spi> {
+class SPI_T : public RCC<spi> {
 public:
     static void begin() {
         DigitalAF<Pin_mosi, spi>::begin(IODirection::OutputPP);
@@ -124,4 +124,15 @@ public:
     static bool is_busy() {
 	    return (SPI_SR(spi) & SPI_SR_BSY);
     }
+};
+
+class SPIVirtualBase {
+public:
+    virtual uint8_t write(uint8_t value);
+};
+
+template<uint32_t spi, typename Pin_mosi, typename Pin_miso, typename Pin_sclk>
+class SPIVirt
+{
+
 };
