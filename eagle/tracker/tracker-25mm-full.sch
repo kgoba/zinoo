@@ -7537,7 +7537,7 @@ Manufacturer: Hirose&lt;br&gt;
 <part name="PAD2" library="wirepad" deviceset="SMD5" device=""/>
 <part name="C10" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
 <part name="U$28" library="kg-generic" deviceset="GND" device=""/>
-<part name="R6" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
+<part name="R6" library="kg-generic" deviceset="RESISTOR" device="-0603" value="470"/>
 <part name="R2" library="kg-generic" deviceset="RESISTOR" device="-0603" value="100k"/>
 <part name="R7" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
 <part name="D1" library="kg-generic" deviceset="LED" device="0805" value="RED"/>
@@ -7618,7 +7618,7 @@ Manufacturer: Hirose&lt;br&gt;
 <part name="U$51" library="kg-generic" deviceset="GND" device=""/>
 <part name="JP3" library="SparkFun-Passives" deviceset="JUMPER-PAD-2-NO" device="YES_SILK" value="CFG2"/>
 <part name="SUPPLY18" library="SparkFun-Aesthetics" deviceset="3.3V" device=""/>
-<part name="R27" library="kg-generic" deviceset="RESISTOR" device="-0603" value="1k"/>
+<part name="R27" library="kg-generic" deviceset="RESISTOR" device="-0603" value="470"/>
 <part name="D2" library="kg-generic" deviceset="LED" device="0805" value="GREEN"/>
 <part name="U$52" library="kg-generic" deviceset="GND" device=""/>
 <part name="C18" library="kg-generic" deviceset="CAPACITOR_NPOL" device="-0603" value="100n"/>
@@ -7645,7 +7645,13 @@ Manufacturer: Hirose&lt;br&gt;
 <text x="533.4" y="-116.84" size="3.81" layer="90" font="vector" ratio="12" align="top-left">TODO:
 
 - Better MCU supply decouple
-</text>
+- High-side SAFE switch?
+- Remove UART
+- Add I2C extension connector
+- 5 pin prog. connector?
+- 5V supercap?
+- LIS3MDL mag?
+- MMA6825 accel?</text>
 <text x="335.28" y="58.42" size="1.27" layer="97">75uA in Inactive State
 15uA Backup battery current</text>
 <text x="335.28" y="172.72" size="1.27" layer="97">0.2uA in Standby Mode
@@ -7665,13 +7671,15 @@ Manufacturer: Hirose&lt;br&gt;
 <text x="744.22" y="-104.14" size="1.27" layer="97">MPL3115A2 CFG1=open CFG2=open
 MPL115A2 CFG1=open CFG2=short
 MS5607-02 CFG1=short CFG2=short</text>
+<text x="533.4" y="-96.52" size="3.81" layer="90" align="top-left">Replacements:
+- Q2/Q3/Q4: IRLML0030</text>
 </plain>
 <instances>
 <instance part="FB1" gate="G$1" x="312.42" y="154.94" rot="MR90"/>
 <instance part="FRAME1" gate="G$1" x="236.22" y="2.54"/>
 <instance part="FRAME3" gate="G$1" x="518.16" y="2.54"/>
 <instance part="FRAME2" gate="G$1" x="236.22" y="-185.42"/>
-<instance part="SUPPLY1" gate="G$1" x="299.72" y="-111.76"/>
+<instance part="SUPPLY1" gate="G$1" x="289.56" y="-111.76"/>
 <instance part="U3" gate="G$1" x="632.46" y="43.18"/>
 <instance part="R3" gate="G$1" x="756.92" y="165.1" rot="R90"/>
 <instance part="R4" gate="G$1" x="764.54" y="165.1" rot="R90"/>
@@ -7705,8 +7713,8 @@ MS5607-02 CFG1=short CFG2=short</text>
 <instance part="U$7" gate="G$1" x="373.38" y="-139.7"/>
 <instance part="U$8" gate="G$1" x="358.14" y="-139.7"/>
 <instance part="U$12" gate="G$1" x="266.7" y="-139.7"/>
-<instance part="C4" gate="C" x="299.72" y="-132.08" rot="R90"/>
-<instance part="U$5" gate="G$1" x="299.72" y="-139.7"/>
+<instance part="C4" gate="C" x="289.56" y="-132.08" rot="R90"/>
+<instance part="U$5" gate="G$1" x="289.56" y="-139.7"/>
 <instance part="C5" gate="C" x="365.76" y="-132.08" rot="R90"/>
 <instance part="U$16" gate="G$1" x="365.76" y="-139.7"/>
 <instance part="SUPPLY3" gate="G$1" x="373.38" y="-111.76"/>
@@ -7838,8 +7846,8 @@ MS5607-02 CFG1=short CFG2=short</text>
 <instance part="R30" gate="G$1" x="340.36" y="-167.64" rot="MR180"/>
 <instance part="D3" gate="G$1" x="353.06" y="-162.56" rot="R270"/>
 <instance part="U$56" gate="G$1" x="312.42" y="-177.8"/>
-<instance part="C19" gate="C" x="368.3" y="-165.1" rot="R90"/>
-<instance part="U$57" gate="G$1" x="368.3" y="-177.8"/>
+<instance part="C19" gate="C" x="365.76" y="-165.1" rot="R90"/>
+<instance part="U$57" gate="G$1" x="365.76" y="-177.8"/>
 <instance part="C20" gate="C" x="289.56" y="-165.1" rot="R90"/>
 <instance part="U$58" gate="G$1" x="289.56" y="-177.8"/>
 <instance part="R31" gate="G$1" x="302.26" y="-172.72" rot="MR90"/>
@@ -7939,7 +7947,7 @@ MS5607-02 CFG1=short CFG2=short</text>
 <segment>
 <pinref part="C4" gate="C" pin="1"/>
 <pinref part="U$5" gate="G$1" pin="GND"/>
-<wire x1="299.72" y1="-137.16" x2="299.72" y2="-134.62" width="0.1524" layer="91"/>
+<wire x1="289.56" y1="-137.16" x2="289.56" y2="-134.62" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="C5" gate="C" pin="1"/>
@@ -8223,7 +8231,7 @@ MS5607-02 CFG1=short CFG2=short</text>
 <segment>
 <pinref part="U$57" gate="G$1" pin="GND"/>
 <pinref part="C19" gate="C" pin="1"/>
-<wire x1="368.3" y1="-175.26" x2="368.3" y2="-167.64" width="0.1524" layer="91"/>
+<wire x1="365.76" y1="-175.26" x2="365.76" y2="-167.64" width="0.1524" layer="91"/>
 </segment>
 <segment>
 <pinref part="U$58" gate="G$1" pin="GND"/>
@@ -8516,20 +8524,20 @@ MS5607-02 CFG1=short CFG2=short</text>
 <net name="V_BATT" class="0">
 <segment>
 <wire x1="314.96" y1="-124.46" x2="307.34" y2="-124.46" width="0.1524" layer="91"/>
-<wire x1="307.34" y1="-124.46" x2="299.72" y2="-124.46" width="0.1524" layer="91"/>
-<wire x1="299.72" y1="-124.46" x2="271.78" y2="-124.46" width="0.1524" layer="91"/>
-<junction x="299.72" y="-124.46"/>
+<wire x1="307.34" y1="-124.46" x2="289.56" y2="-124.46" width="0.1524" layer="91"/>
+<wire x1="289.56" y1="-124.46" x2="271.78" y2="-124.46" width="0.1524" layer="91"/>
+<junction x="289.56" y="-124.46"/>
 <wire x1="271.78" y1="-124.46" x2="261.62" y2="-124.46" width="0.1524" layer="91"/>
-<wire x1="299.72" y1="-124.46" x2="299.72" y2="-114.3" width="0.1524" layer="91"/>
+<wire x1="289.56" y1="-124.46" x2="289.56" y2="-114.3" width="0.1524" layer="91"/>
 <pinref part="SUPPLY1" gate="G$1" pin="V_BATT"/>
 <pinref part="JP5" gate="G$1" pin="1"/>
-<wire x1="299.72" y1="-114.3" x2="299.72" y2="-111.76" width="0.1524" layer="91"/>
-<wire x1="353.06" y1="-114.3" x2="299.72" y2="-114.3" width="0.1524" layer="91"/>
-<junction x="299.72" y="-114.3"/>
+<wire x1="289.56" y1="-114.3" x2="289.56" y2="-111.76" width="0.1524" layer="91"/>
+<wire x1="353.06" y1="-114.3" x2="289.56" y2="-114.3" width="0.1524" layer="91"/>
+<junction x="289.56" y="-114.3"/>
 <pinref part="C4" gate="C" pin="2"/>
 <pinref part="J1" gate="G$1" pin="2"/>
 <pinref part="U2" gate="G$1" pin="IN"/>
-<wire x1="299.72" y1="-127" x2="299.72" y2="-124.46" width="0.1524" layer="91"/>
+<wire x1="289.56" y1="-127" x2="289.56" y2="-124.46" width="0.1524" layer="91"/>
 <wire x1="307.34" y1="-127" x2="307.34" y2="-124.46" width="0.1524" layer="91"/>
 <junction x="307.34" y="-124.46"/>
 <pinref part="R10" gate="G$1" pin="2"/>
@@ -9299,15 +9307,15 @@ MS5607-02 CFG1=short CFG2=short</text>
 <segment>
 <pinref part="U1" gate="G$1" pin="VDD"/>
 <wire x1="335.28" y1="-157.48" x2="353.06" y2="-157.48" width="0.1524" layer="91"/>
-<label x="381" y="-157.48" size="1.27" layer="95" xref="yes"/>
+<label x="373.38" y="-157.48" size="1.27" layer="95" xref="yes"/>
 <pinref part="D3" gate="G$1" pin="A"/>
-<wire x1="353.06" y1="-157.48" x2="368.3" y2="-157.48" width="0.1524" layer="91"/>
-<wire x1="368.3" y1="-157.48" x2="381" y2="-157.48" width="0.1524" layer="91"/>
+<wire x1="353.06" y1="-157.48" x2="365.76" y2="-157.48" width="0.1524" layer="91"/>
+<wire x1="365.76" y1="-157.48" x2="373.38" y2="-157.48" width="0.1524" layer="91"/>
 <wire x1="353.06" y1="-160.02" x2="353.06" y2="-157.48" width="0.1524" layer="91"/>
 <junction x="353.06" y="-157.48"/>
 <pinref part="C19" gate="C" pin="2"/>
-<wire x1="368.3" y1="-160.02" x2="368.3" y2="-157.48" width="0.1524" layer="91"/>
-<junction x="368.3" y="-157.48"/>
+<wire x1="365.76" y1="-160.02" x2="365.76" y2="-157.48" width="0.1524" layer="91"/>
+<junction x="365.76" y="-157.48"/>
 </segment>
 <segment>
 <pinref part="J2" gate="G$1" pin="VBUS"/>
