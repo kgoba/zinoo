@@ -1,6 +1,6 @@
 #include "lsm6ds33.h"
 
-#include "systick.h"
+//#include "systick.h"
 
 /////////////////////////////////////////
 // Register addresses                  //

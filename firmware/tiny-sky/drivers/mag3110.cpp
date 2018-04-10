@@ -201,18 +201,18 @@ void MAG3110::setRate(rate_t rate, osr_t osr) {
 //Bit 0 of the LSB register is always 0 for some reason...
 //So we have to left shift the values by 1
 //Ask me how confused I was...
-void MAG3110::setOffset(axis_t axis, int16_t offset){
-	
+void MAG3110::setOffset(axis_t axis, int16_t offset){		
 	offset = offset << 1;
-	
-	uint8_t msbAddress = (uint8_t)axis + 8;
-	uint8_t lsbAddress = msbAddress + 1;
+	// uint8_t data[] = {
+	// 	(uint8_t)((int)axis + 8),
+	// 	(uint8_t)(offset >> 8),
+	// 	(uint8_t)(offset >> 0)
+	// };
 
-	writeRegister(msbAddress, (uint8_t)((offset >> 8) & 0xFF));
+	// write(data, 3);
 
-	delay(15);
-	
-	writeRegister(lsbAddress, (uint8_t) offset & 0xFF);
+	writeRegister((int)axis + 8, offset >> 8);
+	writeRegister((int)axis + 9, offset >> 0);
 }
 
 //See above

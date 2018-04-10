@@ -216,13 +216,13 @@ class GPSParserSimple : public GPSParserBase {
 public:
     GPSParserSimple() : GPSParserBase() { sentences_ok = sentences_err = 0; }
 
-    const GPSFix::Latitude & latitude() { return latest.latitude; }
-    const GPSFix::Longitude & longitude() { return latest.longitude; }
-    const GPSFix::Distance & altitude() { return latest.altitude; }
-    const GPSFix::FixType & fixType()  { return latest.fixType; }
-    const GPSFix::HMSTime & fixTime()  { return latest.time; }
-    const GPSFix::Integer & tracked()  { return latest.tracked; }
-    const GPSFix::Integer & inView()  { return latest.inView; }
+    const GPSFix::Latitude & latitude() const { return latest.latitude; }
+    const GPSFix::Longitude & longitude() const { return latest.longitude; }
+    const GPSFix::Distance & altitude() const { return latest.altitude; }
+    const GPSFix::FixType & fixType() const { return latest.fixType; }
+    const GPSFix::HMSTime & fixTime() const { return latest.time; }
+    const GPSFix::Integer & tracked() const { return latest.tracked; }
+    const GPSFix::Integer & inView() const { return latest.inView; }
 
     uint32_t sentencesOK() const { return sentences_ok; }
     uint32_t sentencesErr() const { return sentences_err; }

@@ -5,8 +5,11 @@
 #include <ptlib/ptlib.h>
 
 typedef SPI_T<SPI1, PB_5, PB_4, PB_3> SPI;
-typedef DigitalOut<PA_9>  RST;
-typedef DigitalOut<PA_10> NSS;
+
+typedef DigitalOut<PA_9>  RFM96_RST;
+typedef DigitalOut<PA_10> RFM96_NSS;
+
+typedef DigitalOut<PA_15> Flash_NSS;
 
 void RFM96::init() {
     SX1276_Base::init();
@@ -21,7 +24,7 @@ uint8_t RFM96::hal_spi_transfer (uint8_t outval) {
 
 void RFM96::hal_pin_nss (uint8_t val) {
     //hal_delay_us(1000);
-    NSS::write(val);
+    RFM96_NSS::write(val);
     //hal_delay_us(1000);
 }
 
@@ -29,7 +32,7 @@ void RFM96::hal_pin_rxtx (uint8_t val) {
 }
 
 void RFM96::hal_pin_rst (uint8_t val) {
-    RST::write(val);
+    RFM96_RST::write(val);
 }
 
 void RFM96::hal_disableIRQs (void) {
@@ -44,14 +47,25 @@ void RFM96::hal_delay_us (uint32_t us) {
     delay_us(us);    
 }
 
-// uint32_t RFM96::hal_ticks (void) {
-//     return millis();
-// }
 
-// void RFM96::hal_waitUntil (uint32_t time) {
-//     delay(time - millis());
-// }
 
-// uint32_t RFM96::hal_ms2ticks(uint32_t ms) {
-//     return ms;
-// }
+void SPIFlash::select() {
+    Flash_NSS::write(0);
+}
+
+void SPIFlash::release() {
+    Flash_NSS::write(1);
+}
+
+void SPIFlash::transfer(const uint8_t *wr_buf, int wr_len, uint8_t *rd_buf, int rd_len) {
+    while (wr_len > 0) {
+        SPI::write(*wr_buf);
+        wr_buf++;
+        wr_len--;
+    }
+    while (rd_len > 0) {
+        *rd_buf = SPI::write(0);
+        rd_buf++;
+        rd_len--;
+    }
+}
