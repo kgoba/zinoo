@@ -82,12 +82,12 @@ bool TeleMessage::build_string(char *buf, int &buf_len) {
     
     // Build partial UKHAS sentence (without $$ and checksum)
     // e.g. Z70,90,160900,51.03923,3.73228,31,9,-10
-    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%s,%d,%d,%s", 
+    int buf_req = snprintf(buf, buf_len, "%s,%d,%02d%02d%02d,%s,%s,%s,%d,%d,%d,%d,%s", 
         callsign, msg_id,
         hour, minute, second,
         lat_str, lng_str, alt_str, n_sats,
         temperature_int, 
-        //pyro_voltage_str, battery_voltage_str,
+        (pyro_voltage + 5) / 10, (battery_voltage + 5) / 10,
         status_str
     );
 

@@ -5,6 +5,7 @@
 #include <libopencm3/stm32/usart.h>
 #include <libopencm3/stm32/i2c.h>
 #include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/adc.h>
 
 #include <libopencm3/cm3/nvic.h>
 
@@ -36,6 +37,9 @@ public:
     }
 };
 
+template<> struct PeriphTraits<ADC1> { 
+    const static rcc_periph_clken clock = RCC_ADC1;
+};
 
 template<> struct PeriphTraits<USART1> { 
     const static uint8_t irq = NVIC_USART1_IRQ; 

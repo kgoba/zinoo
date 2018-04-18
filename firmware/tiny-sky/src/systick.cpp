@@ -100,7 +100,9 @@ void add_task(timer_task_t *task, timer_routine_t routine, systime_t due_time, i
 void schedule_tasks() {
     if (!first_task) return;
     if (millis() >= first_task->due_time) {
-        systime_t due_time = first_task->routine(first_task->due_time);
+        systime_t interval = first_task->routine(first_task->due_time);
+        systime_t due_next = first_task->due_time + interval;
+
         timer_task_t *task = first_task;
 
         // Remove task from the queue
@@ -110,9 +112,9 @@ void schedule_tasks() {
             //first_task->prev = 0;
         //}
 
-        if (1) {
+        if (interval > 0) {
             // Reschedule the task in the queue
-            insert_task(task, due_time);
+            insert_task(task, due_next);
         }
     }
 }

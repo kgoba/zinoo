@@ -4,7 +4,7 @@
 
 #include <ptlib/ptlib.h>
 
-typedef SPI_T<SPI1, PB_5, PB_4, PB_3> SPI;
+typedef SPI<SPI1, PB_5, PB_4, PB_3> SPI_;
 
 typedef DigitalOut<PA_9>  RFM96_RST;
 typedef DigitalOut<PA_10> RFM96_NSS;
@@ -17,7 +17,7 @@ void RFM96::init() {
 }
 
 uint8_t RFM96::hal_spi_transfer (uint8_t outval) {
-    uint8_t value = SPI::write(outval);
+    uint8_t value = SPI_::write(outval);
     //while (SPI::is_busy()) {}
     return value;
 }
@@ -59,12 +59,12 @@ void SPIFlash::release() {
 
 void SPIFlash::transfer(const uint8_t *wr_buf, int wr_len, uint8_t *rd_buf, int rd_len) {
     while (wr_len > 0) {
-        SPI::write(*wr_buf);
+        SPI_::write(*wr_buf);
         wr_buf++;
         wr_len--;
     }
     while (rd_len > 0) {
-        *rd_buf = SPI::write(0);
+        *rd_buf = SPI_::write(0);
         rd_buf++;
         rd_len--;
     }

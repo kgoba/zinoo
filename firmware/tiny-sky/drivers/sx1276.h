@@ -98,6 +98,7 @@ public:
 
     //void configureModem(sf_t spreading_factor, bw_t bandwidth, cr_t coding_rate);
     void setupLoRa(const ModemSettings &settings);
+    void setupFSK();
     
     void writeFIFO(const uint8_t *data, uint8_t length);
     void readFIFO(uint8_t *data, uint8_t &length);

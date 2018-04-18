@@ -229,6 +229,11 @@ public:
         return true;
     }
 
+    bool write(const uint8_t *data, uint8_t length) {
+        if (!bus.write(slave_address, data, length)) return false;
+        return true;
+    }
+
 protected:
     I2CBase &bus;
     uint8_t slave_address;

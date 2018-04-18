@@ -14,9 +14,12 @@ public:
     enum e { Input, InputPU, InputPD, InputAnalog, OutputPP, OutputOD, OutputODPU, OutputAnalog };
 };
 
+
+////////////////  IOPin  ////////////////
+
 template<uint32_t port, uint32_t pin>
 class IOPin : public RCC<port> {
-protected:
+public:
     static void set() {
         gpio_set(port, pin);
     }
@@ -32,7 +35,16 @@ protected:
     static uint16_t read() {
         return gpio_get(port, pin);
     }
-    
+
+    static void write(uint16_t value) {
+        if (value) set(); else clear();
+    }
+
+    uint16_t operator = (uint16_t value) {
+        write(value);
+        return value;
+    }
+
 #if defined (STM32F1) 
     enum Speed { 
         LowSpeed = GPIO_MODE_OUTPUT_2_MHZ, 
@@ -117,6 +129,11 @@ protected:
         RCC<port>::enableClock();
         gpio_mode_setup(port, GPIO_MODE_INPUT, GPIO_PUPD_NONE, pin);
     }
+
+    static void setupAnalog() {
+        RCC<port>::enableClock();
+        gpio_mode_setup(port, GPIO_MODE_ANALOG, GPIO_PUPD_NONE, pin);
+    }
     
     static void setupAlternate(IODirection::e direction, uint8_t af, Speed speed = HighSpeed) {
         RCC<port>::enableClock();
@@ -156,7 +173,25 @@ protected:
 #endif
 };
 
-class NC {};
+class NC {
+public:
+    static void set() {}    
+    static void clear() {}    
+    static void toggle() {}
+    static uint16_t read() { return 0; }
+    static void write(uint16_t value) {}
+    uint16_t operator = (uint16_t value) { return value; }
+    enum Speed { 
+        LowSpeed,
+        MidSpeed,
+        HighSpeed
+    };
+    
+    static void setupOutput(Speed speed = LowSpeed) {}
+    static void setupInput();
+    static void setupAnalog();
+    static void setupAlternate(IODirection::e direction, uint8_t af, Speed speed = HighSpeed);
+};
 
 typedef IOPin<GPIOA, GPIO0> PA_0;
 typedef IOPin<GPIOA, GPIO1> PA_1;
@@ -210,7 +245,7 @@ typedef IOPin<GPIOC, GPIO14> PC_14;
 typedef IOPin<GPIOC, GPIO15> PC_15;
 
 
-// DigitalOut
+////////////////  DigitalOut  ////////////////
 
 template<typename Pin>
 class DigitalOut : public Pin {
@@ -220,39 +255,27 @@ public:
     }
     static void begin(uint16_t value) {
         Pin::setupOutput();
-        write(value);
+        Pin::write(value);
     }
-    static void set() {
-        Pin::set();
-    }
-    static void clear() {
-        Pin::clear();
-    }
-    static void toggle() {
-        Pin::toggle();
-    }
-    static void write(uint16_t value) {
-        if (value) set(); else clear();
-    }
-
     uint16_t operator = (uint16_t value) {
-        write(value);
+        Pin::write(value);
         return value;
     }
 };
 
-// Specialization for unconnected (NC) pin
-template<>
-class DigitalOut<NC> {
-public:
-    static void begin() {}
-    static void set() {}
-    static void clear() {}
-    static void write(uint16_t value) {}
-};
+// // Specialization for unconnected (NC) pin
+// template<>
+// class DigitalOut<NC> {
+// public:
+//     static void begin() {}
+//     static void begin(uint16_t value) {}
+//     uint16_t operator = (uint16_t value) {
+//         return value;
+//     }
+// };
 
 
-// DigitalIn
+////////////////  DigitalIn  ////////////////
 
 template<typename Pin>
 class DigitalIn : public Pin {
@@ -260,21 +283,50 @@ public:
     static void begin() {
         Pin::setupInput();
     }
-    static uint16_t read() {
-        return Pin::read();
+};
+
+// // Specialization for unconnected (NC) pin
+// template<>
+// class DigitalIn<NC> {
+// public:
+//     static void begin() {}
+//     static uint16_t read() { return 0; }
+// };
+
+
+////////////////  AnalogIn  ////////////////
+
+template<typename Pin>
+struct AnalogChannel {
+    
+};
+
+template<typename Pin>
+class AnalogIn : public Pin, public AnalogChannel<Pin> {
+public:
+    static void begin() {
+        Pin::setupAnalog();
     }
 };
 
 // Specialization for unconnected (NC) pin
 template<>
-class DigitalIn<NC> {
+class AnalogIn<NC> {
 public:
     static void begin() {}
-    static uint16_t read() { return 0; }
 };
 
+template<> struct AnalogChannel<PA_0> { const static uint8_t channel = 0; };
+template<> struct AnalogChannel<PA_1> { const static uint8_t channel = 1; };
+template<> struct AnalogChannel<PA_2> { const static uint8_t channel = 2; };
+template<> struct AnalogChannel<PA_3> { const static uint8_t channel = 3; };
+template<> struct AnalogChannel<PA_4> { const static uint8_t channel = 4; };
+template<> struct AnalogChannel<PA_5> { const static uint8_t channel = 5; };
+template<> struct AnalogChannel<PA_6> { const static uint8_t channel = 6; };
+template<> struct AnalogChannel<PA_7> { const static uint8_t channel = 7; };
+template<> struct AnalogChannel<PA_8> { const static uint8_t channel = 8; };
 
-// DigitalAF
+////////////////  DigitalAF  ////////////////
 
 template<typename Pin, uint32_t periph>
 struct AFMapper {};

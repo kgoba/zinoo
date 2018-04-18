@@ -115,18 +115,25 @@ void query_sensors() {
         //uint32_t age = millis() - gState.last_gyro_time;
         print("Initalized\n");
     }
+
+    print("ADC : Vdd = %d, Batt = %d, Pyro = %d, Sense1 = %d, Sense2 = %d\n", 
+        gState.last_vdd, gState.last_v_batt, gState.last_v_pyro,
+        gState.last_pyro_sense1, gState.last_pyro_sense2
+    );
 }
 
 void query_lora() {
-    print("Checking LoRa...\n");
+    print("LoRa:");
 
     uint8_t regs[] = { 0x01, 0x12, 0x0D, 0x11, 0x22 };
     const char *names[] = {"OpMode", "IRQFlags", "FifoAddr", "IrqMask", "PayloadLength" };
 
     for (uint8_t idx = 0; idx < 2; idx++) {
         uint8_t value = gState.radio.readReg(regs[idx]);
-        print("  [%d] (%s) = %02Xh\n", regs[idx], names[idx], value);
+        if (idx > 0) print(',');
+        print(" %s = %02Xh", names[idx], value);
     }
+    print('\n');
 }
 
 void query_flash() {
@@ -140,14 +147,14 @@ void query_flash() {
 void print_report() {
     query_lora();
     query_sensors();
-    query_i2c_devices();
+    //query_i2c_devices();
     //query_flash();
 
     char buf[16];
 
     const GPSParserSimple &gps = gState.gps;
 
-    print("%4d ", (millis() + 500)/ 1000);
+    print("GNSS: %4d ", (millis() + 500)/ 1000);
     print("%d/%d ", gps.sentencesOK(), gps.sentencesErr());
     print("%d/%d ", gps.tracked().value(), gps.inView().value());
 
@@ -176,7 +183,13 @@ void print_report() {
     }
     else {
         print("NO fix\n");
-    }    
+    }   
+
+    char packet_data[64];
+    int packet_length = 64;
+    if (gState.telemetry.build_string(packet_data, packet_length)) {
+        print("Tele: [%s]\n", packet_data);
+    }
 }
 
 void console_parse(const char *line) {
@@ -256,58 +269,89 @@ void console_parse(const char *line) {
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "ls")) {
-        print("Files in /\n");
-        lfs_dir_t dir;
-        int err;
+        // print("Files in /\n");
+        // lfs_dir_t dir;
+        // int err;
 
-        err = lfs_dir_open(&gState.lfs, &dir, "");
-        if (err < 0) {
-            print("Error while opening directory\n");
-        } else {
-            lfs_info info;
-            while (lfs_dir_read(&gState.lfs, &dir, &info) > 0) {
-                if (info.type == LFS_TYPE_REG) {
-                    print("  %s   [%ld]\n", info.name, info.size);
-                }
-                else {
-                    print("  %s/\n", info.name);
-                }
-            }
-        }
-        err = lfs_dir_close(&gState.lfs, &dir);
-        if (err < 0) print("Error while closing directory\n");
+        // err = lfs_dir_open(&gState.lfs, &dir, "");
+        // if (err < 0) {
+        //     print("Error while opening directory\n");
+        // } else {
+        //     lfs_info info;
+        //     while (lfs_dir_read(&gState.lfs, &dir, &info) > 0) {
+        //         if (info.type == LFS_TYPE_REG) {
+        //             print("  %s   [%ld]\n", info.name, info.size);
+        //         }
+        //         else {
+        //             print("  %s/\n", info.name);
+        //         }
+        //     }
+        // }
+        // err = lfs_dir_close(&gState.lfs, &dir);
+        // if (err < 0) print("Error while closing directory\n");
+        print("Log: %ld\n", gState.log_size);
 
-        err = gState.free_space();
+        int err = gState.free_space();
         if (err < 0) print("Error while calculating free space\n");
         else print("Free space: %ld\n", err);
 
         cmd_ok = true;        
     }
-    else if (0 == strcmp(line, "save")) {
-        print("Mag Y = [%d,%d]\n", gSettings.mag_y_min, gSettings.mag_y_max);
-        int err = gSettings.save();
-        if (err) {
-            print("Save err = %d\n", err);
-        } else {
-            print("Save OK\n");
-        }
+    else if (0 == strcmp(line, "save_cal")) {
+        int err = gCalibration.save();
+        if (err) print("Save err = %d\n", err);
+        else print("Save OK\n");
         cmd_ok = true;
     }
-    else if (0 == strcmp(line, "restore")) {
-        int err = gSettings.restore();
+    else if (0 == strcmp(line, "load_cal")) {
+        int err = gCalibration.restore();
         if (err) {
             print("Restore err = %d\n", err);
         } else {
             print("Restore OK\n");
-            gState.mag.setOffset(MAG3110::eY_AXIS, (gSettings.mag_y_min + gSettings.mag_y_max) / 2);
+            gState.mag.setOffset(MAG3110::eY_AXIS, (gCalibration.mag_y_min + gCalibration.mag_y_max) / 2);
         }
-        print("Mag Y = [%d,%d]\n", gSettings.mag_y_min, gSettings.mag_y_max);
         cmd_ok = true;
     }
-    else if (0 == strcmp(line, "resetf")) {
+    else if (0 == strcmp(line, "rst_cal")) {
+        gCalibration.reset();
         gSettings.reset();
-        print("Mag Y = [%d,%d]\n", gSettings.mag_y_min, gSettings.mag_y_max);
         cmd_ok = true;
+    }
+    else if (0 == strcmp(line, "cal")) {
+        print("Mag Y = [%d,%d]\n", gCalibration.mag_y_min, gCalibration.mag_y_max);
+    }
+    else if (0 == strcmp(line, "rst_log")) {
+        // lfs_file_rewind(&gState.lfs, &gState.log_file);
+        // lfs_file_truncate(&gState.lfs, &gState.log_file, 0);
+        // lfs_file_sync(&gState.lfs, &gState.log_file);
+        while (gState.flash.busy()) {
+            // idle wait
+        }
+        for (uint32_t address = 0x2000; address < 0x2000 + gState.log_size; address += 0x1000) {
+            gState.flash.eraseSector(address);
+            while (gState.flash.busy()) {
+                // idle wait
+            }
+        }
+        gState.log_size = 0;
+        cmd_ok = true;
+    }
+    else if (0 == strcmp(line, "play_log")) {
+        for (uint32_t address = 0x2000; address < 0x2000 + gState.log_size; address += 32) {
+            while (gState.flash.busy()) {
+                // idle wait
+            }
+            uint8_t buf[32];
+            gState.flash.read(address, buf, sizeof(buf));
+
+            for (int i = 0; i < sizeof(buf); i++) {
+                if (i > 0) print(" ");
+                print("%02X", buf[i]);
+            }
+            print('\n');
+            delay_us(1000);
+        }
     }
     if (cmd_ok) print(line);
     else print("?");

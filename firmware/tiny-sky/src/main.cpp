@@ -71,18 +71,22 @@ systime_t task_sensors_func(systime_t due_time) {
     return gState.task_sensors(due_time);
 }
 
+systime_t task_control_func(systime_t due_time) {
+    return gState.task_control(due_time);
+}
 
-timer_task_t timer_tasks[6];
+timer_task_t timer_tasks[7];
 
 int main() {
     setup();
 
-    add_task(&timer_tasks[0], task_led_func);
-    add_task(&timer_tasks[1], task_console_func);
-    add_task(&timer_tasks[2], task_gps_func);
-    add_task(&timer_tasks[3], task_sensors_func);
-    add_task(&timer_tasks[4], task_report_func);
-    //add_task(&timer_tasks[5], task_buzz_func);
+    add_task(&timer_tasks[0], task_led_func, 0, -3);
+    add_task(&timer_tasks[1], task_console_func, 0, 4);
+    add_task(&timer_tasks[2], task_gps_func, 0, 0);
+    add_task(&timer_tasks[3], task_sensors_func, 0, 3);
+    add_task(&timer_tasks[4], task_report_func, 0, -4);
+    add_task(&timer_tasks[5], task_buzz_func, 0, -3);
+    add_task(&timer_tasks[6], task_control_func, 0, 1);
 
     while (1) {
         schedule_tasks();
@@ -91,14 +95,17 @@ int main() {
 }
 
 // TODO: 
-// - better buzzer/LED indication
-// - UKHAS packet forming, regular TX
-// - check arm/safe status, pyro activation
+// - check arm/safe status
+// - pyro activation, pyro safe timer
+// - buzzer/LED indication (ARM state)
 // - simple SPI flash logging
-// - battery/pyro voltage sensing
-// - timer-based mag/baro polling
+// - log readout (CSV generation?)
+// - acc/gyro readout
+// - timer-based sensor polling
 // - console parameter get/set
+// - battery/pyro voltage sensing
 // + mag calibration, EEPROM/flash save
+// + UKHAS packet forming, regular TX
 
 typedef struct {
     uint16_t    address;    // 7/10 bit address

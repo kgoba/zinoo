@@ -5,7 +5,7 @@
 #include "rcc.h"
 
 template<uint32_t spi, typename Pin_mosi, typename Pin_miso, typename Pin_sclk>
-class SPI_T : public RCC<spi> {
+class SPI : public RCC<spi> {
 public:
     static void begin() {
         DigitalAF<Pin_mosi, spi>::begin(IODirection::OutputPP);

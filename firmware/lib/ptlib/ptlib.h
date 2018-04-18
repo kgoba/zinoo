@@ -4,3 +4,4 @@
 #include "spi.h"
 #include "i2c.h"
 #include "usart.h"
+#include "adc.h"

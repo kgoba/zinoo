@@ -107,8 +107,11 @@ void SX1276_Base::setMode (mode_t mode) {
 }
 
 void SX1276_Base::setLRMode (lr_mode_t lr_mode) {
+    uint8_t u = readReg(RegOpMode) & 0xF8;
+    writeReg(RegOpMode, u);
+
     // We only keep the LowFreq setting and force sleep mode (0)
-    uint8_t u = readReg(RegOpMode) & OPMODE_LOWFREQ;
+    u &= OPMODE_LOWFREQ;
     u |= ((uint8_t)lr_mode) << 7;
     writeReg(RegOpMode, u);
 }
@@ -227,6 +230,12 @@ void SX1276_Base::setupLoRa(const ModemSettings &ms) {
     writeReg(LORARegSyncWord, ms.sync_word);
 }
 
+void SX1276_Base::setupFSK() {
+    setLRMode(eLR_MODE_FSK);   // force sleep mode
+
+    writeReg(FSKRegPacketConfig2, 0);
+}
+
 void SX1276_Base::writeFIFO(const uint8_t *data, uint8_t length) {
     // enter standby mode (required for LoRa FIFO loading)
     setMode(eMODE_STDBY);
@@ -267,12 +276,15 @@ void SX1276_Base::readFIFO(uint8_t *data, uint8_t &length) {
 }
 
 void SX1276_Base::startTX() {
-    // set the IRQ mapping DIO0=TxDone DIO1=NOP DIO2=NOP
-    writeReg(RegDioMapping1, MAP_DIO0_LORA_TXDONE|MAP_DIO1_LORA_NOP|MAP_DIO2_LORA_NOP);
-    // clear all radio IRQ flags
-    writeReg(LORARegIrqFlags, 0xFF);
-    // mask all IRQs but TxDone
-    writeReg(LORARegIrqFlagsMask, ~IRQ_LORA_TXDONE_MASK);
+    uint8_t u = readReg(RegOpMode) & 0x80;
+    if ((lr_mode_t)(u >> 7) == eLR_MODE_LORA) {
+        // set the IRQ mapping DIO0=TxDone DIO1=NOP DIO2=NOP
+        writeReg(RegDioMapping1, MAP_DIO0_LORA_TXDONE|MAP_DIO1_LORA_NOP|MAP_DIO2_LORA_NOP);
+        // clear all radio IRQ flags
+        writeReg(LORARegIrqFlags, 0xFF);
+        // mask all IRQs but TxDone
+        writeReg(LORARegIrqFlagsMask, ~IRQ_LORA_TXDONE_MASK);
+    }
 
     // enable antenna switch for TX
     hal_pin_rxtx(1);

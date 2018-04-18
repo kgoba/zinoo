@@ -18,8 +18,8 @@ struct TeleMessage {
 
     float    alt_baro;          // Barometric altitude, meters
 
-    float    battery_voltage;
-    float    pyro_voltage;
+    uint16_t battery_voltage;   // millivolts
+    uint16_t pyro_voltage;      // millivolts
 
     uint8_t  pyro_state;
 
