@@ -2234,7 +2234,7 @@ You are welcome to use this library for commercial purposes. For attribution, we
 </autorouter>
 <elements>
 <element name="FB1" library="microbuilder_v3" package="_0805" value="" x="35" y="17.5" rot="R90"/>
-<element name="U3" library="kg-ic" package="SOP08" value="A25L010A" x="45" y="6.5" rot="R90"/>
+<element name="U3" library="kg-ic" package="SOP08" value="A25L010A/SST26VF016B" x="45" y="6.5" rot="R90"/>
 <element name="R3" library="rcl" package="R0603" value="3.3k" x="45.5" y="18" rot="MR180"/>
 <element name="R4" library="rcl" package="R0603" value="3.3k" x="45.5" y="20" rot="MR180"/>
 <element name="JP5" library="SparkFun-Passives" package="PAD-JUMPER-2-NO_YES_SILK" value="LDO_BYPASS" x="42" y="23" rot="R270"/>

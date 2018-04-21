@@ -7460,6 +7460,7 @@ Manufacturer: Hirose&lt;br&gt;
 </library>
 </libraries>
 <attributes>
+<attribute name="DESIGNER" value="K. GOBA"/>
 </attributes>
 <variantdefs>
 </variantdefs>
@@ -7473,7 +7474,7 @@ Manufacturer: Hirose&lt;br&gt;
 <part name="FRAME3" library="SparkFun-Aesthetics" deviceset="FRAME-A4L" device=""/>
 <part name="FRAME2" library="SparkFun-Aesthetics" deviceset="FRAME-A4L" device=""/>
 <part name="SUPPLY1" library="SparkFun-Aesthetics" deviceset="V_BATT" device=""/>
-<part name="U3" library="kg-ic" deviceset="A25L010A" device=""/>
+<part name="U3" library="kg-ic" deviceset="A25L010A" device="" value="A25L010A/SST26VF016B"/>
 <part name="R3" library="rcl" deviceset="R-EU_" device="R0603" value="3.3k"/>
 <part name="R4" library="rcl" deviceset="R-EU_" device="R0603" value="3.3k"/>
 <part name="JP5" library="SparkFun-Passives" deviceset="JUMPER-PAD-2-NO" device="YES_SILK" value="LDO_BYPASS"/>
@@ -7642,12 +7643,15 @@ Manufacturer: Hirose&lt;br&gt;
 <sheets>
 <sheet>
 <plain>
-<text x="533.4" y="-116.84" size="3.81" layer="90" font="vector" ratio="12" align="top-left">TODO:
+<text x="533.4" y="-109.22" size="3.81" layer="90" font="vector" ratio="12" align="top-left">TODO:
 
 - Better MCU supply decouple
 - High-side SAFE switch?
 - Remove UART
 - Add I2C extension connector
+- 200mil SOIJ flash
+- Better supercap position/mount
+- Battery connector position
 - 5 pin prog. connector?
 - 5V supercap?
 - LIS3MDL mag?
@@ -7671,7 +7675,7 @@ Manufacturer: Hirose&lt;br&gt;
 <text x="744.22" y="-104.14" size="1.27" layer="97">MPL3115A2 CFG1=open CFG2=open
 MPL115A2 CFG1=open CFG2=short
 MS5607-02 CFG1=short CFG2=short</text>
-<text x="533.4" y="-96.52" size="3.81" layer="90" align="top-left">Replacements:
+<text x="533.4" y="-88.9" size="3.81" layer="90" align="top-left">Replacements:
 - Q2/Q3/Q4: IRLML0030</text>
 </plain>
 <instances>
