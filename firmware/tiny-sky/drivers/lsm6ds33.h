@@ -57,20 +57,27 @@ public:
     };
 
     bool initialize();
-    void reset(odr_xl_t osr = eODR_XL_POWERDOWN);
+    void reset();
 
-    void start();
-    void enterStandby();
-    void exitStandby();
+    // void start();
+    // void enterStandby();
+    // void exitStandby();
 
     void trigger();
-    bool dataReady();
+    bool dataReady(bool gyro = true, bool accel = true);
 
-    //void readMeasurement(uint32_t &pressure, uint16_t &temperature);
-    void readPressure_28q4(uint32_t &pressure);
+    void readGyro(int16_t &gx, int16_t &gy, int16_t &gz);
+    void readGyro(int axis, int16_t &value);
+    void readAccel(int16_t &ax, int16_t &ay, int16_t &az);
+    void readAccel(int axis, int16_t &value);
+    void readMeasurement(int16_t &gx, int16_t &gy, int16_t &gz, int16_t &ax, int16_t &ay, int16_t &az);
+    void readMeasurement(int16_t &gx, int16_t &gy, int16_t &gz, int16_t &ax, int16_t &ay, int16_t &az, int16_t &temperature);
+
     void readTemperature_12q4(int16_t &temperature);
 
-    void setODR(odr_xl_t odr_xl, odr_g_t odr_g);
+    //void setODR(odr_xl_t odr_xl, odr_g_t odr_g);
+    void setupGyro(odr_g_t odr_g, fs_g_t fs_g);
+    void setupAccel(odr_xl_t odr_xl, fs_xl_t fs_xl);
 
 private:
 };

@@ -73,6 +73,7 @@ void query_i2c_devices() {
     for (uint8_t address = 0x08; address < 0x7F; address++) {
         if (0 == gState.bus_i2c.check(address)) {
         //if (0 == bus_i2c.write2(address, data, 1)) {
+            delay(5);
             print("* detected %02Xh\n", address);
         }
     }
@@ -112,8 +113,15 @@ void query_sensors() {
         print("Uninitalized\n");
     }
     else {
-        //uint32_t age = millis() - gState.last_gyro_time;
-        print("Initalized\n");
+        uint32_t age = millis() - gState.last_time_gyro;
+        //print("Initalized\n");
+        print("[%d %d %d], [%d %d %d], %d.%1dC (%ld ms)\n", 
+            gState.last_wx, gState.last_wy, gState.last_wz, 
+            gState.last_ax, gState.last_ay, gState.last_az, 
+            gState.last_temp_gyro / 16, 
+            ((gState.last_temp_gyro % 16) * 10 + 8) / 16, 
+            age
+        );
     }
 
     print("ADC : Vdd = %d, Batt = %d, Pyro = %d, Sense1 = %d, Sense2 = %d\n", 
@@ -262,10 +270,9 @@ void console_parse(const char *line) {
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "mag_cal")) {
+        gCalibration.mag_x_offset = 0;
         gState.mag_cal_enabled = true;
         gState.mag_cal_start = millis();
-        gState.mag.rawData(true);
-        //mag.setOffset(MAG3110::eY_AXIS, 0);
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "ls")) {
@@ -309,7 +316,6 @@ void console_parse(const char *line) {
             print("Restore err = %d\n", err);
         } else {
             print("Restore OK\n");
-            gState.mag.setOffset(MAG3110::eY_AXIS, (gCalibration.mag_y_min + gCalibration.mag_y_max) / 2);
         }
         cmd_ok = true;
     }
@@ -319,7 +325,7 @@ void console_parse(const char *line) {
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "cal")) {
-        print("Mag Y = [%d,%d]\n", gCalibration.mag_y_min, gCalibration.mag_y_max);
+        print("Mag offset = %d\n", gCalibration.mag_x_offset);
     }
     else if (0 == strcmp(line, "rst_log")) {
         // lfs_file_rewind(&gState.lfs, &gState.log_file);

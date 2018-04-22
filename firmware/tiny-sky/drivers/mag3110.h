@@ -43,7 +43,7 @@ public:
     void trigger();
     bool dataReady();
 
-    bool readMag(int &x, int &y, int &z);
+    bool readMag(int16_t &x, int16_t &y, int16_t &z);
     bool readMicroTeslas(float &x, float &y, float &z);
     float readHeading();
 

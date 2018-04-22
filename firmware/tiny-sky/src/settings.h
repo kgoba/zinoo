@@ -16,20 +16,97 @@ extern "C" {
     #include "lfs.h"
 }
 
+// struct ParamBase {
+//     virtual int setStrValue(const char *str);
+//     virtual int getStrValue(char *str, int &length);
+
+//     virtual int getBinaryLength();
+//     virtual int getBinaryValue(uint8_t *buf, int &length);
+//     virtual int setBinaryValue(const uint8_t *buf);
+// };
+
+// template<int n_bytes>
+// struct IntParam : public ParamBase {
+//     IntParam();
+//     //int value;
+// };
+
+// template<int n_bytes>
+// struct UIntParam : public ParamBase {
+//     UIntParam();
+//     //int value;
+// };
+
+// template<int n_chars>
+// struct StrParam : public ParamBase {
+//     StrParam(const char *default_value);
+//     //char value[n_chars];
+// };
+
+// struct Test {
+//     struct param_descriptor_t {
+//         const char  *name;
+//         ParamBase   &value;
+//     };
+//     StrParam<16> radio_callsign;
+//     UIntParam<4> radio_frequency;
+//     UIntParam<4> radio_cw_frequency;
+//     IntParam<1>  radio_tx_power;
+//     UIntParam<2> radio_tx_period;
+//     UIntParam<2> radio_tx_start;
+
+//     UIntParam<2> pyro_safe_time;
+//     UIntParam<2> pyro_safe_altitude;
+//     UIntParam<2> pyro_active_time;
+//     UIntParam<2> pyro_min_voltage;
+
+//     UIntParam<2> log_mag_interval;   // period of magnetic sensor log, milliseconds
+//     UIntParam<2> log_acc_interval;   // period of accelerometer log, milliseconds
+//     UIntParam<2> log_gyro_interval;  // period of gyro/acc sensor log, milliseconds
+//     UIntParam<2> log_baro_interval;  // period of barometric sensor log, milliseconds
+
+//     UIntParam<1> ublox_platform_type;  // portable/airborne 1g/etc
+
+//     param_descriptor_t params[2];
+
+//     Test();
+
+//     int findByName(const char *name);
+//     int setValue(int id, const char *str);
+//     int getValue(int id, char *str, int &length);
+
+//     void reset();
+// };
+
+
 // To be stored in NVM
 struct AppSettings {
+    enum param_type_t {
+        PARAM_INT,
+        PARAM_STR
+    };
+
+    struct param_descriptor_t {
+        const char  *name;
+        param_type_t type;
+        int8_t       size;
+        void        *value;
+    };
+
+    param_descriptor_t params[8];
+
     // User-editable settings
     char        radio_callsign[16];
-    uint8_t     radio_tx_period;  // telemetry transmit period, seconds
-    uint8_t     radio_tx_start;   // telemetry transmit offset, seconds
     uint32_t    radio_frequency;    // channel frequency in MHz
     int8_t      radio_tx_power;     // transmit power in dBm
+    uint8_t     radio_tx_period;    // telemetry transmit period, seconds
+    uint8_t     radio_tx_start;     // telemetry transmit offset, seconds
     //uint8_t     radio_modem_type;   // LORA vs FSK etc
     //uint32_t    radio_bandwidth;    // channel bandwidth in Hz
 
     uint16_t    pyro_safe_time;     // seconds after arming
     uint16_t    pyro_safe_altitude; // meters above launch altitude
-    uint16_t    pyro_active_time;   // time of MOSFET on state, milliseconds
+    uint16_t    pyro_hold_time;     // time of MOSFET on state, milliseconds
     uint16_t    pyro_min_voltage;   // minimum pyro supply voltage, millivolts
 
     uint16_t    log_mag_interval;   // period of magnetic sensor log, milliseconds
@@ -39,17 +116,25 @@ struct AppSettings {
 
     uint8_t     ublox_platform_type;  // portable/airborne 1g/etc
 
-    char        must_be_zero;
+    // Sensor calibration data
+    int16_t     gyro_temp_offset_q4;
+
+    char        must_be_zero;       // will read 0xFF from uninitialized NVM
+
+    AppSettings();
 
     void reset();
     int save();
     int restore();
+
+    int findByName(const char *name);
+    int setValue(int id, const char *str);
+    int getValue(int id, char *str, int &length);
 };
 
 struct AppCalibration {
     // Non-user-editable settings (calibration data)
-    int16_t     mag_y_min;
-    int16_t     mag_y_max;
+    int16_t     mag_x_offset;
     int16_t     mag_temp_offset_q4;
     int16_t     baro_temp_offset_q4;
 
@@ -81,9 +166,9 @@ struct AppState {
     int16_t  last_temp_mag;     // q4 format (x16)
     int16_t  last_temp_gyro;    // q4 format (x16)
 
-    int      last_mx, last_my, last_mz;
-    int      last_wx, last_wy, last_wz;
-    int      last_ax, last_ay, last_az;
+    int16_t  last_mx, last_my, last_mz;
+    int16_t  last_wx, last_wy, last_wz;
+    int16_t  last_ax, last_ay, last_az;
 
     int16_t  last_v_batt;       // millivolts
     int16_t  last_v_pyro;       // millivolts

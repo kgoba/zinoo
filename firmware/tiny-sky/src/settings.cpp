@@ -18,9 +18,47 @@ AppCalibration  gCalibration;
 AppSettings     gSettings;
 AppState        gState;
 
+// Test::Test() : 
+//     radio_callsign { "TEST" },
+//     params {
+//         { "radio_callsign", radio_callsign },
+//         { "radio_frequency", radio_frequency },
+//     }
+// {
+// }
+
+int AppSettings::findByName(const char *name) {
+    for (int i = 0; i < sizeof(params) / sizeof(params[0]); i++) {
+        if (strcmp(name, params[i].name) == 0) return i;
+    }
+    return -1;
+}
+
+AppSettings::AppSettings() :
+    params {
+        { "radio_callsign",  PARAM_STR, 16, &radio_callsign[0] },
+        { "radio_frequency", PARAM_INT,  4, &radio_frequency },
+        { "radio_tx_power",  PARAM_INT, -1, &radio_tx_power },
+        { "radio_tx_period", PARAM_INT, 2, &radio_tx_period },
+        { "radio_tx_start",  PARAM_INT, 2, &radio_tx_start },
+
+        { "pyro_safe_time",  PARAM_INT, 2, &pyro_safe_time },
+        //{ "pyro_safe_altitude",  PARAM_INT, 2, &pyro_safe_altitude },
+        { "pyro_hold_time",  PARAM_INT, 2, &pyro_hold_time },
+        { "pyro_min_voltage",  PARAM_INT, 2, &pyro_min_voltage },
+
+        // { "log_mag_interval",  PARAM_INT, 2, &log_mag_interval },
+        // { "log_acc_interval",  PARAM_INT, 2, &log_mag_interval },
+        // { "log_gyro_interval",  PARAM_INT, 2, &log_gyro_interval },
+        // { "log_baro_interval",  PARAM_INT, 2, &log_baro_interval },
+
+        // { "ublox_platform_type",  PARAM_INT, 1, &ublox_platform_type }
+    }
+{   
+}
 
 void AppSettings::reset() {
-    ublox_platform_type = (uint8_t)eDYN_AIRBORNE_1G;    // TODO: change to 4g
+    ublox_platform_type = (uint8_t)eDYN_AIRBORNE_1G;    // TODO: should be 4G?
     radio_callsign[0]   = 'T';
     radio_callsign[1]   = 'S';
     radio_callsign[2]   = 'T';
@@ -31,17 +69,18 @@ void AppSettings::reset() {
     radio_tx_power      = 13;   // TODO: change
     pyro_safe_time      = 10;   // TODO: change
     pyro_safe_altitude  = 50;
-    pyro_active_time    = 3000;
+    pyro_hold_time      = 3000;
     pyro_min_voltage    = 2500;
     log_mag_interval    = 1000 / 20;
     log_acc_interval    = 1000 / 100;
     log_gyro_interval   = 1000 / 100;
     log_baro_interval   = 1000 / 10;
+
+    gyro_temp_offset_q4  = -29.5f * 16;
 }
 
 void AppCalibration::reset() {
-    mag_y_min           = 0;
-    mag_y_max           = 0;
+    mag_x_offset        = 0;
     mag_temp_offset_q4  = -12.0f * 16;
     baro_temp_offset_q4 =   0.5f * 16;
 }
@@ -367,8 +406,6 @@ int AppState::init_periph() {
     if (mag.initialize()) {
         // Approx 50 ms sampling time?
         mag.reset(MAG3110::eRATE_1280, MAG3110::eOSR_32);      
-        
-        mag.setOffset(MAG3110::eY_AXIS, (gCalibration.mag_y_min + gCalibration.mag_y_max) / 2);
         mag.rawData(false); 
         
         mag_initialized = true;
@@ -387,9 +424,12 @@ int AppState::init_periph() {
 
     // Initialize gyroscopic sensor
     if (gyro.initialize()) {
-        // Approx 5 ms sampling time?
-        //gyro.reset(MPL3115::eOSR_16);
+        // Less than 10 ms sampling time
+        gyro.setupGyro(LSM6DS33::eODR_G_104Hz, LSM6DS33::eFS_G_2000DPS); // 0.070 dps/LSB // TODO: change FS
+        gyro.setupAccel(LSM6DS33::eODR_XL_104Hz, LSM6DS33::eFS_XL_16G); // 0.488 mg/LSB
         gyro_initialized = true;
+        gyro.trigger();
+        last_time_gyro = millis();
     }
     
     state = eSAFE;
@@ -544,25 +584,8 @@ systime_t AppState::task_report(systime_t due_time) {
                 radio.writeFIFO(packet_data, packet_length);
                 radio.startTX();
             }
-        }            
-
-        if (log_file_ok && is_armed) {
-            uint8_t buffer[] = {
-                0x03,
-                (uint8_t)(last_time_mag >>  0),
-                (uint8_t)(last_time_mag >>  8),
-                (uint8_t)(last_time_mag >> 16),
-                (uint8_t)(last_time_mag >> 24),
-                gps.fixTime().hour(),
-                gps.fixTime().minute(),
-                gps.fixTime().second()
-            };
-            extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
-            log_size += sizeof(buffer);
         }
     }
-
-
 
     if (log_file_ok && is_armed && gps.fixType().is3D() && gps.altitude().valid()) {
         uint16_t alt = gps.altitude().meters();
@@ -668,7 +691,7 @@ ARM mode:
 }
 
 systime_t AppState::task_sensors(systime_t due_time) {
-    static int      cal_my_min, cal_my_max;
+    static int      cal_mx_min, cal_mx_max;
     static int      cal_count;
 
     bool is_armed = (state != eSAFE);
@@ -731,30 +754,28 @@ systime_t AppState::task_sensors(systime_t due_time) {
     }
 
     if (mag_initialized && mag.dataReady()) {
-        mag.readMag(last_mx, last_my, last_mz);
+        int16_t m1, m2, m3;
+        mag.readMag(m1, m2, m3);
+        last_mx = m2 - gCalibration.mag_x_offset;
+        last_my = -m1;
+        last_mz = m3;            
+
         int temp;
         mag.readTemperature(temp);
         last_temp_mag = (temp << 4) - gCalibration.mag_temp_offset_q4;
 
         if (mag_cal_enabled) {
             cal_count++;
-
             if (cal_count > 3) {
-                if (last_my > cal_my_max) cal_my_max = last_my;
-                if (last_my < cal_my_min) cal_my_min = last_my;
+                if (last_mx > cal_mx_max) cal_mx_max = last_mx;
+                if (last_mx < cal_mx_min) cal_mx_min = last_mx;
             } else {
-                cal_my_max = cal_my_min = last_my;
+                cal_mx_max = cal_mx_min = last_mx;
             }
 
             if (millis() - mag_cal_start >= 10000) {
-                gCalibration.mag_y_min = cal_my_min;
-                gCalibration.mag_y_max = cal_my_max;
-                print("Mag Y = [%d,%d]\n", gCalibration.mag_y_min, gCalibration.mag_y_max);
-                //gSettings.save();
-
-                mag.setOffset(MAG3110::eY_AXIS, (cal_my_min + cal_my_max) / 2);
-                mag.rawData(false);
-
+                gCalibration.mag_x_offset = cal_mx_min + (cal_mx_max - cal_mx_min) / 2;
+                print("Mag offset = %d [%d,%d]\n", gCalibration.mag_x_offset, cal_mx_min, cal_mx_max);
                 mag_cal_enabled = false;
                 cal_count = 0;
 
@@ -769,8 +790,8 @@ systime_t AppState::task_sensors(systime_t due_time) {
                 (uint8_t)(last_time_mag >>  8),
                 (uint8_t)(last_time_mag >> 16),
                 (uint8_t)(last_time_mag >> 24),
-                (uint8_t)(last_my >>  0),
-                (uint8_t)(last_my >>  8),
+                (uint8_t)(last_mx >>  0),
+                (uint8_t)(last_mx >>  8),
                 (uint8_t)((last_temp_mag + 8) >> 4)
             };
             //lfs_file_write(&lfs, &log_file, buffer, sizeof(buffer));
@@ -783,13 +804,31 @@ systime_t AppState::task_sensors(systime_t due_time) {
         last_time_mag = millis();
     }
 
+    if (gyro_initialized && gyro.dataReady()) {
+        int16_t wx, wy, wz, ax, ay, az;
+        gyro.readMeasurement(wx, wy, wz, ax, ay, az);
+        last_wx = -wx;
+        last_wy = wy;
+        last_wz = -wz;
+        last_ax = -ax;
+        last_ay = ay;
+        last_az = -az;
+        int16_t temp;
+        gyro.readTemperature_12q4(temp);
+        last_temp_gyro = temp - gSettings.gyro_temp_offset_q4;
+
+        // trigger a new conversion
+        gyro.trigger();
+        last_time_gyro = millis();
+    }
+
     return 100;
 }
 
 systime_t AppState::task_control(systime_t due_time) {
     static uint32_t timeout;
 
-    bool trig = (last_my < 0);
+    bool trig = (last_mx < 0);
     is_pyro1_on = trig;
 
     switch (state) {
@@ -805,7 +844,10 @@ systime_t AppState::task_control(systime_t due_time) {
                 (uint8_t)(last_time_mag >>  0),
                 (uint8_t)(last_time_mag >>  8),
                 (uint8_t)(last_time_mag >> 16),
-                (uint8_t)(last_time_mag >> 24)
+                (uint8_t)(last_time_mag >> 24),
+                gps.fixTime().hour(),
+                gps.fixTime().minute(),
+                gps.fixTime().second()
             };
             extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
             log_size += sizeof(buffer);

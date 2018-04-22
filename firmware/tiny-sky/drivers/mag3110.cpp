@@ -171,7 +171,7 @@ int16_t MAG3110::readAxis(uint8_t axis){
 	return out;
 }
 
-bool MAG3110::readMag(int &x, int &y, int &z) {
+bool MAG3110::readMag(int16_t &x, int16_t &y, int16_t &z) {
 	//Read each axis
 	x = readAxis(eX_AXIS);
 	y = readAxis(eY_AXIS);
