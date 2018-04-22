@@ -134,6 +134,7 @@ void lora_setup()
     // Defaults after init are 434.0MHz, 13dBm
     // Bw = 125 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on
     lora.setModemConfig(MODEM_MODE);
+    lora.setSpreadingFactor(11);
     lora.setFrequency(FREQUENCY_MHZ);
     lora.setTxPower(TX_POWER_DBM);	
 }

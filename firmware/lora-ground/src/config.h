@@ -11,7 +11,7 @@
 // * Bw500Cr45Sf128	    ///< Bw = 500 kHz, Cr = 4/5, Sf = 128chips/symbol, CRC on. Fast+short range
 // * Bw31_25Cr48Sf512   ///< Bw = 31.25 kHz, Cr = 4/8, Sf = 512chips/symbol, CRC on. Slow+long range
 // * Bw125Cr48Sf4096    ///< Bw = 125 kHz, Cr = 4/8, Sf = 4096chips/symbol, CRC on. Slow+long range
-#define MODEM_MODE RH_RF95::Bw31_25Cr48Sf512
+#define MODEM_MODE RH_RF95::Bw125Cr45Sf128
 
 #define LORA_MAX_MESSAGE_LEN    80
 
