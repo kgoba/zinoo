@@ -1,4 +1,4 @@
-#include "MPL3115.h"
+#include "mpl3115.h"
 
 #include "systick.h"
 
