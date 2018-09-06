@@ -1,12 +1,12 @@
 #include "settings.h"
 
-#include <libopencm3/stm32/flash.h>
 #include <libopencm3/stm32/adc.h>
 
 #include <cstring>
 
 #include "systick.h"
 #include "console.h"
+#include "storage.h"
 
 extern "C" {
 #include "cdcacm.h"
@@ -66,6 +66,7 @@ void AppSettings::reset() {
     radio_tx_period     = 5;
     radio_tx_start      = 0;
     radio_frequency     = 434.25f * 1000000;
+    radio_cw_frequency  = 444.25f * 1000000;
     radio_tx_power      = 13;   // TODO: change
     pyro_safe_time      = 10;   // TODO: change
     pyro_safe_altitude  = 50;
@@ -85,59 +86,6 @@ void AppCalibration::reset() {
     baro_temp_offset_q4 =   0.5f * 16;
 }
 
-int eeprom_write(uint32_t address, const uint32_t *data, int length_in_words)
-{
-    // Wait until FLASH is not busy
-    uint32_t time_start;
-
-    time_start = millis();
-    while (FLASH_SR & FLASH_SR_BSY) {
-        if (millis() - time_start > 100) return -1;
-    }
-
-	if ((FLASH_PECR & FLASH_PECR_PELOCK) != 0) {
-        flash_unlock_pecr();	
-        if (FLASH_PECR & FLASH_PECR_PELOCK) return -2;
-    }
-
-	/* erase only if needed */
-	FLASH_PECR &= ~FLASH_PECR_FTDW;
-	for (int i = 0; i < length_in_words; i++) {
-		MMIO32(address + (i * sizeof(uint32_t))) = data[i];
-        
-        time_start = millis();
-		while (FLASH_SR & FLASH_SR_BSY) {
-            if (millis() - time_start > 100) return -1;
-        }
-	}
-
-    delay(100);
-	flash_lock_pecr();
-    return 0;
-}
-
-int extflash_write(uint32_t address, const uint8_t *buffer, int size) {
-    const uint8_t *wr_buf = (const uint8_t *)buffer;
-
-    uint32_t page_remaining = 256 - (address & 0xFF);
-    while (size > 0) {
-        int wr_len = (size < page_remaining) ? size : page_remaining;
-        while (gState.flash.busy()) {
-            // idle wait
-        }
-        gState.flash.programPage(address, wr_buf, wr_len);
-        address += wr_len;
-        wr_buf += wr_len;
-        size -= wr_len;
-        page_remaining = 256;
-    }
-    return 0;
-}
-
-int extflash_read(uint32_t address, uint8_t *buffer, int size) {
-    gState.flash.read(address, buffer, size);
-    return 0;
-}
 
 int AppSettings::save() {
     // address must point to EEPROM space (begins at 0x0808 0000)
@@ -239,94 +187,11 @@ int AppCalibration::restore() {
     return 0;
 }
 
-// extern "C" {
-//     static int spi_flash_lfs_read(const struct lfs_config *c, lfs_block_t block, 
-//         lfs_off_t off, void *buffer, lfs_size_t size);
-
-//     static int spi_flash_lfs_prog(const struct lfs_config *c, lfs_block_t block, 
-//         lfs_off_t off, const void *buffer, lfs_size_t size);
-
-//     static int spi_flash_lfs_erase(const struct lfs_config *c, lfs_block_t block);
-
-//     static int spi_flash_lfs_sync(const struct lfs_config *c);
-// }
-
-
-// #define LFS_BLOCK_SIZE      4096
-// #define LFS_BLOCK_COUNT     512         // 16 Mbit
-
-// #define LFS_READ_SIZE       16
-// #define LFS_PROG_SIZE       (2 * LFS_READ_SIZE)
-
-// uint8_t lfs_read_buffer[LFS_READ_SIZE];
-// uint8_t lfs_prog_buffer[LFS_PROG_SIZE];
-// uint8_t lfs_file_buffer[LFS_PROG_SIZE];
-// uint8_t lfs_lookahead_buffer[16];
-
-// // configuration of the filesystem is provided by this struct
-// const lfs_config lfs_cfg = {
-//     .context = 0,
-
-//     // block device operations
-//     .read  = spi_flash_lfs_read,
-//     .prog  = spi_flash_lfs_prog,
-//     .erase = spi_flash_lfs_erase,
-//     .sync  = spi_flash_lfs_sync,
-
-//     // block device configuration
-//     .read_size = LFS_READ_SIZE,    // Minimum size of a block read
-//     .prog_size = LFS_PROG_SIZE,    // Minimum size of a block program
-//     .block_size = LFS_BLOCK_SIZE,  // Size of an erasable block, N*prog_size
-//     .block_count = LFS_BLOCK_COUNT,// Number of erasable blocks on the device
-//     .lookahead = 128, // Number of blocks to lookahead during block allocation, N*32
-
-//     .read_buffer = lfs_read_buffer,
-//     .prog_buffer = lfs_prog_buffer,
-//     .lookahead_buffer = lfs_lookahead_buffer,
-//     .file_buffer = lfs_file_buffer
-// };
-
 int AppState::init_lfs() {
     if (!flash.initialize()) return -1;
     delay(10);
 
-    uint32_t high = 0x200000 - 1;
-    uint32_t low  = 0x2000;
-    uint8_t  buffer[16];
-
-    while (low <= high) {
-        uint32_t middle = low + (high - low) / 2;
-
-        extflash_read(middle, buffer, sizeof(buffer));
-        bool empty = true;
-        for (int i = 0; i < sizeof(buffer); i++) {
-            if (buffer[i] != 0xFF) {
-                empty = false;
-                break;
-            }
-        }
-
-        if (empty) {
-            high = middle - 1;
-        }
-        else {
-            low = middle + 1;
-        }
-    }
-    log_size = low - 0x2000;
-
-    // // mount the filesystem
-    // int err = lfs_mount(&lfs, &lfs_cfg);
-
-    // // reformat if we can't mount the filesystem
-    // // this should only happen on the first boot
-    // if (err) {
-    //     lfs_format(&lfs, &lfs_cfg);
-    //     err = lfs_mount(&lfs, &lfs_cfg);
-    //     if (err) return -2;
-    // }
-
-    return 0;
+    return xlog_init();
 }
 
 int AppState::init_hw() {
@@ -588,28 +453,7 @@ systime_t AppState::task_report(systime_t due_time) {
     }
 
     if (log_file_ok && is_armed && gps.fixType().is3D() && gps.altitude().valid()) {
-        uint16_t alt = gps.altitude().meters();
-        uint32_t lat = gps.latitude().degreesFloat() * 10 * 1000 * 1000;
-        uint32_t lon = gps.longitude().degreesFloat() * 10 * 1000 * 1000;
-        uint8_t buffer[] = {
-            0x04,
-            (uint8_t)(last_time_mag >>  0),
-            (uint8_t)(last_time_mag >>  8),
-            (uint8_t)(last_time_mag >> 16),
-            (uint8_t)(last_time_mag >> 24),
-            (uint8_t)(alt >> 0),
-            (uint8_t)(alt >> 8),
-            (uint8_t)(lat >>  0),
-            (uint8_t)(lat >>  8),
-            (uint8_t)(lat >> 16),
-            (uint8_t)(lat >> 24),
-            (uint8_t)(lon >>  0),
-            (uint8_t)(lon >>  8),
-            (uint8_t)(lon >> 16),
-            (uint8_t)(lon >> 24)
-        };
-        extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
-        log_size += sizeof(buffer);
+        xlog_pos(millis(), gps.latitude().degreesFloat(), gps.longitude().degreesFloat(), gps.altitude().meters());
     }
     // if (log_file_ok) {
     //     lfs_file_sync(&lfs, &log_file);
@@ -731,21 +575,7 @@ systime_t AppState::task_sensors(systime_t due_time) {
         last_temp_baro = temp - gCalibration.baro_temp_offset_q4;
 
         if (log_file_ok && is_armed) {
-            // Convert to units of 2 Pa
-            uint16_t pressure2 = ((last_pressure + 8) >> 4) / 2;
-            uint8_t buffer[] = {
-                0x01,
-                (uint8_t)(last_time_baro >>  0),
-                (uint8_t)(last_time_baro >>  8),
-                (uint8_t)(last_time_baro >> 16),
-                (uint8_t)(last_time_baro >> 24),
-                (uint8_t)(pressure2 >>  0),
-                (uint8_t)(pressure2 >>  8),
-                (uint8_t)((last_temp_baro + 8) >> 4)
-            };
-            //lfs_file_write(&lfs, &log_file, buffer, sizeof(buffer));
-            extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
-            log_size += sizeof(buffer);
+            xlog_baro(last_time_baro, last_pressure, last_temp_baro);
         }
 
         // trigger a new conversion
@@ -784,19 +614,7 @@ systime_t AppState::task_sensors(systime_t due_time) {
         }
 
         if (log_file_ok && is_armed) {
-            uint8_t buffer[] = {
-                0x02,
-                (uint8_t)(last_time_mag >>  0),
-                (uint8_t)(last_time_mag >>  8),
-                (uint8_t)(last_time_mag >> 16),
-                (uint8_t)(last_time_mag >> 24),
-                (uint8_t)(last_mx >>  0),
-                (uint8_t)(last_mx >>  8),
-                (uint8_t)((last_temp_mag + 8) >> 4)
-            };
-            //lfs_file_write(&lfs, &log_file, buffer, sizeof(buffer));
-            extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
-            log_size += sizeof(buffer);
+            xlog_mag(last_time_mag, last_mx, last_temp_mag);
         }
 
         // trigger a new conversion
@@ -838,20 +656,7 @@ systime_t AppState::task_control(systime_t due_time) {
             // SAFE pin pulled    
             // Start safe timer
             timeout = millis() + 1000UL * gSettings.pyro_safe_time;
-
-            uint8_t buffer[] = {
-                0x00,
-                (uint8_t)(last_time_mag >>  0),
-                (uint8_t)(last_time_mag >>  8),
-                (uint8_t)(last_time_mag >> 16),
-                (uint8_t)(last_time_mag >> 24),
-                gps.fixTime().hour(),
-                gps.fixTime().minute(),
-                gps.fixTime().second()
-            };
-            extflash_write(0x2000 + log_size, buffer, sizeof(buffer));
-            log_size += sizeof(buffer);
-
+            xlog_arm(millis(), gps.fixTime().hour(), gps.fixTime().minute(), gps.fixTime().second());
             state = eARMED;
         }
         break;
@@ -867,6 +672,8 @@ systime_t AppState::task_control(systime_t due_time) {
             radio.sleep();
             delay(5);
             radio.setupFSK();
+            radio.setFrequencyHz(gSettings.radio_cw_frequency);
+
             radio.startTX();
 
             state = eFLIGHT;
@@ -888,7 +695,9 @@ systime_t AppState::task_control(systime_t due_time) {
                 .setSF(RFM96::eSF_10)
                 .setCR(RFM96::eCR_4_8)
             );
+            radio.setFrequencyHz(gSettings.radio_frequency);
 
+            xlog_eject(millis());
             state = eRECOVERY;
         }
         break;
@@ -907,75 +716,6 @@ systime_t AppState::task_control(systime_t due_time) {
     return 200;
 }
 
-
-
-
-// static int spi_flash_lfs_read(const struct lfs_config *c, lfs_block_t block, 
-//     lfs_off_t off, void *buffer, lfs_size_t size) 
-// {
-//     uint32_t address = (block * LFS_BLOCK_SIZE) | off;
-
-//     while (gState.flash.busy()) {
-//         // idle wait
-//     }
-//     gState.flash.read(address, (uint8_t *)buffer, size);
-//     return 0;
-// }
-
-// static int spi_flash_lfs_prog(const struct lfs_config *c, lfs_block_t block, 
-//     lfs_off_t off, const void *buffer, lfs_size_t size) 
-// {
-//     uint32_t address = (block * LFS_BLOCK_SIZE) | off;
-//     const uint8_t *wr_buf = (const uint8_t *)buffer;
-
-//     uint32_t page_remaining = 256 - (address & 0xFF);
-//     while (size > 0) {
-//         int wr_len = (size < page_remaining) ? size : page_remaining;
-//         while (gState.flash.busy()) {
-//             // idle wait
-//         }
-//         gState.flash.programPage(address, wr_buf, wr_len);
-//         address += wr_len;
-//         wr_buf += wr_len;
-//         size -= wr_len;
-//         page_remaining = 256;
-//     }
-//     return 0;
-// }
-
-// static int spi_flash_lfs_erase(const struct lfs_config *c, lfs_block_t block) 
-// {
-//     uint32_t address = (block * LFS_BLOCK_SIZE);
-
-//     while (gState.flash.busy()) {
-//         // idle wait
-//     }
-//     gState.flash.eraseSector(address);
-//     return 0;
-// }
-
-// static int spi_flash_lfs_sync(const struct lfs_config *c) {
-//     while (gState.flash.busy()) {
-//         // idle wait
-//     }
-//     // Nothing to sync here, indicate success
-//     return 0;
-// }
-
-// static int _traverse_df_cb(void *p, lfs_block_t block){
-// 	uint32_t *nb = (uint32_t *)p;
-// 	*nb += 1;
-// 	return 0;
-// }
-
-int AppState::free_space(){
-	// uint32_t n_allocated = 0;
-	// int err = lfs_traverse(&lfs, _traverse_df_cb, &n_allocated);
-	// if (err < 0) {
-	// 	return err;
-	// }
-
-	// uint32_t available = (lfs.cfg->block_count - n_allocated) * lfs.cfg->block_size;
-	// return available;
-    return 0x200000 - (0x1000 + log_size);
+int AppState::free_space() {
+    return xlog_free_space();
 }

@@ -97,7 +97,8 @@ struct AppSettings {
 
     // User-editable settings
     char        radio_callsign[16];
-    uint32_t    radio_frequency;    // channel frequency in MHz
+    uint32_t    radio_frequency;    // channel center frequency in MHz
+    uint32_t    radio_cw_frequency; // CW frequency in MHz
     int8_t      radio_tx_power;     // transmit power in dBm
     uint8_t     radio_tx_period;    // telemetry transmit period, seconds
     uint8_t     radio_tx_start;     // telemetry transmit offset, seconds
@@ -127,6 +128,7 @@ struct AppSettings {
     int save();
     int restore();
 
+    int getCount();
     int findByName(const char *name);
     int setValue(int id, const char *str);
     int getValue(int id, char *str, int &length);
@@ -195,7 +197,6 @@ struct AppState {
     //lfs_t               lfs;    
     //lfs_file_t          log_file;
     bool                log_file_ok;
-    uint32_t            log_size;
 
     GPSParserSimple     gps;
 
@@ -254,5 +255,3 @@ struct AppState {
 extern AppCalibration   gCalibration;
 extern AppSettings      gSettings;
 extern AppState         gState;
-
-int eeprom_write(uint32_t address, uint32_t *data, int length_in_words);

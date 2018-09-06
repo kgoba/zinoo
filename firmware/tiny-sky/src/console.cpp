@@ -1,6 +1,7 @@
 #include "console.h"
 
 #include "settings.h"
+#include "storage.h"
 #include "systick.h"
 #include "ublox.h"
 #include "strconv.h"
@@ -296,9 +297,9 @@ void console_parse(const char *line) {
         // }
         // err = lfs_dir_close(&gState.lfs, &dir);
         // if (err < 0) print("Error while closing directory\n");
-        print("Log: %ld\n", gState.log_size);
+        print("Log: %ld\n", xlog_used_space());
 
-        int err = gState.free_space();
+        int err = xlog_free_space();
         if (err < 0) print("Error while calculating free space\n");
         else print("Free space: %ld\n", err);
 
@@ -331,25 +332,13 @@ void console_parse(const char *line) {
         // lfs_file_rewind(&gState.lfs, &gState.log_file);
         // lfs_file_truncate(&gState.lfs, &gState.log_file, 0);
         // lfs_file_sync(&gState.lfs, &gState.log_file);
-        while (gState.flash.busy()) {
-            // idle wait
-        }
-        for (uint32_t address = 0x2000; address < 0x2000 + gState.log_size; address += 0x1000) {
-            gState.flash.eraseSector(address);
-            while (gState.flash.busy()) {
-                // idle wait
-            }
-        }
-        gState.log_size = 0;
+        xlog_erase_log();
         cmd_ok = true;
     }
     else if (0 == strcmp(line, "play_log")) {
-        for (uint32_t address = 0x2000; address < 0x2000 + gState.log_size; address += 32) {
-            while (gState.flash.busy()) {
-                // idle wait
-            }
+        for (uint32_t address = 0x2000; address < 0x2000 + xlog_used_space(); address += 32) {
             uint8_t buf[32];
-            gState.flash.read(address, buf, sizeof(buf));
+            extflash_read(address, buf, sizeof(buf));
 
             for (int i = 0; i < sizeof(buf); i++) {
                 if (i > 0) print(" ");

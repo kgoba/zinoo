@@ -7643,7 +7643,7 @@ Manufacturer: Hirose&lt;br&gt;
 <sheets>
 <sheet>
 <plain>
-<text x="533.4" y="-109.22" size="3.81" layer="90" font="vector" ratio="12" align="top-left">TODO:
+<text x="533.4" y="-88.9" size="3.81" layer="90" font="vector" ratio="12" align="top-left">TODO:
 
 - Better MCU supply decouple
 - High-side SAFE switch?
@@ -7652,6 +7652,8 @@ Manufacturer: Hirose&lt;br&gt;
 - 200mil SOIJ flash
 - Better supercap position/mount
 - Battery connector position
+- Buzzer PB14/13 (PWM)
+- Supercap discharge
 - 5 pin prog. connector?
 - 5V supercap?
 - LIS3MDL mag?
@@ -7675,7 +7677,7 @@ Manufacturer: Hirose&lt;br&gt;
 <text x="744.22" y="-104.14" size="1.27" layer="97">MPL3115A2 CFG1=open CFG2=open
 MPL115A2 CFG1=open CFG2=short
 MS5607-02 CFG1=short CFG2=short</text>
-<text x="533.4" y="-88.9" size="3.81" layer="90" align="top-left">Replacements:
+<text x="533.4" y="-17.78" size="3.81" layer="90" align="top-left">Replacements:
 - Q2/Q3/Q4: IRLML0030</text>
 </plain>
 <instances>
